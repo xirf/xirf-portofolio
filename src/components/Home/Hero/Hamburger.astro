@@ -1,0 +1,66 @@
+---
+---
+
+<div class="hamburger relative curzr-hover">
+	<div class="line tm cb"></div>
+	<div class="line tm cb"></div>
+	<div class="line tm ca"></div>
+	<div class="line tm ca"></div>
+</div>
+
+<style>
+	.hamburger {
+		width: 50px;
+		height: 50px;
+		cursor: pointer;
+	}
+
+	.line {
+		position: absolute;
+		height: 1px;
+		background: #fff;
+	}
+
+	.line:nth-child(1) {
+		top: 18px;
+		width: 30px;
+		right: 10px;
+		
+	}
+	
+	.line:nth-child(2) {
+		transition-delay: 100ms;
+		bottom: 18px;
+		width: 15px;
+		right: 10px;
+	}
+
+	.line:nth-child(3) {
+		top: 18px;
+		width: 15px;
+		right: 0;
+	}
+	
+	.line:nth-child(4) {
+		bottom: 18px;
+		width: 30px;
+		right: 0;
+		transition-delay: 100ms;
+	}
+
+	.hamburger:hover > .line:nth-child(1),
+	.hamburger:hover > .line:nth-child(2) {
+		right: 0;
+		-webkit-transform: translateX(30%) scaleX(0) rotate(0.001deg);
+		transform: translateX(30%) scaleX(0) rotate(0.001deg);
+		-webkit-backface-visibility: hidden;
+		backface-visibility: hidden;
+	}
+
+	.hamburger:hover > .line:nth-child(3),
+	.hamburger:hover > .line:nth-child(4) {
+		transform: none;
+	}
+
+	
+</style>

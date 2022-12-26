@@ -1,0 +1,18 @@
+---
+const list = ["mongodb", "nodejs", "express", "js", "react", "nextjs", "git", "astro"]
+---
+
+<div class="w-2/5 flex items-center justify-center gap-10 flex-wrap">
+    {
+        list.map((item, index) => {
+            return (
+            <img
+                src={`/images/skills/${item}.svg`}
+                alt={item}
+                class={item === "nextjs" ? "w-auto h-5" : "w-auto h-10"}
+            />
+            )
+        }
+        )
+    }
+</div>
