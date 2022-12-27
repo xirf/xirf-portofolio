@@ -1,11 +1,10 @@
 ---
-import Hero from "../components/Home/Hero/Hero.astro";
-import Skills from "../components/Home/Skills/Skills.astro";
 import HomeLayout from "../layouts/HomeLayout.astro";
+import Home from "../Service/Home/Home.astro";
+
+const PostList = Astro.glob("./posts/*.md");
 ---
 
 <HomeLayout pageTitle="Home">
-	<Hero />
-	<Skills />
-	<div class="h-[200vh] dark:bg-primary">asas</div>
+	<Home />
 </HomeLayout>

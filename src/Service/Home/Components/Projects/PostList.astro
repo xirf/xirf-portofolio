@@ -1,0 +1,11 @@
+---
+const allPosts = await Astro.glob("../../../../pages/posts/*.md");
+---
+
+<div class="text-white">
+	{allPosts.map((item) => <a href={encodeURI(item.frontmatter.title)}>
+		{
+			item.frontmatter.title
+		}
+		</a>)}
+</div>
