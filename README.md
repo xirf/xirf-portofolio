@@ -9,4 +9,4 @@ My favorite thing is reading, studying, and modifying other people's code to mak
 ## **Glimpse at My GitHub Stats✨**
 ![Anka GitHub stats](https://github-readme-stats.vercel.app/api?username=itzanka&show_icons=true&theme=tokyonight)
 ##  **My Favorite❤️**
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=itzanka&theme=tokyonight&layout=compact)](https://github.com/extenv)
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=itzanka&theme=tokyonight&layout=compact)](https://github.com/itzanka)
