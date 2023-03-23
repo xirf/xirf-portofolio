@@ -1,15 +1,14 @@
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
-import preact from "@astrojs/preact";
-
-// https://astro.build/config
 import tailwind from "@astrojs/tailwind";
-import mdx from "@astrojs/mdx";
-import compress from "astro-compress";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import mdx from "@astrojs/mdx";
+import image from "@astrojs/image";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [preact(), tailwind(), mdx(), compress(), sitemap()]
+  site: "https://epa.my.id",
+  output: "static",
+  integrations: [tailwind(), react(), sitemap(), mdx(), image()]
 });

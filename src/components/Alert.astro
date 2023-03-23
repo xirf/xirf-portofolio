@@ -1,0 +1,53 @@
+---
+export interface Props {
+	title: string;
+	text: string;
+}
+
+const { title, text } = Astro.props;
+---
+
+<div
+	style="
+    transition-timing-function: cubic-bezier(0.68, -0.55, 0.3, 1.55);
+    transition-duration: 500ms;
+    "
+	class="toast absolute -translate-y-[200%] reve transition-all z-50 top-1 sm:top-5 right-0 sm:right-5 p-4 sm:p-8 bg-white max-w-sm shadow-lg border-r-8 rounded-xl bg-gradient-to-tl from-[#76ddb2] to-[#9cdb78]"
+>
+	<div class="relative text-center gap-4 flex flex-col">
+		<button id="close-toast" class="absolute -top-2 -right-2 sm:-top-5 sm:-right-5 w-4 h-4 bg-white rounded-full"
+		></button>
+		<b class="text-white text-xl sm:text-2xl">ヾ(•ω•`)o</b>
+		<div class="text-white font-bold text-sm sm:text-base">
+			{title}
+		</div>
+		<div class="text-sm sm:text-base">
+			{text}
+		</div>
+	</div>
+</div>
+
+<script is:inline>
+	let toast = document.querySelector(".toast");
+
+	window.onload = () => {
+		setTimeout(() => {
+			toast.style.transform = "translateY(0)";
+		}, 1000);
+	};
+
+	document.getElementById("close-toast").addEventListener("click", () => {
+		removeToast();
+	});
+
+	setTimeout(() => {
+		removeToast();
+	}, 11 * 1000);
+
+	function removeToast() {
+		toast.style.transform = "translateY(-200%)";
+		setTimeout(() => {
+			toast && toast.remove();
+		}, 500);
+	}
+</script>

@@ -1,10 +1,10 @@
 ---
-import HomeLayout from "../layouts/HomeLayout.astro";
-import Home from "../Service/Home/Home.astro";
-
-const PostList = Astro.glob("./posts/*.md");
+import Layout from '../layouts/Layout.astro';
+import Home from '../features/home/Home.astro'
 ---
 
-<HomeLayout pageTitle="Home">
-	<Home />
-</HomeLayout>
+<Layout title="Welcome to Astro.">
+	<main>
+		<Home />
+	</main>
+</Layout>
