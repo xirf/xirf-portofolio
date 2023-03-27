@@ -7,44 +7,44 @@ export interface Props {
 const { title, text } = Astro.props;
 ---
 
-<div
-	style="
-    transition-timing-function: cubic-bezier(0.68, -0.55, 0.3, 1.55);
-    transition-duration: 500ms;
-    "
-	class="toast absolute -translate-y-[200%] reve transition-all z-50 top-1 sm:top-5 right-0 sm:right-5 p-4 sm:p-8 bg-white max-w-sm shadow-lg border-r-8 rounded-xl bg-gradient-to-tl from-[#76ddb2] to-[#9cdb78]"
->
-	<div class="relative text-center gap-4 flex flex-col">
-		<button id="close-toast" class="absolute -top-2 -right-2 sm:-top-5 sm:-right-5 w-4 h-4 bg-white rounded-full"
-		></button>
-		<b class="text-white text-xl sm:text-2xl">ヾ(•ω•`)o</b>
-		<div class="text-white font-bold text-sm sm:text-base">
-			{title}
-		</div>
-		<div class="text-sm sm:text-base">
-			{text}
+<template id="toast-template">
+	<div
+		id="toast-body"
+		class="toast toast-top toast-end translate-y-0 transition-all duration-500"
+		style="z-index: 999;"
+	>
+		<div class="alert shadow-lg">
+			<div class="max-w-xs">
+				<div class="mx-2">
+					<h3 class="font-bold">Exciting Changes Ahead!</h3>
+					<div class="text-xs mt-1">
+						Don't worry, we're just sprucing things up to make your browsing experience
+						even better! Stay tuned for our grand reveal!
+					</div>
+				</div>
+			</div>
+			<div class="flex-none">
+				<button class="btn btn-sm" onclick="removeToast()">Roger!</button>
+			</div>
 		</div>
 	</div>
-</div>
+</template>
 
 <script is:inline>
-	let toast = document.querySelector(".toast");
+	let template = document.querySelector("#toast-template");
 
 	window.onload = () => {
 		setTimeout(() => {
-			toast.style.transform = "translateY(0)";
-		}, 1000);
+			document.body.appendChild(template.content.cloneNode(true));
+		}, 3000);
 	};
-
-	document.getElementById("close-toast").addEventListener("click", () => {
-		removeToast();
-	});
 
 	setTimeout(() => {
 		removeToast();
 	}, 11 * 1000);
 
 	function removeToast() {
+		let toast = document.querySelector("#toast-body");
 		toast.style.transform = "translateY(-200%)";
 		setTimeout(() => {
 			toast && toast.remove();
