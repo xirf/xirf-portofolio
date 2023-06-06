@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "type": "module",
-  "version": "0.0.1",
+  "version": "2.0-Alpha",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -10,8 +10,8 @@
     "astro": "astro"
   },
   "license": "MIT",
-  "author": "itzanka",
-  "homepage": "https://github.com/itzanka/porto",
+  "author": "xirf",
+  "homepage": "https://github.com/xirf/xirf",
   "dependencies": {
     "@astrojs/image": "^0.16.0",
     "@astrojs/mdx": "^0.18.0",
