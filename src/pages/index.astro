@@ -1,10 +1,10 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Home from '../features/home/Home.astro'
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Homepage from '@/services/Home/Homepage.astro';
 ---
 
 <Layout title="Itsu me Anka!">
-	<main>
-		<Home />
-	</main>
+	<Header />
+	<Homepage />
 </Layout>

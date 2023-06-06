@@ -3,10 +3,10 @@ I am **Andika Nur Pratama**, a student who has an endless passion for programmin
 
 for me programming is like magic, there are so many things that I can't believe happened in the programming world.
 
-My favorite thing is reading, studying, and modifying other people's code to make it even better. Whenever I work on programming projects, I am always looking for new ways to improve my skills. The process of learning from and building upon the work of others is incredibly rewarding and helps me to grow as a programmer.
+My favorite thing is reading, studying, and learning from other people's code. Whenever I work on programming projects, I am always looking for new ways to improve my skills. The process of learning from and building upon the work of others is incredibly rewarding and helps me to grow as a programmer.
 
 
 ## **Glimpse at My GitHub Stats✨**
-![Anka GitHub stats](https://github-readme-stats.vercel.app/api?username=itzanka&show_icons=true&theme=tokyonight)
+![Anka GitHub stats](https://github-readme-stats.vercel.app/api?username=xirf&show_icons=true&theme=tokyonight)
 ##  **My Favorite❤️**
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=itzanka&theme=tokyonight&layout=compact)](https://github.com/itzanka)
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=xirf&theme=tokyonight&layout=compact)](https://github.com/itzanka)
