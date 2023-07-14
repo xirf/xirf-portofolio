@@ -1,0 +1,19 @@
+---
+export interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<title>{title} - Web Dev and Code Wizard</title>
+<style is:global>
+    ::-webkit-scrollbar {
+        width: 5px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+    }
+</style>
