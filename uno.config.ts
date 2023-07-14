@@ -3,6 +3,7 @@ import {
     defineConfig,
     presetAttributify, presetTypography, presetUno, presetWebFonts
 } from 'unocss'
+import transformerCompileClass from '@unocss/transformer-compile-class'
 
 export default defineConfig({
     theme: {
@@ -13,6 +14,12 @@ export default defineConfig({
             },
         },
     },
+    transformers: [
+        transformerCompileClass({
+            classPrefix: 'a-',
+            
+        }),
+    ],
     presets: [
         presetAttributify(), // required when using attributify mode
         presetUno(), // required

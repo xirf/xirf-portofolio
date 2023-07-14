@@ -10,7 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/partytown": "^1.2.3",
     "@astrojs/svelte": "^3.1.0",
     "@astrojs/ts-plugin": "^1.0.10",
     "astro": "^2.8.0",
@@ -19,6 +18,7 @@
   "devDependencies": {
     "@unocss/preset-web-fonts": "^0.53.5",
     "@unocss/reset": "^0.53.5",
+    "@unocss/transformer-compile-class": "^0.53.5",
     "unocss": "^0.53.5"
   }
 }
