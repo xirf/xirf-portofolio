@@ -16,6 +16,8 @@
     "svelte": "^4.0.5"
   },
   "devDependencies": {
+    "@iconify-json/charm": "^1.1.9",
+    "@unocss/preset-icons": "^0.55.1",
     "@unocss/preset-web-fonts": "^0.53.5",
     "@unocss/reset": "^0.53.5",
     "@unocss/transformer-compile-class": "^0.53.5",

@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -19,6 +19,12 @@ dependencies:
     version: 4.0.5
 
 devDependencies:
+  '@iconify-json/charm':
+    specifier: ^1.1.9
+    version: 1.1.9
+  '@unocss/preset-icons':
+    specifier: ^0.55.1
+    version: 0.55.1
   '@unocss/preset-web-fonts':
     specifier: ^0.53.5
     version: 0.53.5
@@ -776,6 +782,12 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@iconify-json/charm@1.1.9:
+    resolution: {integrity: sha512-21QJ6+P39CEnP0JCkPl3SFQ0XxX1l8yHHWEkXvRkPJ1Zz+xt0R1M+7nh+fiM/No8/1BfFBa5VR8xfBkH65xwbg==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify/types@2.0.0:
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
     dev: true
@@ -1039,6 +1051,10 @@ packages:
     resolution: {integrity: sha512-jBvk4FeUAALAomGfMFFmrXLy01/5DjugdnWgawFAQpSToFTxbMHS7x+pXKu/18cq+YLS8uyl9S0Ywy1jNbfS3Q==}
     dev: true
 
+  /@unocss/core@0.55.1:
+    resolution: {integrity: sha512-hZffURZtvH72UvobL9anzE1t7PDldBa89fxWVIsjLb8KHReNfcOv8uEepce0ODUfGrdWPbij017XG/HY5YUexg==}
+    dev: true
+
   /@unocss/extractor-arbitrary-variants@0.53.5:
     resolution: {integrity: sha512-rSS3Q8/+lEwxXfXzEOFuhAQGMpaaZcBAYDiNCYS/9BqKrTzhSYG82Qy80ISpqSZr0BTLET4X3dC6B6Rd4GU5vQ==}
     dependencies:
@@ -1077,6 +1093,16 @@ packages:
     dependencies:
       '@iconify/utils': 2.1.7
       '@unocss/core': 0.53.5
+      ofetch: 1.1.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@unocss/preset-icons@0.55.1:
+    resolution: {integrity: sha512-gml2I6hGbBDrGaqq4TJu81pIeUvR3m/y/wH2BovIYicVhuk5NyBLTXJ7NxJY5y5FmE0AmNM1/Ctju3ZiDvj/pA==}
+    dependencies:
+      '@iconify/utils': 2.1.7
+      '@unocss/core': 0.55.1
       ofetch: 1.1.1
     transitivePeerDependencies:
       - supports-color
