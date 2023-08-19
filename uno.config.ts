@@ -5,6 +5,7 @@ import {
 } from 'unocss'
 import transformerCompileClass from '@unocss/transformer-compile-class'
 import { presetIcons } from 'unocss'
+import transformerVariantGroup from "@unocss/transformer-variant-group"
 
 export default defineConfig({
     theme: {
@@ -20,9 +21,9 @@ export default defineConfig({
         [ 'bg-dotted', {'background-image': 'radial-gradient(var(--un-gradient-from, white) 2px, transparent 1px)', 'background-size': '40px 40px'}],
     ],
     transformers: [
+        transformerVariantGroup(),
         transformerCompileClass({
             classPrefix: 'a-',
-
         }),
     ],
     presets: [
@@ -32,13 +33,15 @@ export default defineConfig({
         presetIcons({
             collections: {
                 charm: () => import("@iconify-json/charm/icons.json").then((i) => i.default),
+                logo: () => import("@iconify-json/logos/icons.json").then((i) => i.default),
             },
             extraProperties: {
                 'display': 'inline-block',
                 'vertical-align': '-0.15em',
                 'fill': 'currentColor',
 
-            }
+            },
+            mode: 'background-img'
         }),
         presetWebFonts({
             provider: 'google',

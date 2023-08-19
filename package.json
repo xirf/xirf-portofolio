@@ -13,14 +13,17 @@
     "@astrojs/svelte": "^3.1.0",
     "@astrojs/ts-plugin": "^1.0.10",
     "astro": "^2.8.0",
+    "gsap": "^3.12.2",
     "svelte": "^4.0.5"
   },
   "devDependencies": {
     "@iconify-json/charm": "^1.1.9",
+    "@iconify-json/logos": "^1.1.34",
     "@unocss/preset-icons": "^0.55.1",
     "@unocss/preset-web-fonts": "^0.53.5",
     "@unocss/reset": "^0.53.5",
     "@unocss/transformer-compile-class": "^0.53.5",
+    "@unocss/transformer-variant-group": "^0.55.1",
     "unocss": "^0.53.5"
   }
 }
