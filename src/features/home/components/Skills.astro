@@ -1,0 +1,50 @@
+---
+const techStack = [
+	{ name: "Javascript", className: "i-logo:javascript color-yellow" },
+	{ name: "Astro", className: "brightness-200% invert-50 i-logo-astro-icon" },
+	{ name: "React", className: "brightness-200% invert-50 i-logo-react" },
+	{ name: "NodeJS", className: "brightness-200% i-logo-nodejs-icon" },
+	{ name: "Laravel", className: "brightness-200% i-logo-laravel" },
+	{ name: "CodeIgniter", className: "brightness-200% i-logo-codeigniter-icon" },
+	{ name: "Uno CSS", className: "brightness-200% invert i-logo-unocss" },
+	{ name: "Tailwind CSS", className: "brightness-200% i-logo-tailwindcss-icon" },
+	{ name: "Fastify", className: "brightness-200% invert i-logo-fastify-icon" },
+	{ name: "Postgresql", className: "i-logo-postgresql" },
+	{ name: "php", className: "i-logo-php" },
+];
+---
+
+<section
+	id="skills"
+	class="relative flex items-center justify-center p-14 w-full h-screen gap-10 bg-primary text-gray-300 items-center max-w-screen-2xl m-auto">
+	<div class="flex flex-col gap-y-8 text-center justify-center items-center">
+		<h1 class="leadin text-6xl tracking-wide leading-tight font-black">Things I do</h1>
+		<div class="flex flex-col gap-3">
+			<p class="leading-8 max-w-4xl">
+				While my primary playground is web development, my curiosity knows no bounds. <span class="text-red">Beyond coding</span>, I thrive on
+				embracing fresh horizons and tackling exciting challenges. Learning is my compass, and I'm forever charting new territories.
+			</p>
+			<p class="leading-8 max-w-4xl">
+				Here are some of the things I do, and some of the things I'm <span class="text-green">learning</span>.
+			</p>
+		</div>
+
+		<div class="text-7xl my-8 flex max-w-3xl items-center justify-center grayscale brightness-200% gap-10 gap-y-12 flex-wrap color-inherit">
+			{
+				techStack.map((tech, index) => (
+					<div class="flex flex-col gap-4 opacity-75 hover:opacity-100 duration-300 transition-all">
+						<div class={tech.className} />
+						<span class="text-xs">{tech.name}</span>
+					</div>
+				))
+			}
+		</div>
+
+		<div data-delay="200" data-move="down up" style="--duration:500ms" class="absolute will-move right-0 top-2/6 flex rotate-14deg">
+			<div class="border-1.5rem border-transparent border-r-green-400"></div>
+			<div class="border-1.5rem border-transparent border-l-green-500"></div>
+		</div>
+
+		<div class="absolute w-300px top-0 left-0 opacity-15 h-screen bg-dotted from-gray-300"></div>
+	</div>
+</section>
