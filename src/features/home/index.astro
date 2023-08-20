@@ -15,6 +15,7 @@ import About from "./components/About.astro";
 <script is:inline>
 const fullpage = document.getElementById("fullpage");
 const sections = fullpage.querySelectorAll("section").length;
+let moveAbleElement = document.querySelectorAll("section");
 
 let isAnimating = false;
 let activeSection = 0;
@@ -39,7 +40,6 @@ function onTouchStart(e) {
     touchStartY = touch.pageY;
 
     document.addEventListener("touchmove", onTouchMove);
-
 }
 
 function onTouchMove(e) {
@@ -56,8 +56,6 @@ function onTouchMove(e) {
     }
 
     scrollToSection(activeSection);
-
-    
 }
 
 function scrollToSection(section) {
@@ -66,6 +64,25 @@ function scrollToSection(section) {
     isAnimating = true;
 
     fullpage.style.transform = `translateY(-${section * 100}vh)`;
+
+    moveAbleElement.forEach((el, index) => {
+        if (index === section) {
+            el.classList.add("visible");
+        } else {
+            el.classList.remove("visible");
+        }
+
+        if (index < section) {
+            el.classList.add("up");
+            el.classList.remove("down");
+        } else if (index > section) {
+            el.classList.add("down");
+            el.classList.remove("up");
+        } else {
+            el.classList.remove("up");
+            el.classList.remove("down");
+        }
+    });
 
     setTimeout(() => {
         isAnimating = false;
@@ -76,3 +93,8 @@ document.addEventListener("wheel", onWheel);
 document.addEventListener("touchstart", onTouchStart);
 document.addEventListener("touchmove", onTouchMove);
 </script>
+<style is:global>
+	.will-move {
+		transition: all var(--duration, 1s) ease-in;
+	}
+</style>
