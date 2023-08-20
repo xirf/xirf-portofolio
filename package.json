@@ -13,7 +13,6 @@
     "@astrojs/svelte": "^3.1.0",
     "@astrojs/ts-plugin": "^1.0.10",
     "astro": "^2.8.0",
-    "gsap": "^3.12.2",
     "svelte": "^4.0.5"
   },
   "devDependencies": {

@@ -1,14 +1,78 @@
 ---
 import Hero from "./components/Hero.astro";
-import About from "./components/About.astro";
 import Skills from "./components/Skills.astro";
-
+import About from "./components/About.astro";
 ---
 
 <div class="relative w-full h-screen overflow-hidden">
-	<Hero />
-	<About />
-	<Skills />
+	<div id="fullpage" class="w-full relative transition-all duration-1000 ease-in-out">
+		<Hero />
+		<About />
+		<Skills />
+	</div>
 </div>
+
 <script is:inline>
+const fullpage = document.getElementById("fullpage");
+const sections = fullpage.querySelectorAll("section").length;
+
+let isAnimating = false;
+let activeSection = 0;
+
+function onWheel(e) {
+    e.preventDefault();
+
+    if (isAnimating || (activeSection <= 0 && e.deltaY < 0) || (activeSection >= sections - 1 && e.deltaY > 0)) return;
+
+    if (e.deltaY > 0) {
+        activeSection += 1;
+    } else {
+        activeSection -= 1;
+    }
+
+    scrollToSection(activeSection);
+}
+
+function onTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[ 0 ];
+    touchStartY = touch.pageY;
+
+    document.addEventListener("touchmove", onTouchMove);
+
+}
+
+function onTouchMove(e) {
+    e.preventDefault();
+    const touch = e.touches[ 0 ];
+    const touchEndY = touch.pageY;
+
+    if (isAnimating || (activeSection <= 0 && touchEndY > touchStartY) || (activeSection >= sections - 1 && touchEndY < touchStartY)) return;
+
+    if (touchEndY > touchStartY) {
+        activeSection -= 1;
+    } else {
+        activeSection += 1;
+    }
+
+    scrollToSection(activeSection);
+
+    
+}
+
+function scrollToSection(section) {
+    if (isAnimating) return;
+
+    isAnimating = true;
+
+    fullpage.style.transform = `translateY(-${section * 100}vh)`;
+
+    setTimeout(() => {
+        isAnimating = false;
+    }, 1000);
+}
+
+document.addEventListener("wheel", onWheel);
+document.addEventListener("touchstart", onTouchStart);
+document.addEventListener("touchmove", onTouchMove);
 </script>
