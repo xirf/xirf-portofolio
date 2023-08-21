@@ -5,24 +5,32 @@ import About from "./components/About.astro";
 ---
 
 <div class="relative w-full h-screen overflow-hidden">
-	<div id="fullpage" class="w-full relative transition-all duration-1000 ease-in-out">
+	<div id="fullpage" class="w-full relative ease-in-out-quart">
 		<Hero />
 		<About />
 		<Skills />
 	</div>
 </div>
 
+<script src="/anime.js" is:inline>
+import anime from "public/anime";
+</script>
 <script is:inline>
 const fullpage = document.getElementById("fullpage");
 const sections = fullpage.querySelectorAll("section").length;
-let moveAbleElement = document.querySelectorAll("section");
+
+const commonAnimationConfig = {
+    translateY: [ 50, 0 ],
+    opacity: [ 0, 1 ],
+    easing: "easeOutCirc",
+    duration: 1000,
+    loop: false,
+};
 
 let isAnimating = false;
 let activeSection = 0;
 
 function onWheel(e) {
-    e.preventDefault();
-
     if (isAnimating || (activeSection <= 0 && e.deltaY < 0) || (activeSection >= sections - 1 && e.deltaY > 0)) return;
 
     if (e.deltaY > 0) {
@@ -35,7 +43,6 @@ function onWheel(e) {
 }
 
 function onTouchStart(e) {
-    e.preventDefault();
     const touch = e.touches[ 0 ];
     touchStartY = touch.pageY;
 
@@ -43,12 +50,12 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
-    e.preventDefault();
     const touch = e.touches[ 0 ];
     const touchEndY = touch.pageY;
 
     if (isAnimating || (activeSection <= 0 && touchEndY > touchStartY) || (activeSection >= sections - 1 && touchEndY < touchStartY)) return;
 
+    sectionBefore = activeSection;
     if (touchEndY > touchStartY) {
         activeSection -= 1;
     } else {
@@ -60,28 +67,47 @@ function onTouchMove(e) {
 
 function scrollToSection(section) {
     if (isAnimating) return;
-
+    activeSection = section;
     isAnimating = true;
 
     fullpage.style.transform = `translateY(-${section * 100}vh)`;
 
-    moveAbleElement.forEach((el, index) => {
-        if (index === section) {
-            el.classList.add("visible");
-        } else {
-            el.classList.remove("visible");
-        }
+    const animeConfig = [];
 
-        if (index < section) {
-            el.classList.add("up");
-            el.classList.remove("down");
-        } else if (index > section) {
-            el.classList.add("down");
-            el.classList.remove("up");
-        } else {
-            el.classList.remove("up");
-            el.classList.remove("down");
-        }
+    if (activeSection === 0) {
+        animeConfig.push({
+            targets: ".x-hero",
+            delay: anime.stagger(7, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+    } else if (activeSection === 1) {
+        animeConfig.push({
+            targets: ".x-subs",
+            delay: anime.stagger(50, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+
+        animeConfig.push({
+            targets: ".x-about",
+            delay: anime.stagger(150, { start: 500 }),
+            ...commonAnimationConfig,
+        });
+    } else if (activeSection === 2) {
+        animeConfig.push({
+            targets: ".x-skill",
+            delay: anime.stagger(70, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+
+        animeConfig.push({
+            targets: ".x-title",
+            delay: anime.stagger(200, { start: 500 }),
+            ...commonAnimationConfig,
+        });
+    }
+
+    animeConfig.forEach((config) => {
+        anime(config);
     });
 
     setTimeout(() => {
@@ -92,9 +118,14 @@ function scrollToSection(section) {
 document.addEventListener("wheel", onWheel);
 document.addEventListener("touchstart", onTouchStart);
 document.addEventListener("touchmove", onTouchMove);
+document.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+        scrollToSection(parseInt(button.dataset.target));
+    });
+});
 </script>
 <style is:global>
-	.will-move {
-		transition: all var(--duration, 1s) ease-in;
+	.ease-in-out-quart {
+		transition: all 1200ms cubic-bezier(0.88, 0, 0.265, 1) 0s;
 	}
 </style>
