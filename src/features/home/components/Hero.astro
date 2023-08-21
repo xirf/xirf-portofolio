@@ -3,19 +3,19 @@
 
 <section id="hero" class="relative flex p-14 w-full h-screen gap-10 bg-primary text-gray-300 items-center max-w-screen-2xl m-auto">
 	<div class="max-w-xl flex flex-col gap-y-8" data-animation="up" data-delay="0">
-		<h1 class="leadin text-6xl tracking-wide leading-tight font-black">Self Taught Web Developer</h1>
-		<p class="max-w-md leading-8">
+		<h1 style="--down: -350px; --duration: 1s" class="will-move leadin text-6xl tracking-wide leading-tight font-black">Self Taught Web Developer</h1>
+		<p class="max-w-md leading-8 will-move" style="--down: -350px; --duration: 1s; --delay: 50ms">
 			Building the internet, resolving problems, developing rich user experiences and seamless experiences, and learning new things is what I
 			do.
 		</p>
-		<a href="#about" class="group">
+		<a href="#about" class="will-move" style="--down: -350px; --duration: 1s; --delay: 100ms">
 			<button
 				class="bg-green-400 text-primary font-bold py-2 px-4 rounded-xl transition-all duration-500 ease-in-out hover:shadow-d shadow-green">
 				About Me <span class="i-charm:chevron-right from-green group-hover:rotate-90deg transition-all duration-500 ease-in-out"></span>
 			</button>
 		</a>
 
-		<div data-move="down up" style="--duration: 400ms" data-delay="300" class="will-move absolute right-1/4 bottom-4rem flex rotate-14deg">
+		<div data-move="down up"  style="--delay: 300ms ;--duration: 400ms; --up: 300px; --down: 150px" class="will-move absolute right-1/4 bottom-8rem flex rotate-14deg">
 			<div class="border-4rem border-transparent border-r-green-400"></div>
 			<div class="border-4rem border-transparent border-l-green-500"></div>
 		</div>

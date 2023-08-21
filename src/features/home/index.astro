@@ -5,7 +5,7 @@ import About from "./components/About.astro";
 ---
 
 <div class="relative w-full h-screen overflow-hidden">
-	<div id="fullpage" class="w-full relative transition-all duration-1000 ease-in-out">
+	<div id="fullpage" class="w-full relative ease-in-out-quart">
 		<Hero />
 		<About />
 		<Skills />
@@ -15,14 +15,12 @@ import About from "./components/About.astro";
 <script is:inline>
 const fullpage = document.getElementById("fullpage");
 const sections = fullpage.querySelectorAll("section").length;
-let moveAbleElement = document.querySelectorAll("section");
+let moveAbleElement = document.querySelectorAll(".will-move");
 
 let isAnimating = false;
 let activeSection = 0;
 
 function onWheel(e) {
-    e.preventDefault();
-
     if (isAnimating || (activeSection <= 0 && e.deltaY < 0) || (activeSection >= sections - 1 && e.deltaY > 0)) return;
 
     if (e.deltaY > 0) {
@@ -35,7 +33,6 @@ function onWheel(e) {
 }
 
 function onTouchStart(e) {
-    e.preventDefault();
     const touch = e.touches[ 0 ];
     touchStartY = touch.pageY;
 
@@ -43,7 +40,6 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
-    e.preventDefault();
     const touch = e.touches[ 0 ];
     const touchEndY = touch.pageY;
 
@@ -65,27 +61,20 @@ function scrollToSection(section) {
 
     fullpage.style.transform = `translateY(-${section * 100}vh)`;
 
-    moveAbleElement.forEach((el, index) => {
-        if (index === section) {
-            el.classList.add("visible");
+    moveAbleElement.forEach((element) => {
+        // add animate class up or down based on the direction of the scroll
+        if (section > activeSection) {
+            element.classList.add("animateUp");
         } else {
-            el.classList.remove("visible");
-        }
-
-        if (index < section) {
-            el.classList.add("up");
-            el.classList.remove("down");
-        } else if (index > section) {
-            el.classList.add("down");
-            el.classList.remove("up");
-        } else {
-            el.classList.remove("up");
-            el.classList.remove("down");
+            element.classList.add("animateDown");
         }
     });
 
     setTimeout(() => {
         isAnimating = false;
+        moveAbleElement.forEach((element) => {
+            element.classList.remove("animateUp", "animateDown");
+        });
     }, 1000);
 }
 
@@ -94,7 +83,45 @@ document.addEventListener("touchstart", onTouchStart);
 document.addEventListener("touchmove", onTouchMove);
 </script>
 <style is:global>
+
+    .ease-in-out-quart{
+        transition: all 1200ms cubic-bezier(0.88, 0, 0.265, 1) 0s;
+
+    }
+
 	.will-move {
-		transition: all var(--duration, 1s) ease-in;
+		transition: all var(--duration);
+	}
+
+	.animateUp {
+        animation-delay: var(--delay);
+		translate: 0px var(--up);
+	}
+
+	.animateDown {
+        transition-timing-function: ease-in;
+		translate: 0px var(--down);
+        transition-delay: var(--delay);
+        scale: 1 1.1;
+	}
+
+	@keyframes animateUp {
+		from {
+			translate: translateY(--from);
+		}
+
+		to {
+			translate: translateY(--to);
+		}
+	}
+
+	@keyframes animateDown {
+		from {
+			translate: translateY(--to);
+		}
+
+		to {
+			translate: translateY(--from);
+		}
 	}
 </style>
