@@ -6,16 +6,26 @@ import About from "./components/About.astro";
 
 <div class="relative w-full h-screen overflow-hidden">
 	<div id="fullpage" class="w-full relative ease-in-out-quart">
-		<Hero />
-		<About />
+		<!-- <Hero /> -->
+		<!-- <About /> -->
 		<Skills />
 	</div>
 </div>
 
+<script src="/anime.js" is:inline>
+import anime from "public/anime";
+</script>
 <script is:inline>
 const fullpage = document.getElementById("fullpage");
 const sections = fullpage.querySelectorAll("section").length;
-let moveAbleElement = document.querySelectorAll(".will-move");
+
+const commonAnimationConfig = {
+    translateY: [ 50, 0 ],
+    opacity: [ 0, 1 ],
+    easing: "easeOutCirc",
+    duration: 1000,
+    loop: false,
+};
 
 let isAnimating = false;
 let activeSection = 0;
@@ -45,6 +55,7 @@ function onTouchMove(e) {
 
     if (isAnimating || (activeSection <= 0 && touchEndY > touchStartY) || (activeSection >= sections - 1 && touchEndY < touchStartY)) return;
 
+    sectionBefore = activeSection;
     if (touchEndY > touchStartY) {
         activeSection -= 1;
     } else {
@@ -56,72 +67,65 @@ function onTouchMove(e) {
 
 function scrollToSection(section) {
     if (isAnimating) return;
-
+    activeSection = section;
     isAnimating = true;
 
     fullpage.style.transform = `translateY(-${section * 100}vh)`;
 
-    moveAbleElement.forEach((element) => {
-        // add animate class up or down based on the direction of the scroll
-        if (section > activeSection) {
-            element.classList.add("animateUp");
-        } else {
-            element.classList.add("animateDown");
-        }
+    const animeConfig = [];
+
+    if (activeSection === 0) {
+        animeConfig.push({
+            targets: ".x-hero",
+            delay: anime.stagger(7, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+    } else if (activeSection === 1) {
+        animeConfig.push({
+            targets: ".x-subs",
+            delay: anime.stagger(50, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+
+        animeConfig.push({
+            targets: ".x-about",
+            delay: anime.stagger(150, { start: 500 }),
+            ...commonAnimationConfig,
+        });
+    } else if (activeSection === 2) {
+        animeConfig.push({
+            targets: ".x-skill",
+            delay: anime.stagger(70, { start: 1000 }),
+            ...commonAnimationConfig,
+        });
+
+        animeConfig.push({
+            targets: ".x-title",
+            delay: anime.stagger(200, { start: 500 }),
+            ...commonAnimationConfig,
+        });
+    }
+
+    animeConfig.forEach((config) => {
+        anime(config);
     });
 
     setTimeout(() => {
         isAnimating = false;
-        moveAbleElement.forEach((element) => {
-            element.classList.remove("animateUp", "animateDown");
-        });
     }, 1000);
 }
 
 document.addEventListener("wheel", onWheel);
 document.addEventListener("touchstart", onTouchStart);
 document.addEventListener("touchmove", onTouchMove);
+document.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+        scrollToSection(parseInt(button.dataset.target));
+    });
+});
 </script>
 <style is:global>
-
-    .ease-in-out-quart{
-        transition: all 1200ms cubic-bezier(0.88, 0, 0.265, 1) 0s;
-
-    }
-
-	.will-move {
-		transition: all var(--duration);
-	}
-
-	.animateUp {
-        animation-delay: var(--delay);
-		translate: 0px var(--up);
-	}
-
-	.animateDown {
-        transition-timing-function: ease-in;
-		translate: 0px var(--down);
-        transition-delay: var(--delay);
-        scale: 1 1.1;
-	}
-
-	@keyframes animateUp {
-		from {
-			translate: translateY(--from);
-		}
-
-		to {
-			translate: translateY(--to);
-		}
-	}
-
-	@keyframes animateDown {
-		from {
-			translate: translateY(--to);
-		}
-
-		to {
-			translate: translateY(--from);
-		}
+	.ease-in-out-quart {
+		transition: all 1200ms cubic-bezier(0.88, 0, 0.265, 1) 0s;
 	}
 </style>
