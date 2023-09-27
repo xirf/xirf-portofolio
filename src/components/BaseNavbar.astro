@@ -1,6 +1,40 @@
-<header class="fixed top-0 left-0 w-full text-white z-999 p-4 flex items-center justify-between">
-	<span class="text-xl font-black tracking-widest">
-		<span class="i-charm-gamepad bg-white"></span> ANDKA
-	</span>
-    <a href="mailto:hy@andka.me" class="px-4 py-1 transition-all duration-500 ease-in hover:(text-black bg-green border-transparent) border-2 border-white rounded-xl">Contact</a>
+---
+const links = [
+	{
+		name: "About",
+		url: "/about",
+	},
+	{
+		name: "Projects",
+		url: "/projects",
+	},
+	{
+		name: "Blog",
+		url: "/blog",
+	},
+	{
+		name: "Contact",
+		url: "/contact",
+	},
+];
+---
+
+<header class="fixed top-0 left-0 w-full text-white z-999 py-12 flex items-center justify-between px-1/12">
+	<div class="flex gap-32 items-center flex-grow">
+		<a href="/" class="text-3xl font-logo">Andka</a>
+		<nav class="flex items-center gap-16">
+			{
+				links.map((link, index) => (
+					<a href={link.url} class="font-light tracking-wide opacity-80 hover:opacity-100 transition-all ">
+						{link.name}
+					</a>
+				))
+			}
+		</nav>
+	</div>
+	<a href="mailto:andikacahargen2@gmail.com">
+		<button class="border-2 px-8 py-2 rounded-full border-#ffffff44 bg-#ffffff22 backdrop-blur">
+			Let's Talk 
+		</button>
+	</a>
 </header>

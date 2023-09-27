@@ -46,7 +46,8 @@ export default defineConfig({
         presetWebFonts({
             provider: 'google',
             fonts: {
-                "sans": 'Lexend',
+                "sans": 'Poppins',
+                "logo": 'Montserrat Alternates',
                 "serif": 'Merriweather',
                 "mono": 'JetBrains Mono',
             },

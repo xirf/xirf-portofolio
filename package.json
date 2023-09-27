@@ -10,11 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^3.1.0",
     "@astrojs/ts-plugin": "^1.0.10",
-    "animejs": "^3.2.1",
-    "astro": "^2.8.0",
-    "svelte": "^4.0.5"
+    "astro": "^3.1.4"
   },
   "devDependencies": {
     "@iconify-json/charm": "^1.1.9",

@@ -1,8 +1,129 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
-import Home from "@/features/home/index.astro";
 ---
 
 <Layout title="Andka">
-    <Home />
+	<div class="w-full relative min-h-screen flex items-center justify-center">
+		<div
+			class="w-90vw -z-10 h-80vw rounded-full absolute top-0 left-1/2 -translate-y-3/5 -translate-x-1/2 blur-300px scale-y-70%"
+			style="background-image: radial-gradient(circle,#442464 0%, #9d53d6 50%, #5ee3f0 80%);">
+		</div>
+
+		<canvas
+			width="1000"
+			height="1000"
+			id="canvas-chaos"
+			class="absolute w-1000px h-1000px top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -z-11">
+		</canvas>
+
+		<div class="z-90 flex flex-col gap-12 text-center items-center justify-center text-white">
+			<h1 class="text-8xl font-black text-white">Enthusiastic developer</h1>
+			<p class="max-w-4xl opacity-50 text-xl tracking-wide leading-relaxed text-light">
+				The main parts of what I do are building the internet, solving problems, exploring new technologies and learning new wonderfull
+				things.
+			</p>
+			<a href="/about">
+				<div class="p-2px bg-gradient-to-l from-#b56cfd to-#7558b8 rounded-full">
+					<div class="px-12 py-4 bg-gradient-to-l from-#9d53d6 to-#6245b7 rounded-full text-xl">About me</div>
+				</div>
+			</a>
+		</div>
+	</div>
 </Layout>
+
+<script is:inline>
+window.onload = () => {
+    const canvas = document.getElementById("canvas-chaos");
+    const ctx = canvas.getContext("2d", { alpha: true });
+
+    const radius = 700;
+    const width = radius * 2.5;
+    const height = width;
+    const hWidth = width / 2;
+    const hHeight = height / 2;
+    const particles = [];
+    const defaultPartSpeed = 0.005;
+
+    let bgOpacity = 1;
+    let isWarping = false;
+
+    canvas.width = canvas.width = width;
+    canvas.height = canvas.height = height;
+
+    class Particle {
+        constructor(isRandomRadius) {
+            this.radius = isRandomRadius ? Math.random() * radius : radius;
+            this.time = 0;
+            this.speed = isRandomRadius ? Math.random() / 200 : defaultPartSpeed;
+            this.hue = 220 + 100 * Math.random();
+            this.u = Math.random();
+            this.v = Math.random();
+            this.updatePosition();
+        }
+
+        updatePosition() {
+            this.time -= this.speed;
+
+            this.θ = 2 * Math.PI * this.u + this.time;
+
+            this.φ = Math.acos(2 * this.v - 1) - Math.PI * 0.5;
+
+            this.x = this.radius * Math.sin(this.θ) * Math.cos(this.φ);
+            this.y = this.radius * Math.sin(this.φ);
+            this.z = this.radius * Math.cos(this.φ) * Math.cos(this.θ);
+
+            this.size = (this.radius * 1.4 - this.z) / 25;
+        }
+
+        getColor(ctx) {
+            const x = this.x + hWidth;
+            const y = this.y + hHeight;
+
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, this.size);
+
+            gradient.addColorStop(0, `hsla(${this.hue}, 100%, 60%, 1)`);
+            gradient.addColorStop(0.3, `hsla(${this.hue}, 100%, 60%, 0)`);
+            gradient.addColorStop(1, `hsla(${this.hue}, 100%, 60%, 0)`);
+
+            return gradient;
+        }
+
+        render(ctx) {
+            const hSize = this.size / 2;
+
+            ctx.fillStyle = this.getColor(ctx);
+
+            ctx.fillRect(hWidth + this.x - hSize, hHeight + this.y - hSize, this.size, this.size);
+        }
+
+        get data() {
+            return {
+                x: this.x,
+                y: this.y,
+                z: this.z,
+                size: this.size,
+                color: `hsla(${this.hue}, 100%, 60%, 1)`,
+            };
+        }
+    }
+
+    for (let i = 0; i < 150; i++) {
+        particles.push(new Particle(true));
+    }
+
+    void (function loop() {
+        isWarping ? (bgOpacity -= 0.1) : (bgOpacity += 0.1);
+        bgOpacity > 1 && (bgOpacity = 1);
+        bgOpacity < 0.1 && (bgOpacity = 0.1);
+
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+            particles[ i ].updatePosition();
+            particles[ i ].render(ctx);
+        }
+
+        window.requestAnimationFrame(loop);
+    })();
+};
+</script>
