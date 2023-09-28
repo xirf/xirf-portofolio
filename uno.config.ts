@@ -34,20 +34,19 @@ export default defineConfig({
             collections: {
                 charm: () => import("@iconify-json/charm/icons.json").then((i) => i.default),
                 logo: () => import("@iconify-json/logos/icons.json").then((i) => i.default),
+                clarity: () => import("@iconify-json/clarity/icons.json").then((i) => i.default),
             },
             extraProperties: {
                 'display': 'inline-block',
                 'vertical-align': '-0.15em',
                 'fill': 'currentColor',
-
             },
-            mode: 'background-img'
         }),
         presetWebFonts({
             provider: 'google',
             fonts: {
-                "sans": 'Poppins',
-                "logo": 'Montserrat Alternates',
+                "sans": 'Work Sans:100;300;400;600;800',
+                "logo": 'Montserrat Alternates:100',
                 "serif": 'Merriweather',
                 "mono": 'JetBrains Mono',
             },

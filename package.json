@@ -10,11 +10,17 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/alpinejs": "^0.3.0",
+    "@astrojs/sitemap": "^3.0.0",
     "@astrojs/ts-plugin": "^1.0.10",
+    "@astrojs/vercel": "^5.0.1",
+    "@types/alpinejs": "^3.0.0",
+    "alpinejs": "^3.0.0",
     "astro": "^3.1.4"
   },
   "devDependencies": {
     "@iconify-json/charm": "^1.1.9",
+    "@iconify-json/clarity": "^1.1.9",
     "@iconify-json/logos": "^1.1.34",
     "@unocss/preset-icons": "^0.55.1",
     "@unocss/preset-web-fonts": "^0.53.5",

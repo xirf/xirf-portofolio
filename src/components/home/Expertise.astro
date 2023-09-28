@@ -1,0 +1,38 @@
+---
+const expertise = [
+	{
+		icon: "i-clarity-world-line",
+		title: "Web Development",
+		description: "Passionate about building web applications with modern technologies.",
+	},
+	{
+		icon: "i-clarity-cpu-line",
+		title: "Automation Bot & Scripting",
+		description: "In my spare time, Building automation tools to make my life easier.",
+	},
+	{
+		icon: "i-clarity-mobile-phone-line",
+		title: "Mobile Dev Flutter, Dart",
+		description: "Currently learning Flutter to build cross-platform mobile applications.",
+	},
+];
+---
+
+<div class="w-full py-32 flex items-center justify-center text-white flex-col gap-16">
+	<div class="border-2px border-#fff2 bg-#ffffff08 relative rounded-3xl p-1 grid grid-cols-3 max-w-6xl backdrop-blur-md">
+		{
+			expertise.map((el, index) => (
+				<div class="py-12 px-8">
+					<div class="flex gap-6">
+						<div class="col-span-1">
+							<span class={`h-8 w-8 bg-white ${el.icon}`} />
+						</div>
+						<div class="font-bold text-2xl" />
+					</div>
+					<h1 class="text-xl my-5">{el.title}</h1>
+					<h3 class="opacity-75 font-300">{el.description}</h3>
+				</div>
+			))
+		}
+	</div>
+</div>
