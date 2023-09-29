@@ -47,6 +47,7 @@ export default defineConfig({
             fonts: {
                 "sans": 'Work Sans:100;300;400;600;800',
                 "logo": 'Montserrat Alternates:100',
+                "heading": "open Sans:800",
                 "serif": 'Merriweather',
                 "mono": 'JetBrains Mono',
             },
