@@ -1,47 +1,42 @@
 ---
-let abouts = [
-	{
-		title: "Student",
-		desc: "I'am a student at University of Muhammadiyah Ponorogo, majoring in Informatics Engineering. I'am currently in the 5th semester.",
-	},
-	{
-		title: "FreeLancer",
-		desc: "I'am a freelancer, I have been freelancing for 1 year. as a freelancer I have worked on several projects, such as websites, stream assets, and others.",
-	},
-	{
-		title: "Curious",
-		desc: "I'am a curious person, I'am always curious about new things, especially in the field of technology. I'am always looking for new things to learn.",
-	},
-];
+
 ---
 
 <div class="w-full p-20 flex flex-col gap-32 relative">
-	<div class="max-w-3xl text-center m-auto gap-8 flex flex-col">
-		<h1 class="text-6xl font-black font-heading">A Bit About Me</h1>
-		<p class="text-xl font-300">
-			I'am <span class="text-purple">Andika Nur Pratama</span> from East Java, Indonesia. With a passion for both personal growth and for
-			software development, Ready to apply my passion for coding to a talented engineering team to develop quality solutions.
-		</p>
+	<div class="max-w-3xl m-auto gap-8 flex flex-col">
+		<h1 class="text-5xl font-bold font-heading">Who Am I?</h1>
+		<section class="text-xl font-300 flex flex-col gap-4 pl-8">
+			<p>
+				I'm <span class="text-purple">Andika Nur Pratama</span> from East Java, Indonesia, and I began my journey in 2019. Currently, I'm
+				pursuing my education at the University of Muhammadiyah Ponorogo, specializing in Informatics Engineering.
+			</p>
+			<p>
+				My inherent curiosity drives me to continuously explore new horizons, particularly in the realm of technology. I'm perpetually on the
+				lookout for fresh knowledge and opportunities to expand my expertise.
+			</p>
+			<p>
+				Fueled by a fervor for personal development and a deep passion for software development, I am prepared to apply my coding skills to
+				contribute to a dynamic engineering team, crafting high-quality solutions.
+			</p>
+		</section>
 	</div>
-	<div class="relative w-full grid grid-cols-3 max-w-screen-xl m-auto gap-10">
-		{
-			abouts.map((el, i) => (
-				<div class={`flex ${i % 2 ? "flex-col-reverse" : "flex-col"} items-center justify-center`}>
-					<div class="backdrop-blur-2xl bg-#ffffff08 border-2 border-#fff1 p-8 rounded-3xl grid gap-4">
-						<h1 class="text-2xl">{el.title}</h1>
-						<p >{el.desc}</p>
-					</div>
-					<div class={`w-5 h-5 bg-white rounded-full -z-10 ${i %2 ? "-mb-3" : "-mt-3"} `} />
-					<div
-						class={`w-1 h-80 ${
-							i % 2 ? "bg-gradient-to-t" : "bg-gradient-to-b"
-						} from-white via-transparent to-transparent opacity-50 -z-10`}
-					/>
-				</div>
-			))
-		}
+	<div class="absolute grid grid-cols-2 grid-rows-2 right-20 bottom-0">
+		<div
+			style="
+		mask-image: radial-gradient(circle at top right, #7347a612, #fff0);
+		-webkit-mask-image: radial-gradient(circle at top right, #7347a612, #fff0);
+		">
+			<div class="h-24 w-24 rounded-lg bg-purple border-2 border-#fff"></div>
+		</div>
+		<div></div>
+		<div></div>
+		<div
+			style="
+		mask-image: radial-gradient(circle at bottom left, #7347a612, #fff0);
+		-webkit-mask-image: radial-gradient(circle at bottom left, #7347a612, #fff0);
+		">
+			<div class="h-24 w-24 border-2 border-#fff bg-purple"></div>
+		</div>
 	</div>
-	<div class="absolute top-1/2 left-1/2 -z-50 -translate-x-1/2 -translate-y-1/2 flex gap-32 blur-200">
-		<div class="h-350px w-250px rounded-full bg-purple-7 mt-50"></div>
-	</div>
+	
 </div>
