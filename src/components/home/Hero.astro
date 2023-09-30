@@ -20,122 +20,120 @@
 	</div>
 </div>
 
-
-
 <script>
-window.onload = () => {
-    const canvas = document.getElementById("herocanvas") as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d", { alpha: true })!;
+	window.onload = () => {
+		const canvas = document.getElementById("herocanvas") as HTMLCanvasElement;
+		const ctx = canvas.getContext("2d", { alpha: true })!;
 
-    const radius = 700;
-    const width = radius * 2.5;
-    const height = width;
-    const hWidth = width / 2;
-    const hHeight = height / 2;
-    const particles = [];
-    const defaultPartSpeed = 0.005;
+		const radius = 700;
+		const width = radius * 2.5;
+		const height = width;
+		const hWidth = width / 2;
+		const hHeight = height / 2;
+		const particles = [];
+		const particlesCount = 200;
+		const defaultPartSpeed = 0.005;
 
-    let bgOpacity = 1;
-    let isWarping = false;
+		let bgOpacity = 1;
+		let isWarping = false;
 
-    canvas.width = canvas.width = width;
-    canvas.height = canvas.height = height;
+		canvas.width = canvas.width = width;
+		canvas.height = canvas.height = height;
 
-    class Particle {
-        radius: number;
-        time: number;
-        speed: number;
-        hue: number;
-        u: number;
-        v: number;
-        θ: number;
-        φ: number;
-        x: number;
-        y: number;
-        z: number;
-        size: number;
+		class Particle {
+			radius: number;
+			time: number;
+			speed: number;
+			hue: number;
+			u: number;
+			v: number;
+			θ: number;
+			φ: number;
+			x: number;
+			y: number;
+			z: number;
+			size: number;
 
+			constructor(isRandomRadius: boolean) {
+				this.radius = isRandomRadius ? Math.random() * radius : radius;
+				this.time = 0;
+				this.speed = isRandomRadius ? Math.random() / 200 : defaultPartSpeed;
+				this.hue = 220 + 100 * Math.random();
+				this.u = Math.random();
+				this.v = Math.random();
+				this.θ = 0;
+				this.φ = 0;
+				this.x = 0;
+				this.y = 0;
+				this.z = 0;
+				this.size = 0;
 
-        constructor(isRandomRadius: boolean) {
-            this.radius = isRandomRadius ? Math.random() * radius : radius;
-            this.time = 0;
-            this.speed = isRandomRadius ? Math.random() / 200 : defaultPartSpeed;
-            this.hue = 220 + 100 * Math.random();
-            this.u = Math.random();
-            this.v = Math.random();
-            this.θ = 0;
-            this.φ = 0;
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-            this.size = 0;
+				this.updatePosition();
+			}
 
-            this.updatePosition();
-        }
+			updatePosition() {
+				this.time -= this.speed;
 
-        updatePosition() {
-            this.time -= this.speed;
+				this.θ = 2 * Math.PI * this.u + this.time;
 
-            this.θ = 2 * Math.PI * this.u + this.time;
+				this.φ = Math.acos(2 * this.v - 1) - Math.PI * 0.5;
 
-            this.φ = Math.acos(2 * this.v - 1) - Math.PI * 0.5;
+				this.x = this.radius * Math.sin(this.θ) * Math.cos(this.φ);
+				this.y = this.radius * Math.sin(this.φ);
+				this.z = this.radius * Math.cos(this.φ) * Math.cos(this.θ);
 
-            this.x = this.radius * Math.sin(this.θ) * Math.cos(this.φ);
-            this.y = this.radius * Math.sin(this.φ);
-            this.z = this.radius * Math.cos(this.φ) * Math.cos(this.θ);
+				this.size = (this.radius * 1.4 - this.z) / 25;
+			}
 
-            this.size = (this.radius * 1.4 - this.z) / 25;
-        }
+			getColor(ctx: CanvasRenderingContext2D) {
+				const x = this.x + hWidth;
+				const y = this.y + hHeight;
 
-        getColor(ctx: CanvasRenderingContext2D) {
-            const x = this.x + hWidth;
-            const y = this.y + hHeight;
+				const gradient = ctx.createRadialGradient(x, y, 0, x, y, this.size);
 
-            const gradient = ctx.createRadialGradient(x, y, 0, x, y, this.size);
+				gradient.addColorStop(0, `hsla(${this.hue}, 100%, 60%, 1)`);
+				gradient.addColorStop(0.3, `hsla(${this.hue}, 100%, 60%, 0)`);
+				gradient.addColorStop(1, `hsla(${this.hue}, 100%, 60%, 0)`);
 
-            gradient.addColorStop(0, `hsla(${this.hue}, 100%, 60%, 1)`);
-            gradient.addColorStop(0.3, `hsla(${this.hue}, 100%, 60%, 0)`);
-            gradient.addColorStop(1, `hsla(${this.hue}, 100%, 60%, 0)`);
+				return gradient;
+			}
 
-            return gradient;
-        }
+			render(ctx: CanvasRenderingContext2D) {
+				const hSize = this.size / 2;
 
-        render(ctx: CanvasRenderingContext2D) {
-            const hSize = this.size / 2;
+				ctx.fillStyle = this.getColor(ctx);
 
-            ctx.fillStyle = this.getColor(ctx);
+				ctx.fillRect(hWidth + this.x - hSize, hHeight + this.y - hSize, this.size, this.size);
+			}
 
-            ctx.fillRect(hWidth + this.x - hSize, hHeight + this.y - hSize, this.size, this.size);
-        }
+			get data() {
+				return {
+					x: this.x,
+					y: this.y,
+					z: this.z,
+					size: this.size,
+					color: `hsla(${this.hue}, 100%, 60%, 1)`,
+				};
+			}
+		}
 
-        get data() {
-            return {
-                x: this.x,
-                y: this.y,
-                z: this.z,
-                size: this.size,
-                color: `hsla(${this.hue}, 100%, 60%, 1)`,
-            };
-        }
-    }
+		for (let i = 0; i < particlesCount; i++) {
+			particles.push(new Particle(true));
+		}
 
-    for (let i = 0; i < 150; i++) {
-        particles.push(new Particle(true));
-    }
+		void (function loop() {
+			isWarping ? (bgOpacity -= 0.1) : (bgOpacity += 0.1);
+			bgOpacity > 1 && (bgOpacity = 1);
+			bgOpacity < 0.1 && (bgOpacity = 0.1);
 
-    void (function loop() {
-        isWarping ? (bgOpacity -= 0.1) : (bgOpacity += 0.1);
-        bgOpacity > 1 && (bgOpacity = 1);
-        bgOpacity < 0.1 && (bgOpacity = 0.1);
+			ctx.clearRect(0, 0, width, height);
 
-        ctx.clearRect(0, 0, width, height);
+			for (let i = 0; i < particles.length; i++) {
+				particles[i].updatePosition();
+				particles[i].render(ctx);
+			}
 
-        for (let i = 0; i < particles.length; i++) {
-            particles[ i ].updatePosition();
-            particles[ i ].render(ctx);
-        }
-
-        window.requestAnimationFrame(loop);
-    })();
-};
+			window.requestAnimationFrame(loop);
+		})();
+	};
 </script>
