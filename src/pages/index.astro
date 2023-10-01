@@ -1,8 +1,17 @@
 ---
 import Layout from "@/layouts/BaseLayout.astro";
-import Home from "@/features/home/index.astro";
+import Hero from "@/components/home/Hero.astro";
+import Expertise from "@/components/home/Expertise.astro";
+import Repos from "@/components/home/Repos.astro";
+import About from "@/components/home/About.astro";
+import GIT from "@/components/home/GIT.astro";
 ---
 
 <Layout title="Andka">
-    <Home />
+	<Hero />
+	<Expertise />
+	<Repos />
+	<About />
+	<GIT />
 </Layout>
+

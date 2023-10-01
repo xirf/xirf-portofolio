@@ -1,12 +1,20 @@
 import { defineConfig } from 'astro/config';
-
-import svelte from "@astrojs/svelte";
 import unocss from "unocss/astro";
+
+import vercel from "@astrojs/vercel/serverless";
+import sitemap from "@astrojs/sitemap";
+import alpinejs from "@astrojs/alpinejs";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [ svelte(), unocss({
-    injectReset: true
-  }) ],
-  site: "https://andka.me"
+  integrations: [
+    alpinejs(),
+    unocss({
+      injectReset: true
+    }),
+    sitemap(),
+  ],
+  site: "https://andka.me",
+  output: "server",
+  adapter: vercel()
 });
