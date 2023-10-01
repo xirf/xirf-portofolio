@@ -1,24 +1,24 @@
-<div class="w-full relative min-h-screen flex items-center justify-center">
+<main class="w-full relative min-h-screen w-full flex items-center justify-center">
 	<div
 		class="w-90vw -z-10 h-80vw rounded-full absolute top-0 left-1/2 -translate-y-3/5 -translate-x-1/2 blur-300px scale-y-70%"
 		style="background-image: radial-gradient(circle,#442464 0%, #9d53d6 50%, #5ee3f0 80%);">
 	</div>
 
-	<canvas width="1000" height="1000" id="herocanvas" class="absolute w-1000px h-1000px top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -z-11">
-	</canvas>
-
-	<div class="z-90 flex flex-col gap-12 text-center items-center justify-center text-white">
-		<h1 class="text-8xl font-heading font-black text-white">Enthusiastic developer</h1>
-		<p class="max-w-4xl font-300 font-sans opacity-70 text-xl tracking-wide leading-relaxed">
+	<div class="z-90 flex p-8 lg:p-0 flex-col gap-8 sm:(gap-12 text-center items-center justify-center) text-white">
+		<h1 class="text-4xl sm:text-6xl lg:text-7xl 2xl:text-8xl font-heading font-black text-white">Enthusiastic developer</h1>
+		<p class="text-sm max-w-3xl sm:text-xl 2xl:max-w-4xl font-300 font-sans opacity-70 tracking-wide leading-relaxed">
 			The main parts of what I do are building the internet, solving problems, exploring new technologies and learning new wonderfull things.
 		</p>
 		<a href="/about">
-			<div class="p-2px bg-gradient-to-l from-#b56cfd to-#7558b8 rounded-full">
-				<div class="px-12 py-4 bg-gradient-to-l from-#9d53d6 to-#6245b7 rounded-full text-xl">About me</div>
+			<div class="p-2px bg-gradient-to-l from-#b56cfd to-#7558b8 rounded-full w-fit">
+				<div class="px-4 py-2 text-sm sm:text-xl lg:(px-12 py-4) bg-gradient-to-l from-#9d53d6 to-#6245b7 rounded-full">About me</div>
 			</div>
 		</a>
 	</div>
-</div>
+	<div class="absolute w-full top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -z-11 overflow-hidden flex items-center justify-center opacity-50 sm:opacity-100">
+		<canvas width="1000" height="1000" id="herocanvas" class="w-1000px h-1000px" aria-hidden="true"> </canvas>
+	</div>
+</main>
 
 <script>
 	window.onload = () => {
