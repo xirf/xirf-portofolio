@@ -1,5 +1,11 @@
 ---
-let response = await fetch(Astro.url + "/repos.json");
+let response = await fetch("https://api.github.com/users/xirf/repos", {
+	headers: {
+		Accept: "application/vnd.github.v3+json",
+		Authorization: `Bearer ${import.meta.env.GH_TOKEN}`,
+	},
+});
+
 let data = await response.json();
 let repos = data
 	.filter((repo: any) => !repo.fork && repo.language)
@@ -107,7 +113,8 @@ function parseEmoji(text: string) {
 				</tbody>
 			</table>
 		</div>
-		<div class="w-350px bg-#ffffff08 border-#fff1 border-1 backdrop-blur-sm z-10 p-6 rounded-3xl flex flex-col gap-4 -mt-20% translate-x-20% xl:translate-x-60%">
+		<div
+			class="w-350px bg-#ffffff08 border-#fff1 border-1 backdrop-blur-sm z-10 p-6 rounded-3xl flex flex-col gap-4 -mt-20% translate-x-20% xl:translate-x-60%">
 			<div class="flex w-full items-center justify-between">
 				<div class="flex items-center gap-4">
 					<div
