@@ -1,7 +1,6 @@
-<main class="w-full relative min-h-screen w-full flex items-center justify-center">
+<main class="w-full relative min-h-screen w-full flex items-center justify-center overflow-hidden">
 	<div
-		class="w-90vw -z-10 h-80vw rounded-full absolute top-0 left-1/2 -translate-y-3/5 -translate-x-1/2 blur-300px scale-y-70%"
-		style="background-image: radial-gradient(circle,#442464 0%, #9d53d6 50%, #5ee3f0 80%);">
+		class="-z-10 w-70 h-70 blur-150 -translate-y-1/2 lg:(w-90vw h-80vw -translate-y-3/5 -translate-x-1/2  blur-300px left-1/2) rounded-full absolute top-0  scale-y-70% bg-purple"></div>
 	</div>
 
 	<div class="z-90 flex p-8 lg:p-0 flex-col gap-8 sm:(gap-12 text-center items-center justify-center) text-white">
@@ -15,7 +14,8 @@
 			</div>
 		</a>
 	</div>
-	<div class="absolute w-full top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -z-11 overflow-hidden flex items-center justify-center opacity-50 sm:opacity-100">
+	<div
+		class="absolute w-full top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -z-11 overflow-hidden flex items-center justify-center opacity-50 sm:opacity-100">
 		<canvas width="1000" height="1000" id="herocanvas" class="w-1000px h-1000px" aria-hidden="true"> </canvas>
 	</div>
 </main>
@@ -31,7 +31,7 @@
 		const hWidth = width / 2;
 		const hHeight = height / 2;
 		const particles = [];
-		const particlesCount = 200;
+		const particlesCount = Math.min(100, Math.floor(window.innerWidth / 10));
 		const defaultPartSpeed = 0.005;
 
 		let bgOpacity = 1;
@@ -75,7 +75,6 @@
 				this.time -= this.speed;
 
 				this.θ = 2 * Math.PI * this.u + this.time;
-
 				this.φ = Math.acos(2 * this.v - 1) - Math.PI * 0.5;
 
 				this.x = this.radius * Math.sin(this.θ) * Math.cos(this.φ);
@@ -99,11 +98,14 @@
 			}
 
 			render(ctx: CanvasRenderingContext2D) {
-				const hSize = this.size / 2;
+				const x = this.x + hWidth;
+				const y = this.y + hHeight;
+				const radius = this.size / 2;
 
 				ctx.fillStyle = this.getColor(ctx);
-
-				ctx.fillRect(hWidth + this.x - hSize, hHeight + this.y - hSize, this.size, this.size);
+				ctx.beginPath();
+				ctx.arc(x, y, radius, 0, Math.PI * 2);
+				ctx.fill();
 			}
 
 			get data() {

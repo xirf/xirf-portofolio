@@ -21,7 +21,7 @@ const links = [
 let dummy = ["delay-100", "delay-200", "delay-300", "delay-400", "delay-500", "delay-600", "delay-700", "delay-800", "delay-900"];
 ---
 
-<header class="absolute top-0 left-0 w-full text-white z-999 py-6 sm:(py-12) flex items-center justify-between px-1/12" x-data="{open:true}">
+<header class="absolute top-0 left-0 w-full text-white z-999 py-6 sm:(py-12) flex items-center justify-between px-1/12" x-data="{open: false}">
 	<div class="flex gap-32 items-center justify-between flex-grow relative">
 		<a href="/" class="text-2xl sm:text-3xl font-logo">Andka</a>
 		<nav
@@ -47,7 +47,7 @@ let dummy = ["delay-100", "delay-200", "delay-300", "delay-400", "delay-500", "d
 			</div>
 		</nav>
 		<div class="lg:hidden" @click="open = !open">
-			<div class="w-5 h-5 relative ">
+			<div class="w-5 h-5 relative">
 				<div
 					class="absolute left-0 w-full h-2px bg-white top-1 duration-500 transition-all ease-in-out"
 					:style="open ? 'transform:rotate(45deg); top: 50%' : 'transform:rotate(0deg);'">
