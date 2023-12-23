@@ -5,7 +5,6 @@ import vercel from "@astrojs/vercel/serverless";
 import sitemap from "@astrojs/sitemap";
 import alpinejs from "@astrojs/alpinejs";
 
-// https://astro.build/config
 export default defineConfig({
   integrations: [
     alpinejs(),
