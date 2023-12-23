@@ -1,6 +1,6 @@
 <h1> Hy, Its Me Andka! <img src="./public/catto.gif" width="60"></h1>
 <p> Enthusiast software developer from East Java, Indonesia! </p>
-<img src="./public//klee.jpg" width="200" align="right">
+<img src="./public//klee.jpg" width="210" align="right">
 
 ```ts
 const andka = new Developer({
