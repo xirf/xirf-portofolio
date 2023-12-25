@@ -19,6 +19,15 @@
     "@unocss/astro": "^0.58.0",
     "astro": "^4.0.7",
     "solid-js": "^1.8.7",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "unocss": "^0.58.0"
+  },
+  "devDependencies": {
+    "@iconify-json/charm": "^1.1.12",
+    "@iconify-json/clarity": "^1.1.12",
+    "@unocss/preset-icons": "^0.58.0",
+    "@unocss/reset": "^0.58.0",
+    "@unocss/transformer-compile-class": "^0.58.0",
+    "@unocss/transformer-variant-group": "^0.58.0"
   }
 }
