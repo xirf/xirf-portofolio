@@ -16,6 +16,7 @@ export default defineConfig({
         [ 'bg-dotted', { 'background-image': 'radial-gradient(var(--un-gradient-from, white) 2px, transparent 1px)', 'background-size': '40px 40px' } ],
         [ 'font-dm', { 'font-family': 'DM Sans, sans-serif' } ],
         [ 'font-lexend', { 'font-family': 'Lexend, sans-serif' } ],
+        [ 'font-mono', { 'font-family': 'JetBrains Mono, monospace' } ],
     ],
     transformers: [
         transformerVariantGroup(),
