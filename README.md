@@ -4,21 +4,21 @@
 
 ```ts
 const andka = new Developer({
-	code: ["Javascript", "Typescript", "PHP", "Python"],
-	askMeAbout: ["web dev", "tech", "game", "animanga"],
-	learning: "C++",
-	technologies: {
-		mobileApp: ["Kotlin", "Flutter"],
-		frontEnd: {
-			js: ["React", "Next", "Astro"],
-			css: ["UnoCSS", "TailwindCSS"],
-		},
-		backEnd: {
-			js: ["NodeJS", "Bun", "Express", "Fastify"],
-			php: ["Laravel", "CodeIgniter", "Wordpress"],
-		},
-		databases: ["MongoDB", "MySQL", "PostgreSQL"],
-	},
+  code: ["Javascript", "Typescript", "PHP", "Python"],
+  askMeAbout: ["web dev", "tech", "game", "animanga"],
+  learning: "C++",
+  technologies: {
+    mobileApp: ["Kotlin", "Flutter"],
+    frontEnd: {
+      js: ["React", "Next", "Astro"],
+      css: ["UnoCSS", "TailwindCSS"],
+    },
+    backEnd: {
+      js: ["NodeJS", "Bun", "Express", "Fastify"],
+      php: ["Laravel", "CodeIgniter", "Wordpress"],
+    },
+    databases: ["MongoDB", "MySQL", "PostgreSQL"],
+  },
 });
 ```
 
