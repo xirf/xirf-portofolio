@@ -1,0 +1,63 @@
+---
+const links = [
+	{
+		name: "About",
+		url: "/about",
+	},
+	{
+		name: "Projects",
+		url: "/projects",
+	},
+	{
+		name: "Blog",
+		url: "/blog",
+	},
+	{
+		name: "Contact",
+		url: "/contact",
+	},
+];
+
+let dummy = ["delay-100", "delay-200", "delay-300", "delay-400", "delay-500", "delay-600", "delay-700", "delay-800", "delay-900"];
+---
+
+<header class="absolute top-0 left-0 w-full text-white z-999 py-6 sm:(py-12) flex items-center justify-between px-1/12" x-data="{open: false}">
+	<div class="flex gap-32 items-center justify-between flex-grow relative">
+		<a href="/" class="text-2xl sm:text-3xl font-logo">Andka</a>
+		<nav
+			class="flex items-center justify-center gap-8 fixed w-full h-full flex-col top-0 left-0 bg-#ffffff08 backdrop-blur-3xl transition-all duration-500 ease-in-out lg:(flex-row h-auto bg-transparent backdrop-blur-0 relative gap-32)"
+			:style="open ? 'transform:translateY(0);' : 'transform:translateY(-100%)'">
+			{
+				links.map((link, index) => (
+					<a href={link.url} class="font-light tracking-wide opacity-80 hover:opacity-100 transition-all">
+						<div
+							class={`transition-all duration-500 ease-in-out delay-${index + 1}00`}
+							x-bind:style="open ? 'transform:translateX(0); opacity: 1' : 'transform:translateX(-100px); opacity: 0;'">
+							{link.name}
+						</div>
+					</a>
+				))
+			}
+			<div
+				class={`transition-all duration-500 ease-in-out delay-${links.length + 1}00 lg:(grow flex justify-end)`}
+				x-bind:style="open ? 'transform:translateX(0); opacity: 1' : 'transform:translateX(-100px); opacity: 0;'">
+				<a href="mailto:andikacahargen2@gmail.com">
+					<button class="border-2 px-8 py-2 rounded-full border-#ffffff44 bg-#ffffff22 backdrop-blur"> Let's Talk</button>
+				</a>
+			</div>
+		</nav>
+		<div class="lg:hidden" @click="open = !open">
+			<div class="w-5 h-5 relative">
+				<div
+					class="absolute left-0 w-full h-2px bg-white top-1 duration-500 transition-all ease-in-out"
+					:style="open ? 'transform:rotate(45deg); top: 50%' : 'transform:rotate(0deg);'">
+				</div>
+
+				<div
+					class="absolute left-0 w-full h-2px bg-white top-3 duration-500 transition-all ease-in-out"
+					:style="open ? 'transform:rotate(-45deg); top: 50%; background-color: purple;' : 'transform:rotate(0deg);'">
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
