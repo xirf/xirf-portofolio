@@ -1,7 +1,30 @@
 ---
-
+const today = new Date();
 ---
 
 <footer>
-    K
+	<p class="text-sm text-gray-700 hover:text-gray-600 duration-300 animation-all">
+		<a href="https://andka.mit-license.org/2020" target="_blank"> MIT License </a> &copy; 2020-{ today.getFullYear() } Andika Nur Pratama</p>
+	</p>
 </footer>
+<style>
+	footer {
+		padding: 2em 1em 6em 1em;
+		background: linear-gradient(var(--gray-gradient)) no-repeat;
+		color: rgb(var(--gray));
+		text-align: center;
+	}
+	.social-links {
+		display: flex;
+		justify-content: center;
+		gap: 1em;
+		margin-top: 1em;
+	}
+	.social-links a {
+		text-decoration: none;
+		color: rgb(var(--gray));
+	}
+	.social-links a:hover {
+		color: rgb(var(--gray-dark));
+	}
+</style>

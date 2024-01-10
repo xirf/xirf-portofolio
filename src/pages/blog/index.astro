@@ -1,0 +1,51 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import Footer from "../../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
+import { getCollection } from "astro:content";
+import BaseNavbar from "../../components/BaseNavbar.astro";
+
+const posts = (await getCollection("blog")).sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body class="px-12 text-gray-400 bg-#111215">
+		<BaseNavbar title="blog" />
+		<div class="max-w-3xl m-auto grid gap-16">
+			<main class="grid gap-6 mt-32">
+				<h1>
+					<span class="text-4xl font-bold">Blog</span>
+					<span class="font-light">A collection of my thoughts</span>
+				</h1>
+				<p>
+					Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!
+				</p>
+				<section class="mt-12">
+					<ul class="grid gap-4">
+						{
+							posts.map((post) => (
+								<li>
+									<a href={`/blog/${post.slug}/`} class="inline-flex items-end gap-2">
+										<h4 class="title">{post.data.title}</h4>
+										<p class="date text-xs text-gray-600">
+											{post.data.pubDate.toLocaleDateString("en-US", {
+												year: "numeric",
+												month: "long",
+												day: "numeric",
+											})}
+										</p>
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+			</main>
+			<Footer />
+		</div>
+	</body>
+</html>
