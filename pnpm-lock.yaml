@@ -32,6 +32,9 @@ dependencies:
   astro:
     specifier: ^4.0.7
     version: 4.0.7(typescript@5.3.3)
+  buttercms:
+    specifier: ^1.2.15
+    version: 1.2.15
   solid-js:
     specifier: ^1.8.7
     version: 1.8.7
@@ -1649,6 +1652,14 @@ packages:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
     dev: false
 
+  /axios@0.21.4:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+    dependencies:
+      follow-redirects: 1.15.4
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /b4a@1.6.4:
     resolution: {integrity: sha512-fpWrvyVHEKyeEvbKZTVOeZF3VSKKWtJxFIxX/jaVPf+cLbGUSitjb49pHLqPV2BUNNZ0LcoeEGfE/YCpyDYHIw==}
     requiresBuild: true
@@ -1775,6 +1786,15 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    dev: false
+
+  /buttercms@1.2.15:
+    resolution: {integrity: sha512-cwzgceMoEpEF1mrEp7bC3GAcFXZZjuUYtHlDwARBE/jygO/6gYfhL4xIFZYYoMHo3yxC8UF+reV6x2UR2slcog==}
+    engines: {node: '>=0.10.32'}
+    dependencies:
+      axios: 0.21.4
+    transitivePeerDependencies:
+      - debug
     dev: false
 
   /cac@6.7.14:
@@ -2365,6 +2385,16 @@ packages:
   /flattie@1.1.0:
     resolution: {integrity: sha512-xU99gDEnciIwJdGcBmNHnzTJ/w5AT+VFJOu6sTB6WM8diOYNA3Sa+K1DiEBQ7XH4QikQq3iFW1U+jRVcotQnBw==}
     engines: {node: '>=8'}
+    dev: false
+
+  /follow-redirects@1.15.4:
+    resolution: {integrity: sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
     dev: false
 
   /fs-constants@1.0.0:
