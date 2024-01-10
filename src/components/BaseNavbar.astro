@@ -32,11 +32,15 @@ const socialMediaLinks = [
 		url: "/feed.xml",
 	},
 ];
+
+const {title } = Astro.props;
 ---
 
 <header class="w-full flex justify-between p-4 mt-4">
 	<h1>
-		[andka@xirf ~]$ <span class="text-gray-400 animate-pulse">_</span>
+		<a href="/">
+			[andka@xirf ~{title ? `  ${title}` : ""} ]$ <span class="text-gray-400 animate-pulse">_</span>
+		</a>
 	</h1>
 	<nav>
 		<ul class="flex gap-6 items-center justify-center">
