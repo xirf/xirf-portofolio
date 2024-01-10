@@ -16,7 +16,7 @@ export default defineConfig({
         [ 'bg-dotted', { 'background-image': 'radial-gradient(var(--un-gradient-from, white) 2px, transparent 1px)', 'background-size': '40px 40px' } ],
         [ 'font-dm', { 'font-family': 'DM Sans, sans-serif' } ],
         [ 'font-lexend', { 'font-family': 'Lexend, sans-serif' } ],
-        [ 'font-mono', { 'font-family': 'JetBrains Mono, monospace' } ],
+        [ 'font-mono', { 'font-family': '"JetBrains Mono", monospace' } ],
     ],
     transformers: [
         transformerVariantGroup(),
@@ -30,8 +30,7 @@ export default defineConfig({
         presetTypography(),
         presetIcons({
             collections: {
-                charm: () => import("@iconify-json/charm/icons.json").then((i) => i.default),
-                clarity: () => import("@iconify-json/clarity/icons.json").then((i) => i.default),
+                myna: () => import("@iconify-json/mynaui/icons.json").then((i) => i.default),
             },
             extraProperties: {
                 'display': 'inline-block',
