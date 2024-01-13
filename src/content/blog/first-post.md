@@ -1,16 +1,55 @@
 ---
-title: "First post"
-description: "Lorem ipsum dolor sit amet"
-pubDate: "Jul 08 2022"
-heroImage: "/blog-placeholder-3.jpg"
+title: "A New House"
+description: "Welcome to my new blog"
+pubDate: "Jan 13 2024"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+I have always wondering how about getting new blog to write something that i want to share with ot.
 
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+At fist i was thinking about using some CMS like wordpress, but i think it's too much for me. I wouldn't write that much and the free version of wordpress is too limited.
 
-Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
+### That time i found out about SSG
 
-Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id cursus metus aliquam eleifend mi.
+Then when i start heard about [JAMStack](https://jamstack.org/), i think it's a good idea to try it out. And the bestpart is there are a lot of free hosting and platform for jamstack like [Vercel](https://vercel.com/), [Netlify](https://www.netlify.com/), [Github Pages](https://pages.github.com/), [Cloudflare Pages](https://pages.cloudflare.com/), etc. I choose to use [Vercel](https://vercel.com/) because it's easy to use and it's free for personal use.
 
-Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+For the static site generator, i choose [Astro](https://astro.build/) because their framework agnostic approach and coding in Astro feels like home, it's just like coding in HTML but with some extra features.
+
+I've try another SSG like [NextJS](https://nextjs.org/) and [NuxtJS](https://nuxtjs.org/). The DX is great i can do a lot of things with it, but later i feel the performance that i get from it is not that great. I mean yeah it was great but for just a blog why i need so much power. So i choose Astro because it's more lightweight and i can get the performance that i want.
+
+### What about CSS?
+
+Wrinting CSS is hard, not because the syntax but working with bundling size writing CSS per components can be painfull, just for one page it can be more than 100 lines of CSS. Implementing more complex design can be a nightmare. That why we need to maintain reusability and modularity of our CSS.
+
+Fotunately there are a lot of CSS framework that can help us with that like [TailwindCSS](https://tailwindcss.com/), [Bootstrap](https://getbootstrap.com/), [Bulma](https://bulma.io/), [Materialize](https://materializecss.com/), etc. But chosing framework is another pain.
+
+And then i found [UnoCSS](https://unocss.dev/), It's not a CSS Framework but an CSS Engine. It's really powerfull and joyful. Usually i combine UnoCSS with its Uno Preset that equivalent with [Tailwind](https://tailwindcss.com/) and [WindiCSS](https://windicss.org/). the syntax just same with more features and it's really easy to use like:
+
+```html
+<div class="bg-#272d44 text-white p-4 rounded-lg text-20px">Hello World</div>
+```
+
+that will output this element below:
+
+<div class="bg-#272d44 text-white p-4 rounded-lg text-20px"> Hello World </div>
+
+But if that in tailwind it will be like this:
+
+<div class=" text-white p-4 rounded-lg "> Hello World </div>
+
+Because tailwind doesn't have rule for `bg-#272d44` and `text-20px` so it will be ignored. but in UnoCSS it will be compiled to:
+
+```css
+.bg-\#272d44 {
+  --un-bg-opacity: 1;
+  background-color: rgb(39 45 68 / var(--un-bg-opacity));
+}
+.text-20px {
+  font-size: 20px;
+}
+```
+
+Uno is CSS engine thats why it can do that and it's really powerfull. And the best part is it's really easy to use and it's really fast. I can't wait to see what UnoCSS can do in the future.
+
+### That's it
+
+That's all for now, i hope i can write more in the future.
