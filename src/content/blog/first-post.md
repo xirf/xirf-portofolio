@@ -39,9 +39,15 @@ But if that in tailwind it will be like this:
 Because tailwind doesn't have rule for `bg-#272d44` and `text-20px` so it will be ignored. but in UnoCSS it will be compiled to:
 
 ```css
-.bg-\#272d44{--un-bg-opacity:1;background-color:rgb(39 45 68 / var(--un-bg-opacity));}
-.text-20px{font-size:20px;}
+.bg-\#272d44 {
+  --un-bg-opacity: 1;
+  background-color: rgb(39 45 68 / var(--un-bg-opacity));
+}
+.text-20px {
+  font-size: 20px;
+}
 ```
+
 Uno is CSS engine thats why it can do that and it's really powerfull. And the best part is it's really easy to use and it's really fast. I can't wait to see what UnoCSS can do in the future.
 
 ### That's it
