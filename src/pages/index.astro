@@ -1,33 +1,18 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import BaseNavbar from "../components/BaseNavbar.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
-import Footer from "../components/Footer.astro";
-
-const status = [];
+import DefautLayout from "../layouts/DefautLayout.astro";
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="px-12 text-gray-400 bg-#111215 flex flex-col h-screen">
-		<BaseNavbar />
-		<div class="max-w-3xl m-auto grid gap-16 grow">
-			<main class="flex flex-col gap-6 mt-32">
-				<h1 class="font-bold text-5xl text-gray-200 font-lexend">Andika <span class="text-lg text-gray-400">Nur Pratama</span></h1>
-				<p>Web developer, both front-end and back-end. I also do bot development.</p>
-				<p>
-					A Computer Science student at <a href="https://www.umpo.ac.id" target="_blank">Muhammadiyah University of Ponorogo</a> with passion
-					in web development and bot development. I'm currently interested in some cyber security stuff and low-level programming.
-				</p>
-				<div class="inline-flex gap-32 w-full items-center">
-					<address class="inline-flex items-center gap-2"><span class="i-myna-location w-6 h-6"></span> Magetan, East Java</address>
-					<p class="flex items-center gap-2"><span class="rounded-full bg-yellow w-2 h-2"></span>Available for remote internship</p>
-				</div>
-			</main>
+<DefautLayout>
+	<main class="flex flex-col gap-6 my-32">
+		<h1 class="font-bold text-5xl text-gray-200 font-lexend">Andika <span class="text-lg text-gray-400">Nur Pratama</span></h1>
+		<p>Web developer, both front-end and back-end. I also do bot development.</p>
+		<p>
+			A Computer Science student at <a href="https://www.umpo.ac.id" target="_blank">Muhammadiyah University of Ponorogo</a> with passion in web
+			development and bot development. I'm currently interested in some cyber security stuff and low-level programming.
+		</p>
+		<div class="inline-flex gap-32 w-full items-center">
+			<address class="inline-flex items-center gap-2"><span class="i-myna-location w-6 h-6"></span> Magetan, East Java</address>
+			<p class="flex items-center gap-2"><span class="rounded-full bg-yellow w-2 h-2"></span>Available for remote internship</p>
 		</div>
-		<Footer />
-	</body>
-</html>
+	</main>
+</DefautLayout>
