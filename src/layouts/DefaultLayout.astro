@@ -1,0 +1,22 @@
+---
+interface Astro {
+	props: {
+		title: string;
+		parentClass?: string;
+	};
+}
+
+import BaseHead from "../components/BaseHead.astro";
+
+const { title, parentClass } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description="Web development portfolio of Xirf" />
+	</head>
+	<body class:list={["bg-#ebeef5 text-#3b3b3b", parentClass]}>
+		<slot />
+	</body>
+</html>
