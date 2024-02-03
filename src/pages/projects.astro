@@ -1,0 +1,131 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+
+const projects = [
+	{
+		name: "Latest",
+		content: [
+			{
+				name: "ACI",
+				icon: "i-myna-diamond",
+				desc: "Text art generator based on AstroJS and UnoCSS",
+				url: "https://aci.andka.me/",
+				isPrivate: false,
+			},
+		],
+	},
+	{
+		name: "Web Ecosystem",
+		content: [
+			{
+				name: "Musywil Election Vote",
+				icon: "i-myna-edit",
+				desc: "Election vote system for Musywil 16th East Java",
+				url: "#",
+				isPrivate: true,
+			},
+			{
+				name: "ACI",
+				icon: "i-myna-diamond",
+				desc: "Text art generator based on AstroJS and UnoCSS",
+				url: "https://aci.andka.me/",
+				isPrivate: false,
+			},
+		],
+	},
+	{
+		name: "Bot Development",
+		content: [
+			{
+				name: "Thesis WA Bot",
+				icon: "i-myna-academic-hat",
+				desc: "Bot to facilitate communication between students and lecturers",
+				url: "#",
+				isPrivate: true,
+			},
+			{
+				name: "Multipurpose WA Bot",
+				icon: "i-myna-wink-square",
+				desc: "Multipurpose Whatsapp bot based on baileys",
+				url: "https://github.com/xirf/bots",
+				licese: "MIT",
+				isPrivate: false,
+			},
+			{
+				name: "Simrs Whatsapp BOT",
+				icon: "i-myna-heart",
+				desc: "bot to facilitate the registration of patients in the hospital",
+				url: "#",
+				isPrivate: true,
+			},
+		],
+	},
+	{
+		name: "CLI",
+		content: [
+			{
+				name: "YAPH",
+				icon: "i-myna-cloud-download",
+				desc: "CLI tool to download youtube playlist in batch mode",
+				url: "https://github.com/xirf/yaph",
+				license: "MIT",
+				isPrivate: false,
+				isMaintained: false,
+			},
+			{
+				name: "Demail",
+				icon: "i-myna-envelope",
+				desc: "A part of my google api testing project, to delete all email in a gmail account",
+				url: "https://github.com/xirf/demail",
+				isPrivate: false,
+			},
+			{
+				name: "Youtube Search Survey",
+				icon: "i-myna-layers-three",
+				desc: "CLI tool to search youtube video based on keyword and",
+				url: "https://github.com/xirf/YouTube-search-survey",
+				isPrivate: false,
+			},
+		],
+	},
+];
+---
+
+<DefaultLayout>
+	<div class="flex h-screen p-12 max-w-7xl mx-auto">
+		<main class="w-full flex flex-col gap-6">
+			<h1 class="text-center font-lexend text-3xl font-bold @dark:text-#e5e7eb">Projects</h1>
+			<div class="flex flex-col gap-16">
+				{
+					projects.map(({ name, content }) => (
+						<div class="grid gap-8 w-full">
+							<div class="w-full relative">
+								<h2 class="text-xl font-bold text-center">{name}</h2>
+								<div class="h-1px w-10 bg-gray mx-auto mt-2 opacity-50" />
+							</div>
+							<div class="grid xl:grid-cols-3 gap-4">
+								{content.map(({ name, icon, desc, url, isPrivate }) => (
+									<a
+										target={isPrivate ? "_self" : ""}
+										class:list={[{ "cursor-not-allowed": isPrivate }]}
+										{...(isPrivate ? {} : { href: url })}>
+										<div class="p-4 hover:(bg-white bg-opacity-5) rounded-lg duration-200 ease-in-out transition-all min-h-100px grid place-items-center">
+											<div class="flex gap-4 items-center">
+												<i class:list={[icon, "w-8 h-8 opacity-50 shrink-0"]} />
+												<div class="flex flex-col gap-1">
+													<h3 class="font-bold">{name}</h3>
+													<p class="text-xs opacity-75">{desc}</p>
+												</div>
+											</div>
+										</div>
+									</a>
+								))}
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</main>
+	</div>
+	<div class="h-32 w-full"></div>
+</DefaultLayout>

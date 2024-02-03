@@ -52,6 +52,31 @@ import { ViewTransitions } from "astro:transitions";
 		font-family: "JetBrains Mono", monospace;
 		box-sizing: border-box;
 	}
+
+	::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	::-webkit-scrollbar:horizontal {
+		height: 10px;
+	}
+
+	::-webkit-scrollbar-track,
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: #1d1e21;
+		}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: #25272a;
+	}
 </style>
 
-<ViewTransitions>
+<ViewTransitions />
