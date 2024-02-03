@@ -1,0 +1,41 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import DefaultLayout from "../../layouts/DefaultLayout.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
+
+
+const posts = await getCollection("blog");
+type Props = CollectionEntry<"blog">;
+
+const { slug } = Astro.params;
+
+const post = posts.find((page) => page.slug === slug);
+if (!post) return Astro.redirect("/404");
+
+const { title, pubDate, updatedDate } = post.data
+const { Content } = await post.render();
+---
+
+<DefaultLayout>
+	<div class="max-w-3xl mx-auto">
+		<article class="my-12">
+			<div class="prose">
+				<div class="title">
+					<h1 class="text-4xl">{title}</h1>
+					<div class="text-gray-500">
+						<FormattedDate date={pubDate} />
+						{
+							updatedDate && (
+								<div class="">
+									Last updated on <FormattedDate date={updatedDate} />
+								</div>
+							)
+						}
+					</div>
+					<hr />
+				</div>
+				<Content />
+			</div>
+		</article>>
+	</div>
+</DefaultLayout>
