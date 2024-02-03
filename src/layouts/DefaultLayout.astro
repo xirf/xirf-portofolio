@@ -7,6 +7,7 @@ interface Astro {
 }
 
 import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
 
 const { title, parentClass } = Astro.props;
 ---
@@ -16,7 +17,8 @@ const { title, parentClass } = Astro.props;
 	<head>
 		<BaseHead title={title} description="Web development portfolio of Xirf" />
 	</head>
-	<body class:list={["bg-#ebeef5 text-#3b3b3b", parentClass]}>
+	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af", parentClass]}>
+		<Header />
 		<slot />
 	</body>
 </html>
