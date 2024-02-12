@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import DefautLayout from "../../layouts/DefaultLayout.astro";
+
+const posts = (await getCollection("blog")).sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+
+let postsByYear: Record<number, typeof posts> = {};
+
+for (const post of posts) {
+	const year = post.data.pubDate.getFullYear();
+	if (!postsByYear[year]) postsByYear[year] = [];
+	postsByYear[year].push(post);
+}
+---
+
+<DefautLayout title="Blog">
+	<main class="grid gap-6 mt-32 max-w-3xl mx-auto px-12">
+		<h1>
+			<span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
+			<span class="font-light text-sm">A collection of my thoughts</span>
+		</h1>
+		<p>
+			Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think
+			others might find interesting as well. I hope you enjoy reading them!
+		</p>
+		<section class="flex flex-col">
+			{
+				Object.entries(postsByYear)
+					.sort(([a], [b]) => parseInt(b) - parseInt(a))
+					.map(([year, posts]: [string, any]) => (
+						<div class="my-12 relative">
+							<div
+								class="text-2xl font-bold absolute -z-50 font-lexend text-9xl -top-12 -left-12 text-#111215 opacity-10"
+								style="text-shadow: var(--xclr) 2px 0px 0px, var(--xclr) 1.75517px 0.958851px 0px, var(--xclr) 1.0806px 1.68294px 0px, var(--xclr) 0.141474px 1.99499px 0px, var(--xclr) -0.832294px 1.81859px 0px, var(--xclr) -1.60229px 1.19694px 0px, var(--xclr) -1.97999px 0.28224px 0px, var(--xclr) -1.87291px -0.701566px 0px, var(--xclr) -1.30729px -1.51361px 0px, var(--xclr) -0.421592px -1.95506px 0px, var(--xclr) 0.567324px -1.91785px 0px, var(--xclr) 1.41734px -1.41108px 0px, var(--xclr) 1.92034px -0.558831px 0px; --xclr: gray;">
+								{year}
+							</div>
+							<ul class="mt-4 z-50">
+								{posts.map((post: any) => (
+									<li class="mt-2">
+										<a
+											href={`/blog/${post.slug}`}
+											class="text-blue-400 hover:-translate-y-1 duration-300 transition-all transform inline-flex items-end gap-4">
+											{post.data.title}
+											<span class="text-xs text-gray-500">
+												{new Date(post.data.pubDate).toLocaleDateString("en-US", {
+													day: "2-digit",
+													month: "long",
+												})}
+											</span>
+										</a>
+									</li>
+								))}
+							</ul>
+						</div>
+					))
+			}
+		</section>
+	</main>
+</DefautLayout>
