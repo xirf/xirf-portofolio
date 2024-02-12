@@ -19,7 +19,9 @@ CSS can be challenging, not just in terms of syntax but also when dealing with b
 That's when I stumbled upon [UnoCSS](https://unocss.dev/), a CSS engine rather than a framework. It proved to be powerful and enjoyable, especially when combined with its Uno Preset, akin to [Tailwind](https://tailwindcss.com/) and [WindiCSS](https://windicss.org/). The syntax is familiar, as shown below:
 
 ```html
-<div class="bg-#272d44 text-white p-4 rounded-lg text-20px">Hello World</div>
+<div class="bg-#272d44 text-white p-4 rounded-lg text-20px">
+  Hello World
+</div>
 ```
 
 This UnoCSS snippet compiles to the following CSS, handling custom properties like `bg-#272d44` and `text-20px` with ease:
