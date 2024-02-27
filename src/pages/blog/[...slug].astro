@@ -14,12 +14,12 @@ if (!post) return Astro.redirect("/404");
 const prevPost = posts[posts.indexOf(post) - 1];
 const nextPost = posts[posts.indexOf(post) + 1];
 
-const { title, pubDate, updatedDate } = post.data;
+const { title, pubDate, updatedDate, description } = post.data;
 const { Content } = await post.render();
 ---
 
-<DefaultLayout>
-	<div class="max-w-3xl mx-auto px-12">
+<DefaultLayout desc={description} title={title}>
+	<div class="max-w-3xl mx-auto px-12 mb-20">
 		<article class="my-12">
 			<div class="prose">
 				<div class="title">
@@ -40,8 +40,8 @@ const { Content } = await post.render();
 			</div>
 		</article>
 		<div class="grid opacity-50">
-			{prevPost ? <a href={prevPost.slug}>&gt; cd {prevPost.data.title.slice(0, 10)}</a> : <a href="/blog">&gt; cd ..</a>}
-			{nextPost ? <a href={nextPost.slug}>&gt; cd {nextPost.data.title.slice(0, 10)}</a> : ""}
+			{prevPost ? <a href={prevPost.slug}>&gt; cd {prevPost.data.title.slice(0, 20)}</a> : <a href="/blog">&gt; cd ..</a>}
+			{nextPost ? <a href={nextPost.slug}>&gt; cd {nextPost.data.title.slice(0, 20)}</a> : ""}
 		</div>
 		<div
 			id="scroll-to-top"
