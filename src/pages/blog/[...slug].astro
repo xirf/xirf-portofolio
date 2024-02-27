@@ -43,18 +43,23 @@ const { Content } = await post.render();
 			{prevPost ? <a href={prevPost.slug}>&gt; cd {prevPost.data.title.slice(0, 10)}</a> : <a href="/blog">&gt; cd ..</a>}
 			{nextPost ? <a href={nextPost.slug}>&gt; cd {nextPost.data.title.slice(0, 10)}</a> : ""}
 		</div>
+		<div
+			id="scroll-to-top"
+			class="fixed bottom-4 right-4 bg-gray-800 text-white rounded-full cursor-pointer w-12 h-12 grid place-items-center opacity-0 hover:opacity-100 duration-300 ease"
+			onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+			>
+			<button class="i-myna-chevron-up w-10 h-10"></button>
+		</div>
 	</div>
-	<div class="utterances">
-		<div class="utterances-frame"></div>
-	</div>
+	<script>
+		const scrollToTop = document.getElementById("scroll-to-top") as HTMLDivElement;
 
-	<!-- @ts-ignore -->
-	<script 
-		src="https://utteranc.es/client.js" 
-		repo="xirf/xirf" 
-		issue-term="pathname" 
-		theme="preferred-color-scheme" 
-		crossorigin="anonymous" 
-		async>
+		window.addEventListener("scroll", () => {
+			if (window.scrollY > 100) {
+				scrollToTop.style.opacity = "1";
+			} else {
+				scrollToTop.style.opacity = "0";
+			}
+		});
 	</script>
 </DefaultLayout>

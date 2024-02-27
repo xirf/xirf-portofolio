@@ -17,7 +17,7 @@ const { title, parentClass } = Astro.props;
 	<head>
 		<BaseHead title={title} description="Web development portfolio of Xirf" />
 	</head>
-	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af", parentClass]}>
+	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af pb-20", parentClass]}>
 		<Header />
 		<slot />
 	</body>
