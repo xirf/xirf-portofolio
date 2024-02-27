@@ -32,3 +32,15 @@ let a: number = 1;
 ```
 
 Although there are differences 😅, I am enjoying learning Kotlin. I've discovered numerous built-in functions that aid me in various tasks. In just three weeks, I have grown fond of this language. I am hopeful that I will create numerous Android applications in the future. Additionally, I plan to explore Kotlin beyond mobile development.
+
+The great new is, I can use Functional Programming that i love like in JS Ecosystem but better. I also love the extension function feature in Kotlin, it's like a superpower for me.
+
+```kotlin
+fun String.removeFirstLastChar(): String = this.substring(1, this.length - 1)
+
+val result = "Hello".removeFirstLastChar()
+// result: ell
+```
+😳 Isn't that exciting? In TypeScript, achieving the same functionality would require much more effort and code. 
+
+Kotlin's concise syntax and powerful features, such as extension functions, allow developers to write cleaner and more expressive code, enhancing productivity and making programming tasks more enjoyable.
