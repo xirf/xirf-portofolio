@@ -45,7 +45,7 @@ const iconLinks = [
 	</a>
 	<div class="flex items-center gap-4">
 		{
-			links.map((link, index) => (
+			links.map((link) => (
 				<a href={link.href} class="flex items-center" title={link.label}>
 					<span class={link.icon + " w-5 h-5 sm:hidden"} />
 					<span class="hidden sm:block">{link.label}</span>
@@ -53,7 +53,7 @@ const iconLinks = [
 			))
 		}
 		{
-			iconLinks.map((link, index) => (
+			iconLinks.map((link) => (
 				<a href={link.href} class="flex items-center" rel="noopener" target="_blank" 
                 title={link.label}>
 					<span class={link.icon + " w-5 h-5"} />

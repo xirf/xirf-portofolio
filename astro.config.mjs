@@ -12,6 +12,6 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), solidJs(), unocss({
     injectReset: true
   })],
-  output: "server",
-  adapter: vercel()
+  // output: "server",
+  // adapter: vercel()
 });

@@ -1,8 +1,51 @@
-### Hi there ~ <img src="https://user-images.githubusercontent.com/1303154/88677602-1635ba80-d120-11ea-84d8-d263ba5fc3c0.gif" width="20px">
+# XIRF - Personal Blog & Portfolio
 
-In the darkness, find your light, ano tsuki no you ni. 🌙
+Simple and clean blog/portfolio website built with <a href="https://astro.build/" target="_blank">Astro</a> and <a href="https://(https://unocss.dev/)" target="_blank">UnoCSS</a>.
 
-<details>
-  <summary>✨ A glimpse of my keyboard typing</summary>
-  <img src="https://github-readme-stats.vercel.app/api?username=xirf&show_icons=true&theme=github_dark_dimmed" alt="xirf's GitHub Stats" />
-</details>
+Visit the website: [andka.me](https://andka.me) or [andka.my.id](https://andka.my.id)
+
+<!-- image -->
+![XIRF - Personal Blog & Portfolio](/public/screenshot.png)
+
+## Installation
+To run this project locally, you need to have Node.js and npm installed on your machine.
+
+1. Clone this repository
+```bash
+git clone https://github.com/xirf/xirf-portofolio.git
+```
+2. Install the dependencies
+```bash
+pnpm install
+# or
+npm install
+# or
+yarn install
+```
+3. Run the development server
+```bash
+pnpm dev
+# or
+npm run dev
+# or
+yarn dev
+```
+4. Open your browser and navigate to `http://localhost:4321`
+5. Edit and deploy your changes!
+
+If you wanna modify this project you can follow the [Astro documentation](https://docs.astro.build/getting-started) and [UnoCSS documentation](https://unocss.dev/guide/).
+
+## Contributing & Forking
+
+This repo is free to use and modify. If you want to use this repo as a template, you can fork it and modify it to your liking. If you want to contribute, you can fork it and make a pull request.
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+All content in the `src/content` directory is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+
+External media such as images and videos are not included in the license. Proper attribution from the original source is required.
+
+
+
