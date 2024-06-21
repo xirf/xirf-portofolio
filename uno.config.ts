@@ -6,5 +6,5 @@ export default defineConfig({
             alwaysHash: true,
         }),
         transformerVariantGroup()
-    ],
+    ]
 })
