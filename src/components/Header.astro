@@ -1,0 +1,64 @@
+---
+const links = [
+	{
+		href: "/blog",
+		label: "Blog",
+		icon: "i-mynaui-book",
+	},
+	{
+		href: "/projects",
+		label: "Projects",
+		icon: "i-mynaui-sparkles",
+	},
+];
+
+const iconLinks = [
+	{
+		href: "https://github.com/xirf",
+		icon: "i-mynaui-brand-github",
+        label: "GitHub",
+	},
+	{
+		href: "https://twitter.com/xirfs",
+		icon: "i-mynaui-brand-x",
+        label: "Twitter",
+	},
+	{
+		href: "mailto:itsandka@gmail.com",
+		icon: "i-mynaui-envelope",
+        label: "Email",
+	},
+	{
+		href: "/rss.xml",
+		icon: "i-mynaui-rss",
+        label: "RSS",
+	},
+];
+---
+
+<nav class="px-8 py-6 w-full flex items-center justify-between">
+	<a href="/">
+		<div class="flex justify-between gap-2 font-bold">
+			<span class="i-mynaui-terminal w-6 h-6">terminal</span>
+			<span class="hidden sm:block ">Andka</span>
+		</div>
+	</a>
+	<div class="flex items-center gap-4">
+		{
+			links.map((link) => (
+				<a href={link.href} class="flex items-center" title={link.label}>
+					<span class={link.icon + " w-5 h-5 sm:hidden"} />
+					<span class="hidden sm:block">{link.label}</span>
+				</a>
+			))
+		}
+		{
+			iconLinks.map((link) => (
+				<a href={link.href} class="flex items-center" rel="noopener" target="_blank" 
+                title={link.label}>
+					<span class={link.icon + " w-5 h-5"} />
+				</a>
+			))
+		}
+	</div>
+</nav>

@@ -1,27 +1,65 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Card from "../components/Card.astro";
+const socialMedia = [
+	{
+		link: "https://github.com/xirf",
+		icon: "i-mynaui-brand-github",
+		name: "Github",
+	},
+	{
+		link: "https://www.facebook.com/0xirf",
+		icon: "i-mynaui-brand-facebook",
+		name: "Facebook",
+	},
+	{
+		link: "https://twitter.com/xirfs",
+		icon: "i-mynaui-brand-x",
+		name: "Twitter",
+	},
+];
 ---
 
-<Layout title="Homepage">
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
-	<div class="h-5vh m-20px border-1 border-red"></div>
+<Layout title="Homepage" description="This is the homepage">
+	<div class="flex items-center justify-center h-70vh">
+		<main class="w-full grid gap-6">
+			<div>
+				<h1>
+					<span class="@dark:text-#e5e7eb text-4xl font-bold font-lexend">Andika</span>
+					<span class="text-base">Nur Pratama</span>
+				</h1>
+				<p class="text-xs mt-1">Web & Mobile Developer</p>
+			</div>
+			<div class="text-sm grid gap-3">
+				<div>
+					<p>Hi, I am Andika Nur Pratama</p>
+					<p>Currently a student in Informatics Engineering.</p>
+				</div>
+				<p>
+					Technology is my passion and dreaming about a better world with it and making it happen is a dream come true. I am generally into web dev things but over the past few month I have begun learning about android dev using kotlin if you are interested, you can visit my <a
+						href="/projects"
+						class="font-bold underline">projects here</a
+					>.
+				</p>
+				<p>
+					Ouside coding, I often spend my time playing some non-serious games, watching animes and reading manga if you have any
+					recommendations please don't hesitate to suggest them. I live in Magetan, East Java so in case you're around don't hesitate
+					to contact me, perhaps we'll grab some coffee or do some collaboration.
+				</p>
+			</div>
+			<div class="text-sm">
+				<p>Find me at</p>
+				<div class="flex items-start justify-start gap-4 my-2">
+					{
+						socialMedia.map((url) => (
+							<a href={url.link} class="flex items-center justify-center gap-2" target="_blank" rel="noopener noreferrer">
+								<span class:list={[url.icon, "inline-block", "w-4", "h-4"]} />
+								{url.name}
+							</a>
+						))
+					}
+				</div>
+				<p>Or find me at <a class="text-base" href="mailto:hi@andka.my.id">hi@andka.my.id</a></p>
+			</div>
+		</main>
+	</div>
 </Layout>

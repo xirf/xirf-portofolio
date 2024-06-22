@@ -1,44 +1,36 @@
 ---
-interface Props {
-	title: string;
+interface Astro {
+	props: {
+		title: string;
+		parentClass?: string;
+		desc?: string;
+	};
 }
 
-const { title } = Astro.props;
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+
+const { title, parentClass, desc } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title} - Xirf</title>
+		<BaseHead title={title} description={desc ?? "Web development portfolio of Xirf"} />
 	</head>
-	<body>
-		<div class="p-1.5rem max-w-6xl mx-auto border-1px">
-			<slot />
+	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af pb-32", parentClass]}>
+		<a href="#main" class="sr-only focus:not-sr-only">Skip to main content</a>
+		<Header />
+		<div class="max-w-xl mx-auto p-2em">
+			<main>
+				<slot />
+			</main>
+			<footer <p class="text-xs opacity-50">
+				Licensed under <a href="https://mit-license.org/" class="underline">MIT License</a> &middot; Project source code available on <a
+					href="https://github.com/xirf/xirf-portofolio"
+					class="underline">GitHub Repo</a
+				>
+			</footer>
 		</div>
 	</body>
 </html>
-<style is:global>
-	html {
-		font-family: "Outfit", system-ui, sans-serif;
-		background-color: hsl(224, 10%, 10%);
-		background-size: 224px;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
-	}
-</style>
-
-<script is:inline></script>

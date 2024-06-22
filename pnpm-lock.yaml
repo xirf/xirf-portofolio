@@ -11,6 +11,9 @@ importers:
       '@astrojs/check':
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.5.2)
+      '@iconify-json/mynaui':
+        specifier: ^1.1.7
+        version: 1.1.7
       astro:
         specifier: ^4.11.0
         version: 4.11.0(typescript@5.5.2)
@@ -391,6 +394,9 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
+
+  '@iconify-json/mynaui@1.1.7':
+    resolution: {integrity: sha512-UDzqY5IciadZFOiNdXjghjfQqQWdVTqIe3tJQqGmvS+fJnZ7PjupxfA+hFO2GZ1BW+G6e0GzsCoB2tEUXXO/6g==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -2612,6 +2618,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.21.5':
     optional: true
+
+  '@iconify-json/mynaui@1.1.7':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/types@2.0.0': {}
 

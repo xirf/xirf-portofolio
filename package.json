@@ -1,7 +1,7 @@
 {
-  "name": "",
+  "name": "xirf-portofolio",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
+    "@iconify-json/mynaui": "^1.1.7",
     "astro": "^4.11.0",
     "typescript": "^5.5.2"
   },
