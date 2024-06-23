@@ -1,3 +1,4 @@
+import type { IconifyJSON } from '@iconify-json/mynaui/index.js'
 import {
     defineConfig,
     presetIcons,
@@ -7,8 +8,6 @@ import {
     transformerCompileClass,
     transformerVariantGroup,
 } from 'unocss'
-import { colors } from 'unocss/preset-mini'
-
 export default defineConfig({
     theme: {
         colors: {
@@ -35,6 +34,7 @@ export default defineConfig({
         presetIcons({
             collections: {
                 myna: () => import("@iconify-json/mynaui/icons.json").then((i) => i.default),
+                solar: () => import("@iconify-json/solar/icons.json").then((i) => i.default as IconifyJSON),
             },
             extraProperties: {
                 'display': 'inline-block',
