@@ -1,33 +1,17 @@
-import presetUno from '@unocss/preset-uno';
 import { defineConfig } from 'astro/config';
-import { presetIcons, presetWebFonts } from 'unocss'
+import mdx from '@astrojs/mdx';
 import UnoCss from "unocss/astro"
+
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-    site: "https://andka.my.id",
-    integrations: [
-        UnoCss({
-            injectReset: true,
-            presets: [
-                presetUno(),
-                presetWebFonts({
-                    provider: "fontshare",
-                    fonts: {
-                        base: 'Outfit',
-                        mono: 'JetBrains Mono'
-                    }
-                }),
-                presetIcons({
-                    collections: {
-                        mynaui: () => import("@iconify-json/mynaui/icons.json").then((i) => i.default),
-                    },
-                    extraProperties: {
-                        'display': 'inline-block',
-                        'fill': 'currentColor',
-                    },
-                }),
-            ]
-        })
-    ]
+	site: 'https://andka.my.id',
+	integrations: [
+		mdx(),
+		sitemap(),
+		UnoCss({
+			injectReset: true,
+		})
+	],
 });

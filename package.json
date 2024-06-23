@@ -1,5 +1,5 @@
 {
-  "name": "xirf-portofolio",
+  "name": "andka-portofolio",
   "type": "module",
   "version": "0.0.2",
   "scripts": {
@@ -11,13 +11,19 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
+    "@astrojs/mdx": "^3.1.1",
+    "@astrojs/rss": "^4.0.6",
+    "@astrojs/sitemap": "^3.1.6",
     "@iconify-json/mynaui": "^1.1.7",
+    "@typescript-eslint/parser": "^7.13.1",
     "astro": "^4.11.0",
-    "typescript": "^5.5.2"
+    "eslint": "^9.5.0",
+    "eslint-plugin-astro": "^1.2.2",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "typescript": "^5.5.2",
+    "unocss": "^0.61.0"
   },
   "devDependencies": {
-    "@unocss/preset-uno": "^0.61.0",
-    "@unocss/reset": "^0.61.0",
-    "unocss": "^0.61.0"
+    "@unocss/reset": "^0.61.0"
   }
 }

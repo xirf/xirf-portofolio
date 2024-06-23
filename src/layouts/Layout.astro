@@ -1,36 +1,21 @@
 ---
-interface Astro {
-	props: {
-		title: string;
-		parentClass?: string;
-		desc?: string;
-	};
-}
-
 import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 
-const { title, parentClass, desc } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={desc ?? "Web development portfolio of Xirf"} />
+		<BaseHead title={title} description={description} />
 	</head>
-	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af pb-32", parentClass]}>
-		<a href="#main" class="sr-only focus:not-sr-only">Skip to main content</a>
+	<body class="@dark:(bg-d-base text-d-on-base) font-sans pb-3em">
 		<Header />
-		<div class="max-w-xl mx-auto p-2em">
-			<main>
-				<slot />
-			</main>
-			<footer <p class="text-xs opacity-50">
-				Licensed under <a href="https://mit-license.org/" class="underline">MIT License</a> &middot; Project source code available on <a
-					href="https://github.com/xirf/xirf-portofolio"
-					class="underline">GitHub Repo</a
-				>
-			</footer>
-		</div>
+		<main>
+			<slot />
+		</main>
+		<Footer />
 	</body>
 </html>
