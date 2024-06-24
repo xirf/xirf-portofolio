@@ -19,7 +19,7 @@
     "@iconify-json/solar": "^1.1.9",
     "@typescript-eslint/parser": "^7.13.1",
     "astro": "^4.11.0",
-    "eslint": "^9.5.0",
+    "eslint": "latest",
     "eslint-plugin-astro": "^1.2.2",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "typescript": "^5.5.2",
