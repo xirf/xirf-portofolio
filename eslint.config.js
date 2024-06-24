@@ -1,7 +1,7 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
 import eslintPluginAstro from "eslint-plugin-astro"
+import globals from "globals";
+import tseslint from "typescript-eslint";
 import unocssConfig from "unocss";
 
 export default [
@@ -9,20 +9,20 @@ export default [
   ...eslintPluginAstro.configs.all,
   ...tseslint.configs.recommended,
   {
-    files: [ "**/*.{js,mjs,cjs,ts,astro}" ],
-    rules: {
-      languageOptions: {
-        parserOptions: {
-          project: true,
-          extraFileExtension: [".astro"],
-          tsConfigRootDir: import.meta.dirname
+    files : [ "**/*.{js,mjs,cjs,ts,astro}" ],
+    rules : {
+      languageOptions : {
+        parserOptions : {
+          project : true,
+          extraFileExtension : [ ".astro" ],
+          tsConfigRootDir : import.meta.dirname
         }
       }
     }
   },
   {
-    languageOptions: {
-      globals: globals.browser,
+    languageOptions : {
+      globals : globals.browser,
     },
   },
 ];
