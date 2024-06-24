@@ -11,6 +11,6 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), UnoCss({
     injectReset: true
   })],
-  output: "static", // this site don't need server
+  output: "hybrid",
   adapter: vercel()
 });
