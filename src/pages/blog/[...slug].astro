@@ -1,65 +1,38 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
-import DefaultLayout from "../../layouts/DefaultLayout.astro";
-import FormattedDate from "../../components/FormattedDate.astro";
+import BlogPost from "../../layouts/BlogPost.astro";
 
-const posts = await getCollection("blog");
+export async function getStaticPaths() {
+	const posts = await getCollection("blog");
+	const numOfPost = posts.length;
+
+	return posts
+		.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+		.map((post, i) => ({
+			params: { slug: post.slug },
+			props: {
+				post,
+				prevPost: i + 1 === numOfPost ? null : posts[i + 1],
+				nextPost: i === 0 ? null : posts[i - 1],
+			},
+		}));
+}
 type Props = CollectionEntry<"blog">;
 
-const { slug } = Astro.params;
-
-const post = posts.find((page) => page.slug === slug);
-if (!post) return Astro.redirect("/404");
-
-const prevPost = posts[posts.indexOf(post) - 1];
-const nextPost = posts[posts.indexOf(post) + 1];
-
-const { title, pubDate, updatedDate, description } = post.data;
-const { Content } = await post.render();
+// @ts-ignore
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await post.render();
 ---
 
-<DefaultLayout desc={description} title={title}>
-	<div class="max-w-3xl mx-auto px-12">
-		<article class="my-12">
-			<div class="prose">
-				<div class="title">
-					<h1 class="text-4xl">{title}</h1>
-					<div class="text-gray-500">
-						<FormattedDate date={pubDate} />
-						{
-							updatedDate && (
-								<div class="">
-									Last updated on <FormattedDate date={updatedDate} />
-								</div>
-							)
-						}
-					</div>
-					<hr />
-				</div>
-				<Content />
-			</div>
-		</article>
-		<div class="grid opacity-50">
-			{prevPost ? <a href={prevPost.slug}>&gt; cd {prevPost.data.title.slice(0, 20)}</a> : <a href="/blog">&gt; cd ..</a>}
-			{nextPost ? <a href={nextPost.slug}>&gt; cd {nextPost.data.title.slice(0, 20)}</a> : ""}
-		</div>
-		<div
-			id="scroll-to-top"
-			class="fixed bottom-4 right-4 bg-gray-800 text-white rounded-full cursor-pointer w-12 h-12 grid place-items-center opacity-0 hover:opacity-100 duration-300 ease"
-			onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-			>
-			<button class="i-myna-chevron-up w-10 h-10"></button>
-		</div>
-	</div>
-	<script>
-		const scrollToTop = document.getElementById("scroll-to-top") as HTMLDivElement;
+<BlogPost {...post.data} headings={headings}>
+	<Content />
 
-		window.addEventListener("scroll", () => {
-			if (window.scrollY > 100) {
-				scrollToTop.style.opacity = "1";
-			} else {
-				scrollToTop.style.opacity = "0";
-			}
-		});
-	</script>
-</DefaultLayout>
+	{prevPost && <a href={`/blog/${prevPost.slug}`}>&gt; cd ../"{prevPost.data.title}"</a>}
+	{
+		nextPost && (
+			<a href={`/blog/${nextPost.slug}`} class=":uno: decoration-none">
+				&gt; cd "{nextPost.data.title}"
+			</a>
+		)
+	}
+</BlogPost>

@@ -1,18 +1,16 @@
-import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
+import rss from "@astrojs/rss";
+import { getCollection } from "astro:content";
+
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
 export async function GET(context) {
-  const blog = await getCollection('blog');
+  const posts = await getCollection("blog");
   return rss({
-    stylesheet: '/prettyfeed.xsl',
-    title: 'Xirf',
-    description: 'Place where i share my thoughts',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     site: context.site,
-    items: blog.map((post) => ({
-      title: post.data.title,
-      pubDate: post.data.pubDate,
-      description: post.data.description,
-      customData: post.data.customData,
+    items: posts.map((post) => ({
+      ...post.data,
       link: `/blog/${post.slug}/`,
     })),
   });

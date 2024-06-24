@@ -1,131 +1,69 @@
 ---
-import DefaultLayout from "../layouts/DefaultLayout.astro";
+import Layout from "../layouts/Layout.astro";
+import projects from "../data/projects";
+import type { Project } from "../types/Project";
 
-const projects = [
-	{
-		name: "Latest",
-		content: [
-			{
-				name: "ACI",
-				icon: "i-myna-diamond",
-				desc: "Text art generator based on AstroJS and UnoCSS",
-				url: "https://aci.andka.me/",
-				isPrivate: false,
-			},
-		],
-	},
-	{
-		name: "Web Ecosystem",
-		content: [
-			{
-				name: "Musywil Election Vote",
-				icon: "i-myna-edit",
-				desc: "Election vote system for Musywil 16th East Java",
-				url: "#",
-				isPrivate: true,
-			},
-			{
-				name: "ACI",
-				icon: "i-myna-diamond",
-				desc: "Text art generator based on AstroJS and UnoCSS",
-				url: "https://aci.andka.me/",
-				isPrivate: false,
-			},
-		],
-	},
-	{
-		name: "Bot Development",
-		content: [
-			{
-				name: "Thesis WA Bot",
-				icon: "i-myna-academic-hat",
-				desc: "Bot to facilitate communication between students and lecturers",
-				url: "#",
-				isPrivate: true,
-			},
-			{
-				name: "Multipurpose WA Bot",
-				icon: "i-myna-wink-square",
-				desc: "Multipurpose Whatsapp bot based on baileys",
-				url: "https://github.com/xirf/bots",
-				licese: "MIT",
-				isPrivate: false,
-			},
-			{
-				name: "Simrs Whatsapp BOT",
-				icon: "i-myna-heart",
-				desc: "bot to facilitate the registration of patients in the hospital",
-				url: "#",
-				isPrivate: true,
-			},
-		],
-	},
-	{
-		name: "CLI",
-		content: [
-			{
-				name: "YAPH",
-				icon: "i-myna-cloud-download",
-				desc: "CLI tool to download youtube playlist in batch mode",
-				url: "https://github.com/xirf/yaph",
-				license: "MIT",
-				isPrivate: false,
-				isMaintained: false,
-			},
-			{
-				name: "Demail",
-				icon: "i-myna-envelope",
-				desc: "A part of my google api testing project, to delete all email in a gmail account",
-				url: "https://github.com/xirf/demail",
-				isPrivate: false,
-			},
-			{
-				name: "Youtube Search Survey",
-				icon: "i-myna-layers-three",
-				desc: "CLI tool to search youtube video based on keyword and",
-				url: "https://github.com/xirf/YouTube-search-survey",
-				isPrivate: false,
-			},
-		],
-	},
-];
+const projectKeys = Object.keys(projects) as Array<keyof typeof projects>;
 ---
 
-<DefaultLayout>
-	<div class="flex min-h-screen p-12 max-w-6xl mx-auto">
-		<main class="w-full flex flex-col gap-6">
-			<h1 class="text-center font-lexend text-3xl font-bold @dark:text-#e5e7eb">Projects</h1>
-			<div class="flex flex-col gap-16">
+<Layout>
+	<div class=":uno: flex min-h-screen p-12 max-w-6xl mx-auto relative">
+		<main class=":uno: w-full flex flex-col gap-6 slide-enter-content">
+			<h1 class=":uno: text-center font-lexend text-3xl font-bold @dark:text-#e5e7eb">Projects</h1>
+			<p class=":uno: text-center">Thing that i have done or work on</p>
+			<div class=":uno: flex flex-col gap-16">
 				{
-					projects.map(({ name, content }) => (
-						<div class="grid gap-8 w-full">
-							<div class="w-full relative">
-								<h2 class="text-xl font-bold text-center">{name}</h2>
-								<div class="h-1px w-10 bg-gray mx-auto mt-2 opacity-50" />
-							</div>
-							<div class="grid xl:grid-cols-3 gap-4">
-								{content.map(({ name, icon, desc, url, isPrivate }) => (
-									<a
-										target={isPrivate ? "_self" : ""}
-										class:list={[{ "cursor-not-allowed": isPrivate }]}
-										{...(isPrivate ? {} : { href: url })}>
-										<div class="p-4 hover:(bg-white bg-opacity-5) rounded-lg duration-200 ease-in-out transition-all min-h-100px grid place-items-center">
-											<div class="flex gap-4 items-center">
-												<i class:list={[icon, "w-8 h-8 opacity-50 shrink-0"]} />
-												<div class="flex flex-col gap-1">
-													<h3 class="font-bold">{name}</h3>
-													<p class="text-xs opacity-75">{desc}</p>
-												</div>
+					projectKeys.map((key) => {
+						const _projects = projects[key] as unknown as Project[];
+						return (
+							<div class=":uno: flex flex-col gap-4 relative pt-8">
+								<h2 class=":uno: absolute text-6xl top-0 left-0 font-mono stroke-blueGray @dark:(text-d-base) text-l-base opacity-20 font-bold capitalize -z-1 text-stroke">
+									{key}
+								</h2>
+								<div class=":uno: grid grid-cols-3 gap-3">
+									{_projects.map((p: Project) => (
+										<a
+											href={p.url}
+											class=":uno: relative duration-500 ease-in-out transition-all flex items-center opacity-75 rounded-md overflow-hidden py-2 px-4 hover:(opacity-100) project-items">
+											<div class=":uno: mouses absolute w-10 h-10 blur-3xl @dark:(bg-white) bg-black" style="display: none;" />
+											<div class=":uno: pt-2 pr-5">
+												<div
+													class={`w-full h-10 w-10 aspect-square grow-0 shrink object-contain rounded-lg block ${p.image}`}
+												/>
 											</div>
-										</div>
-									</a>
-								))}
+											<div class=":uno: w-full">
+												<h3 class=":uno: font-lexend text-xl font-bold">{p.name}</h3>
+												<p class=":uno: font-lexend text-sm">{p.description}</p>
+											</div>
+										</a>
+									))}
+								</div>
 							</div>
-						</div>
-					))
+						);
+					})
 				}
 			</div>
 		</main>
 	</div>
-	<div class="h-32 w-full"></div>
-</DefaultLayout>
+</Layout>
+
+<script>
+	const projectItems = document.querySelectorAll(".project-items");
+	projectItems.forEach((item) => {
+		const mouses = item.querySelector(".mouses") as HTMLElement;
+
+		item.addEventListener("mouseenter", () => {
+			mouses.style.display = "block";
+		});
+
+		item.addEventListener("mousemove", (event: any) => {
+			const rect = item.getBoundingClientRect();
+			mouses.style.left = `${event.clientX - rect.left}px`;
+			mouses.style.top = `${event.clientY - rect.top}px`;
+		});
+
+		item.addEventListener("mouseleave", () => {
+			mouses.style.display = "none";
+		});
+	});
+</script>

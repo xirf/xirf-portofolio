@@ -1,17 +1,16 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import UnoCss from "unocss/astro";
 import sitemap from '@astrojs/sitemap';
-import solidJs from "@astrojs/solid-js";
-import unocss from "@unocss/astro";
-import vercel from "@astrojs/vercel/serverless";
 
+import vercel from "@astrojs/vercel/serverless";
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://andka.my.id',
-  integrations: [mdx(), sitemap(), solidJs(), unocss({
+  integrations: [mdx(), sitemap(), UnoCss({
     injectReset: true
   })],
-  output: "server",
+  output: "hybrid",
   adapter: vercel()
 });

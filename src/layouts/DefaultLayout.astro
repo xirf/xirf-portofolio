@@ -18,11 +18,11 @@ const { title, parentClass, desc } = Astro.props;
 	<head>
 		<BaseHead title={title} description={desc ?? "Web development portfolio of Xirf"} />
 	</head>
-	<body class:list={["bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af mb-20", parentClass]}>
+	<body class:list={[":uno: bg-#ebeef5 text-#3b3b3b @dark:bg-#111215 @dark:text-#9ca3af mb-20", parentClass]}>
 		<Header />
 		<slot />
-		<div class="px-2 text-center">
-			<p class="text-xs opacity-50">Licensed under <a href="https://mit-license.org/" class="underline">MIT License</a> &middot; Project source code available on <a href="https://github.com/xirf/xirf-portofolio" class="underline">GitHub Repo</a></p>
+		<div class=":uno: px-2 text-center">
+			<p class=":uno: text-xs opacity-50">Licensed under <a href="https://mit-license.org/" class=":uno: underline">MIT License</a> &middot; Project source code available on <a href="https://github.com/xirf/xirf-portofolio" class=":uno: underline">GitHub Repo</a></p>
 		</div>
 	</body>
 </html>

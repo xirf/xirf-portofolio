@@ -36,25 +36,25 @@ const iconLinks = [
 ];
 ---
 
-<nav class="px-8 py-6 w-full flex items-center justify-between">
+<nav class=":uno: px-8 py-6 w-full flex items-center justify-between">
 	<a href="/">
-		<div class="flex justify-between gap-2 font-bold">
-			<span class="i-myna-terminal w-6 h-6">terminal</span>
-			<span class="hidden sm:block ">Andka</span>
+		<div class=":uno: flex justify-between gap-2 font-bold">
+			<span class=":uno: i-myna-terminal w-6 h-6">terminal</span>
+			<span class=":uno: hidden sm:block ">Andka</span>
 		</div>
 	</a>
-	<div class="flex items-center gap-4">
+	<div class=":uno: flex items-center gap-4">
 		{
 			links.map((link) => (
-				<a href={link.href} class="flex items-center" title={link.label}>
+				<a href={link.href} class=":uno: flex items-center" title={link.label}>
 					<span class={link.icon + " w-5 h-5 sm:hidden"} />
-					<span class="hidden sm:block">{link.label}</span>
+					<span class=":uno: hidden sm:block">{link.label}</span>
 				</a>
 			))
 		}
 		{
 			iconLinks.map((link) => (
-				<a href={link.href} class="flex items-center" rel="noopener" target="_blank" 
+				<a href={link.href} class=":uno: flex items-center" rel="noopener" target="_blank" 
                 title={link.label}>
 					<span class={link.icon + " w-5 h-5"} />
 				</a>
