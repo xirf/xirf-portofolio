@@ -20,7 +20,7 @@ That's when I stumbled upon <a href="https://unocss.dev/" target="_blank">UnoCSS
 
 
 ```html
-<div class="bg-#272d44 text-white p-4 rounded-lg text-20px">
+<div class=":uno: bg-#272d44 text-white p-4 rounded-lg text-20px">
   Hello World
 </div>
 ```

@@ -16,28 +16,28 @@ const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.
 		<BaseHead title={title} description={description} />
 	</head>
 
-	<body class="text-d-on-base bg-d-base">
+	<body class=":uno: text-d-on-base bg-d-base">
 		<Header />
-		<main class="relative">
-			<nav class="fixed top-16 right-8 h-screen w-25% flex flex-col group">
-				<div class="i-myna-list w8 h8 self-end opacity-75 group-hover:opacity-100 ease-in-out duration-500"></div>
-				<ul class="flex justify-center space-x-4 flex-col text-right w-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out">
+		<main class=":uno: relative">
+			<nav class=":uno: fixed top-16 right-8 h-screen w-25% flex flex-col group">
+				<div class=":uno: i-myna-list w8 h8 self-end opacity-75 group-hover:opacity-100 ease-in-out duration-500"></div>
+				<ul class=":uno: flex justify-center space-x-4 flex-col text-right w-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out">
 					{
 						headings.map((heading) => (
 							<li>
-								<a href={`#${heading.slug}`} class="opacity-75 hover:opacity-100 transition-all duration-500 ease-in-out">{heading.text}</a>
+								<a href={`#${heading.slug}`} class=":uno: opacity-75 hover:opacity-100 transition-all duration-500 ease-in-out">{heading.text}</a>
 							</li>
 						))
 					}
 				</ul>
 			</nav>
 			<article>
-				<div class="hero-image">
+				<div class=":uno: hero-image">
 					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
 				</div>
-				<div class="w-3xl m-auto prose slide-enter-content pb32">
-					<div class="mb-8">
-						<h1 class="text-5xl font-bold mb-4">{title}</h1>
+				<div class=":uno: w-3xl m-auto prose slide-enter-content pb32">
+					<div class=":uno: mb-8">
+						<h1 class=":uno: text-5xl font-bold mb-4">{title}</h1>
 						<div>
 							<FormattedDate date={pubDate} />
 							{
