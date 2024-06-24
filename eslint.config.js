@@ -1,7 +1,7 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-import eslintPluginAstro, { rules } from "eslint-plugin-astro"
+import eslintPluginAstro from "eslint-plugin-astro"
 
 export default [
   pluginJs.configs.recommended,
