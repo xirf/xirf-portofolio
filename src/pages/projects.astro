@@ -8,15 +8,18 @@ const projectKeys = Object.keys(projects) as Array<keyof typeof projects>;
 
 <Layout>
 	<div class="flex min-h-screen p-12 max-w-6xl mx-auto relative">
-		<main class="w-full flex flex-col gap-6">
+		<main class="w-full flex flex-col gap-6 slide-enter-content">
 			<h1 class="text-center font-lexend text-3xl font-bold @dark:text-#e5e7eb">Projects</h1>
+			<p class="text-center">Thing that i have done or work on</p>
 			<div class="flex flex-col gap-16">
 				{
 					projectKeys.map((key) => {
 						const _projects = projects[key] as unknown as Project[];
 						return (
-							<div class="flex flex-col gap-4">
-								<h2>{key}</h2>
+							<div class="flex flex-col gap-4 relative pt-8">
+								<h2 class="absolute text-6xl top-0 left-0 font-mono stroke-blueGray color-d-base opacity-20 font-bold capitalize -z-1 text-stroke">
+									{key}
+								</h2>
 								<div class="grid grid-cols-3 gap-3">
 									{_projects.map((p: Project) => (
 										<a

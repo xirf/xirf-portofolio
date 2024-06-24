@@ -1,20 +1,38 @@
 ---
-import { type CollectionEntry, getCollection } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import { type CollectionEntry, getCollection } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.slug },
-		props: post,
-	}));
-}
-type Props = CollectionEntry<'blog'>;
+	const posts = await getCollection("blog");
+	const numOfPost = posts.length;
 
-const post = Astro.props;
-const { Content } = await post.render();
+	return posts
+		.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+		.map((post, i) => ({
+			params: { slug: post.slug },
+			props: {
+				post,
+				prevPost: i + 1 === numOfPost ? null : posts[i + 1],
+				nextPost: i === 0 ? null : posts[i - 1],
+			},
+		}));
+}
+type Props = CollectionEntry<"blog">;
+
+// @ts-ignore
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await post.render();
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} headings={headings}>
 	<Content />
+
+	{prevPost && <a href={`/blog/${prevPost.slug}`}>&gt; cd ../"{prevPost.data.title}"</a>}
+	{
+		nextPost && (
+			<a href={`/blog/${nextPost.slug}`} class="decoration-none">
+				&gt; cd "{nextPost.data.title}"
+			</a>
+		)
+	}
 </BlogPost>
