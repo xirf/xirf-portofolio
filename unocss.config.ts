@@ -26,6 +26,8 @@ export default defineConfig({
         colors: {
             "d-base": "#111215",
             "d-on-base": "rgb(156 163 175)",
+            "l-base": "#eff1f5",
+            "l-on-base": "#4c4f69"
         }
     },
     transformers: [
