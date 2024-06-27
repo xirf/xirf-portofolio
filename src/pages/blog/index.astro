@@ -38,14 +38,16 @@ for (const post of posts) {
 									<li class=":uno: mt-2">
 										<a
 											href={`/blog/${post.slug}`}
-											class=":uno: text-blue-400 hover:-translate-y-1 duration-300 transition-all transform inline-flex items-end gap-4">
-											{post.data.title}
-											<span class=":uno: text-xs text-gray-500">
-												{new Date(post.data.pubDate).toLocaleDateString("en-US", {
-													day: "2-digit",
-													month: "long",
-												})}
-											</span>
+											class=":uno: text-blue-400 inline-block hover:-translate-y-1 duration-300 transition-all transform inline-flex items-end gap-4">
+											<p>
+												{post.data.title}
+												<span class=":uno: text-xs text-gray-500 inline-block">
+													{new Date(post.data.pubDate).toLocaleDateString("en-US", {
+														day: "2-digit",
+														month: "long",
+													})}
+												</span>
+											</p>
 										</a>
 									</li>
 								))}
