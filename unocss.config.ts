@@ -32,18 +32,17 @@ export default defineConfig({
     },
     transformers: [
         transformerVariantGroup(),
-        transformerCompileClass({
-            classPrefix: "x_"
-        }),
     ],
     presets: [
-        presetUno(),
+        presetUno({
+            dark: "class",
+        }),
         presetTypography(),
         presetWebFonts({
             provider: "google",
             fonts: {
                 sans: "Lexend:300,400,500,700",
-                mono: "JetBrains Mono"
+                mono: "JetBrains Mono:400",
             }
         }),
         presetIcons({

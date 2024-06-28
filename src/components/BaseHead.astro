@@ -16,7 +16,15 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
 <link rel="canonical" href={canonicalURL} />
-
+<script defer>
+	!(function () {
+		var e = window.matchMedia("(prefers-color-scheme: dark)").matches;
+		var t = localStorage.getItem("isDarkMode") || "auto";
+		if (t === "true" || (e && t !== "false")) {
+			document.documentElement.classList.toggle("dark", !0);
+		}
+	})();
+</script>
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
@@ -34,6 +42,26 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 	* {
 		scroll-behavior: smooth;
 	}
+
+	::-webkit-scrollbar {
+		width: 6px;
+	}
+	::-webkit-scrollbar:horizontal {
+		height: 6px;
+	}
+	::-webkit-scrollbar-track,
+	::-webkit-scrollbar-corner {
+		background: var(--c-bg);
+		border-radius: 10px;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--c-scrollbar);
+		border-radius: 10px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--c-scrollbar-hover);
+	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		html:not(.no-sliding) [slide-enter],
 		html:not(.no-sliding) .slide-enter,
@@ -105,6 +133,24 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 		.slide-enter-content > *:nth-child(20) {
 			--enter-stage: 20 !important;
 		}
+	}
+
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
+		mix-blend-mode: normal;
+	}
+	::view-transition-old(root) {
+		z-index: 1;
+	}
+	::view-transition-new(root) {
+		z-index: 9999;
+	}
+	.dark::view-transition-old(root) {
+		z-index: 9999;
+	}
+	.dark::view-transition-new(root) {
+		z-index: 1;
 	}
 
 	@keyframes slide-enter {
