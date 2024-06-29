@@ -20,7 +20,7 @@ export default defineConfig({
         transformerNotationDiff(),
         {
           pre(node) {
-            const filename = this.options.meta?.filename || "file";
+            const filename = JSON.stringify(this.options.meta) || "index" + (this.options.extension || ".txt");
 
             const button = h('button', {
               class: 'shiki-copy',

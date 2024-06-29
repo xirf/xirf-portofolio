@@ -3,7 +3,7 @@
 ---
 
 <button class="toggle-theme flex items-center" id="toggle-theme" aria-label="Toggle theme" title="Toggle theme">
-	<div class=" w5 h5 i-myna-moon dark:(i-myna-sun w5 h5)"></div>
+	<div class="w5 h5 i-myna-moon dark:(i-myna-sun w5 h5)"></div>
 </button>
 
 <script is:inline>
@@ -21,6 +21,14 @@
 		}
 
 		function toogleDarkMode(e) {
+			const isTransitionAvailable = document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+			if (!isTransitionAvailable) {
+				let isDark = localStorage.getItem("isDarkMode") === "true";
+				document.documentElement.classList.toggle("dark", !isDark);
+				return;
+			}
+
 			const transition = document.startViewTransition(async () => {
 				const element = document.documentElement;
 				let isDark = element.classList.contains("dark");
@@ -62,6 +70,8 @@
 	});
 
 	document.addEventListener("astro:after-swap", () => {
-        localStorage.getItem("isDarkMode") === "true" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+		localStorage.getItem("isDarkMode") === "true"
+			? document.documentElement.classList.add("dark")
+			: document.documentElement.classList.remove("dark");
 	});
 </script>
