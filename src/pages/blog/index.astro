@@ -2,7 +2,13 @@
 import { getCollection } from "astro:content";
 import DefautLayout from "../../layouts/Layout.astro";
 
-const posts = (await getCollection("blog")).sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+const posts = (await getCollection("blog"))
+	.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+	.filter((post) => {
+		// Skip draft posts in production
+		if (import.meta.env.DEV) return true;
+		return !post.data.draft;
+	});
 
 let postsByYear: Record<number, typeof posts> = {};
 
@@ -14,10 +20,10 @@ for (const post of posts) {
 ---
 
 <DefautLayout title="Andka Blog, a collection of my thoughts">
-	<div class=" grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content">
+	<div class="grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content">
 		<h1>
-			<span class=" text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
-			<span class=" font-light text-sm">A collection of my thoughts</span>
+			<span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
+			<span class="font-light text-sm">A collection of my thoughts</span>
 		</h1>
 		<p>
 			Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think

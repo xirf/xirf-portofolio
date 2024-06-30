@@ -56,4 +56,5 @@ export default defineConfig({
             },
         }),
     ],
+    safelist: ["i-myna-copy", "i-myna-check-square", "i-myna-x"]
 })

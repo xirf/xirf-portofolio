@@ -15,20 +15,20 @@
     "@astrojs/rss": "^4.0.6",
     "@astrojs/sitemap": "^3.1.6",
     "@astrojs/vercel": "^7.7.1",
+    "@expressive-code/plugin-collapsible-sections": "^0.35.3",
+    "@expressive-code/plugin-line-numbers": "^0.35.3",
     "@iconify-json/mynaui": "^1.1.7",
     "@iconify-json/solar": "^1.1.9",
     "@typescript-eslint/parser": "^7.13.1",
     "astro": "^4.11.0",
+    "astro-expressive-code": "^0.35.3",
     "eslint": "latest",
     "eslint-plugin-astro": "^1.2.2",
     "eslint-plugin-jsx-a11y": "^6.9.0",
-    "hastscript": "^9.0.0",
-    "shiki": "^1.10.0",
     "typescript": "^5.5.2",
     "unocss": "^0.61.0"
   },
   "devDependencies": {
-    "@shikijs/transformers": "^1.10.0",
     "@unocss/reset": "^0.61.0"
   }
 }

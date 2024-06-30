@@ -49,8 +49,13 @@ This repo is free to use and modify. If you want to use this repo as a template,
 
 ## License
 
+> [!IMPORTANT]
+> This repository is highly inspired by [antfu.me](https://antfu.me) by [Anthony Fu](https://github.com/antfu). The original project's repository is available at [this link](https://github.com/antfu/antfu.me) and is distributed under the MIT License. Likewise, this repository will also be distributed under the MIT License.
+> 
+> Please note that this repository is not a fork, but a port from VitePress to Astro. I aim to maintain the essence and functionality of the original work while leveraging Astro's unique benefits. We are grateful for the inspiration from Anthony Fu and hope this port will be as valuable to the community.
+
 This project is open source and available under the [MIT License](LICENSE).
 
-All content in the `src/content` directory is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+All content in the `src/content/blog` and some in `public` directory is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
 
-External media such as images and videos are not included in the license. Proper attribution from the original source is required.
+External media such as images and video links included in this repository are not covered by the License and remain the property of their respective owners. Please ensure you have the appropriate permissions to use any such media.
