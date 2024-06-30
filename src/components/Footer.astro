@@ -1,6 +1,19 @@
 ---
+const { isBlog } = Astro.props;
 ---
 
-<footer class=" py-4">
-	<p class="  px4 text-xs text-center"> Licensed under <a href="https://mit-license.org/" class=" underline">MIT License</a> &middot; Project source code available on <a href="https://github.com/xirf/xirf-portofolio" class=" underline">GitHub Repo</a > </p>
+<footer class="py-4">
+	<p class="px4 text-xs text-center">
+		{
+			isBlog ? (
+				<>
+					Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" class="underline">CC BY 4.0</a> &middot; some content may be licensed under different terms
+				</>
+			) : (
+				<>
+					Licensed under <a href="https://mit-license.org/" class="underline"> MIT License </a> &middot; Project source code available at <a href="https://github.com/xirf/xirf-portofolio" class="underline">GitHub Repo</a>
+				</>
+			)
+		}
+	</p>
 </footer>

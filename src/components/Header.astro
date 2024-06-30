@@ -38,19 +38,19 @@ const iconLinks = [
 ];
 ---
 
-<nav class=" px-8 py-6 w-full flex items-center justify-between">
-	<a href="/">
-		<div class=" flex justify-between gap-2 font-bold">
-			<span class=" i-myna-terminal w-6 h-6">terminal</span>
-			<span class=" hidden sm:block">Andka</span>
+<nav class="px-8 py-6 w-full flex items-center justify-between fixed bottom-0 left-0 md:relative bg-l-base dark:bg-d-base z-100">
+	<a href="/" title="Home" aria-label="Home">
+		<div class="flex justify-between gap-2 font-bold">
+			<span class="i-myna-terminal w-6 h-6"></span>
+			<span class="hidden sm:block">Andka</span>
 		</div>
 	</a>
-	<div class=" flex items-center gap-4">
+	<div class="flex items-center gap-4">
 		{
 			links.map((link) => (
-				<a href={link.href} class=" flex items-center" title={link.label}>
+				<a href={link.href} class=" flex items-center" title={link.label} aria-label={link.label}>
 					<span class={link.icon + " w-5 h-5 sm:hidden"} />
-					<span class=" hidden sm:block">{link.label}</span>
+					<span class=" hidden sm:block" />
 				</a>
 			))
 		}

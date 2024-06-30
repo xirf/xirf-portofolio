@@ -9,7 +9,7 @@ type Props = CollectionEntry<"blog">["data"] & { headings: MarkdownHeading[] };
 const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.props;
 ---
 
-<Layout title={title} description={description} image={heroImage || null}>
+<Layout title={title} description={description} image={heroImage || undefined} isBlog={true}>
 	<div class="relative">
 		<nav class="fixed top-16 right-8 h-screen w-25% flex-col group hidden xl:flex">
 			<div class="i-myna-list w8 h8 self-end opacity-75 group-hover:opacity-100 ease-in-out duration-500"></div>

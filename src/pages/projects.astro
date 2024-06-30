@@ -20,7 +20,7 @@ const projectKeys = Object.keys(projects) as Array<keyof typeof projects>;
 								<h2 class="absolute text-6xl top-0 left-0 font-mono stroke-blueGray dark:(text-d-base) text-l-base opacity-20 font-bold capitalize -z-1 text-stroke">
 									{key}
 								</h2>
-								<div class=" grid xl:grid-cols-3 gap-3">
+								<div class=" grid sm:grid-cols-2 md:grid-cols-3 gap-3">
 									{_projects.map((p: Project) => {
 										const pContent = (
 											<>
