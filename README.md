@@ -7,10 +7,10 @@ Visit [andka.my.id](https://andka.my.id) for live preview
 <!-- image -->
 
 <figure>
-    <source 
+    <source
         srcset="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-dark.png"
         media="(prefers-color-scheme: dark)" />
-    <source 
+    <source
         srcset="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-light.png"
         media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
     <img
