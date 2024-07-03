@@ -20,7 +20,7 @@
 			localStorage.setItem("isDarkMode", "false");
 		}
 
-		function toogleDarkMode(e) {
+		function toogleDarkMode() {
 			const isTransitionAvailable = document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 			if (!isTransitionAvailable) {
