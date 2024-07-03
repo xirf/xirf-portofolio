@@ -13,11 +13,9 @@ Visit [andka.my.id](https://andka.my.id) for live preview
     <source 
         srcset="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-light.png"
         media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
-
     <img
         src="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-light.png"
         alt="XIRF - Personal Blog & Portfolio" />
-
 </figure>
 
 ## Installation
