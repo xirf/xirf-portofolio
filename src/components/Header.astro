@@ -50,7 +50,7 @@ const iconLinks = [
 			links.map((link) => (
 				<a href={link.href} class=" flex items-center" title={link.label} aria-label={link.label}>
 					<span class={link.icon + " w-5 h-5 sm:hidden"} />
-					<span class=" hidden sm:block" />
+					<span class=" hidden sm:block" >{link.label}</span>
 				</a>
 			))
 		}
