@@ -27,12 +27,22 @@ const { Content, headings } = await post.render();
 <BlogPost {...post.data} headings={headings}>
 	<Content />
 
-	{prevPost && <a href={`/blog/${prevPost.slug}`}>&gt; cd ../"{prevPost.data.title}"</a>}
-	{
-		nextPost && (
-			<a href={`/blog/${nextPost.slug}`} class=" decoration-none">
-				&gt; cd "{nextPost.data.title}"
-			</a>
-		)
-	}
+	<div class="grid gap-2">
+		<a href="/blog" <a class="decoration-none">&gt; cd ../blog</a>
+		{
+			prevPost && (
+				<a class="decoration-none" href={`/blog/${prevPost.slug}`}>
+					&gt; cd ../"{prevPost.data.title}"
+				</a>
+			)
+		}
+		{
+			nextPost && (
+				<a href={`/blog/${nextPost.slug}`} class=" decoration-none">
+					{" "}
+					&gt; cd "{nextPost.data.title}"{" "}
+				</a>
+			)
+		}
+	</div>
 </BlogPost>

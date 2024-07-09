@@ -2,7 +2,6 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintPluginAstro from "eslint-plugin-astro"
-import unocssConfig from "unocss";
 
 export default [
   pluginJs.configs.recommended,

@@ -6,7 +6,17 @@ Visit [andka.my.id](https://andka.my.id) for live preview
 
 <!-- image -->
 
-![XIRF - Personal Blog & Portfolio](/public/screenshot.png)
+<figure>
+    <source 
+        srcset="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-dark.png"
+        media="(prefers-color-scheme: dark)" />
+    <source 
+        srcset="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-light.png"
+        media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
+    <img
+        src="https://raw.githubusercontent.com/xirf/xirf-portofolio/main/public/images/screenshot-light.png"
+        alt="XIRF - Personal Blog & Portfolio" />
+</figure>
 
 ## Installation
 
@@ -51,7 +61,7 @@ This repo is free to use and modify. If you want to use this repo as a template,
 
 > [!IMPORTANT]
 > This repository is highly inspired by [antfu.me](https://antfu.me) by [Anthony Fu](https://github.com/antfu). The original project's repository is available at [this link](https://github.com/antfu/antfu.me) and is distributed under the MIT License. Likewise, this repository will also be distributed under the MIT License.
-> 
+>
 > Please note that this repository is not a fork, but a port from VitePress to Astro.
 
 All content in the `src/content/blog` and some in `public` directory is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
