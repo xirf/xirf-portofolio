@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const socialMedia = [
+	{
+		link: "https://github.com/mrzonk",
+		icon: "i-myna-brand-github",
+		name: "Github",
+	},
+	{
+		link: "https://www.facebook.com/galangmaico",
+		icon: "i-myna-brand-facebook",
+		name: "Facebook",
+	},
+	{
+		link: "https://twitter.com/g_yogapratama",
+		icon: "i-myna-brand-x",
+		name: "Twitter",
+	},
+];
+---
+
+<Layout title="Galang Yoga Pratama, welcome to my home" description="Galang Yoga Pratama, I am a fresh graduate majoring in Informatics Engineering,Technology is my passion and dreaming of a better world in the future and making it happen is a dream come true. I usually like web dev stuff but I also like desktop app dev using java if you are interested you can visit my project here. Outside of coding, I often spend my time playing some non-serious games just to entertain myself when I get bored coding. I also like reading articles about technology or videos, especially about Linux. If you have any recommendations, feel free to suggest them. I live in East Jakarta, DKI Jakarta so if you are around don't hesitate to contact me, maybe we can collaborate.">
+	<div class=" flex items-center justify-center min-h-70vh p-12">
+		<div class=" w-full grid gap-6 max-w-xl slide-enter-content			">
+			<div>
+				<h1 class=" dark:text-#e5e7eb text-4xl font-bold item">Mrzonk</h1>
+			</div>
+			<div class=" text-sm grid gap-3">
+				<div>
+					<p>Hi, I am Galang Yoga Pratama</p>
+					<p>Currently a fresh graduate majoring in Informatics Engineering.</p>
+				</div>
+				<p>
+					Technology is my passion and dreaming of a better world in the future and making it happen is a dream come true. I usually like web dev stuff but I also like desktop app dev using java if you are interested you can 
+					visit my <a href="/projects" class=" font-bold underline">projects here</a>.
+				</p>
+				<p>
+					Outside of coding, I often spend my time playing some non-serious games just to entertain myself when I get bored coding. I also like reading articles about technology or videos, especially about Linux. If you have any recommendations, feel free to suggest them. I live in East Jakarta, DKI Jakarta so if you are around don't hesitate to contact me, maybe we can collaborate.
+				</p>
+			</div>
+			<div class=" w-20 h-1px bg-gray opacity-50 mx-auto mt-2"></div>
+			<div class=" text-sm">
+				<p>Find me on</p>
+				<div class=" flex items-start justify-start gap-4 mt-2">
+					{
+						socialMedia.map((url) => (
+							<a href={url.link} class=" flex items-center justify-center gap-2" target="_blank" rel="noopener noreferrer">
+								<span class:list={[url.icon, "inline-block", "w-4", "h-4"]} />
+								{url.name}
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>

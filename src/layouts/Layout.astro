@@ -1,0 +1,31 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import LoadingIndicator from "../components/LoadingIndicator.astro";
+
+interface Props {
+	title: string;
+	description: string;
+	image?: string;
+	isBlog?: boolean;
+}
+
+const { title, description, image, isBlog } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} image={image} />
+	</head>
+	<body class=" dark:(bg-d-base text-d-on-base) bg-l-base text-l-on-base font-sans pb-5 md:pb-3em">
+		<a href="#main" class="sr-only focus:not-sr-only" tabindex="0">Skip to main content</a>
+		<LoadingIndicator color="#bcc0cc" height="2px" threshold={0} animationDuration={200} />
+		<Header />
+		<main id="main">
+			<slot />
+		</main>
+		<Footer isBlog={isBlog} />
+	</body>
+</html>

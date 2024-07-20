@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Craft It",
+    "url": "https://github.com/7exp/craftit-android",
+    "description": "My capstone project at Bangkit Academy",
+    "image": "i-solar-sledgehammer-bold-duotone"
+  },
+  {
+    "name": "Asclepius",
+    "url": "https://github.com/xirf/asclepius",
+    "description": "Fist try implementing ML on android",
+    "image": "i-solar-document-medicine-bold-duotone"
+  },
+  {
+    "name": "Github Friends",
+    "url": "https://github.com/xirf/githubfriends",
+    "description": "App for my network test project",
+    "image": "i-solar-gift-bold-duotone"
+  },
+  {
+    "name": "Hanashi",
+    "url": "https://github.com/xirf/hanashi",
+    "description": "Final project for my dicoding class",
+    "image": "i-solar-hashtag-square-bold-duotone"
+  },
+  {
+    "name": "Yomu Toki",
+    "url": "https://github.com/xirf/yomutoki",
+    "description": "My first android app",
+    "image": "i-solar-smartphone-2-bold-duotone"
+  }
+]
