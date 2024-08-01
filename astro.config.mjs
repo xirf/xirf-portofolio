@@ -1,32 +1,34 @@
-import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import UnoCss from "unocss/astro";
-import sitemap from '@astrojs/sitemap';
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
 import vercel from "@astrojs/vercel/serverless";
+import { defineConfig } from "astro/config";
+import UnoCss from "unocss/astro";
+import yaml from "@rollup/plugin-yaml";
 
+import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
+import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import expressiveCode from "astro-expressive-code";
-import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
-import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
+
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://andka.my.id',
+  site: "https://andka.my.id",
+  vite: {
+    plugins: [yaml()]
+  },
   integrations: [
     expressiveCode({
-      themes: [ 'catppuccin-frappe', 'catppuccin-latte' ],
-      plugins: [
-        pluginCollapsibleSections(),
-        pluginLineNumbers()
-      ],
+      themes: ["catppuccin-frappe", "catppuccin-latte"],
+      plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
       defaultProps: {
         showLineNumbers: true,
-        wrap: true
-      }
+        wrap: true,
+      },
     }),
     mdx(),
     sitemap(),
-    UnoCss({ injectReset: true })
+    UnoCss({ injectReset: true }),
   ],
   output: "hybrid",
-  adapter: vercel()
+  adapter: vercel(),
 });
