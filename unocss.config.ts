@@ -17,9 +17,15 @@ export default defineConfig({
     content: {
         pipeline: {
             include: [
-                /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html|json)($|\?)/,
+                /\.(mdx|md|astro|html|json)($|\?)/,
+                "src/content/**/*.{md.mdx}",
+                "src/**/*.{yml,yaml}",
+                "src/**/*.json",
             ]
-        }
+        },
+        filesystem: [
+            "src/**/*.yaml"
+        ]
     },
     theme: {
         colors: {
@@ -55,5 +61,4 @@ export default defineConfig({
             },
         }),
     ],
-    safelist: ["i-myna-copy", "i-myna-check-square", "i-myna-x"]
 })

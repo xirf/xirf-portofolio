@@ -41,7 +41,11 @@ for (const post of posts) {
 							{posts
 								.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 								.map((post: any) => (
-									<li class=" mt-2">
+									<li class:list={[
+										"mt-2 relative",
+										{"before:(content-['ID'] absolute -left-10 bg-gray bg-opacity-25 px-2 py-1 text-xs rounded-md) ": post.data.idOnly}
+									]
+									}>
 										<a
 											href={`/blog/${post.slug}`}
 											class=" text-blue-400 inline-block hover:-translate-y-1 duration-300 transition-all transform inline-flex items-end gap-4">
