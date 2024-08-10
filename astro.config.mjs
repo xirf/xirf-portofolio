@@ -14,21 +14,27 @@ import expressiveCode from "astro-expressive-code";
 export default defineConfig({
   site: "https://andka.my.id",
   vite: {
-    plugins: [yaml()]
+    plugins: [ yaml() ]
   },
   integrations: [
     expressiveCode({
-      themes: ["catppuccin-frappe", "catppuccin-latte"],
-      plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
+      themes: [ "catppuccin-frappe", "catppuccin-latte" ],
+      plugins: [ pluginCollapsibleSections(), pluginLineNumbers() ],
       defaultProps: {
         showLineNumbers: true,
         wrap: true,
       },
     }),
     mdx(),
-    sitemap(),
+    sitemap({
+      changefreq: 'monthly',
+      'priority': 0.7,
+      'lastmod': new Date().toISOString().split('T')[ 0 ],
+    }),
     UnoCss({ injectReset: true }),
   ],
   output: "hybrid",
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: true
+  }),
 });
