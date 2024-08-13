@@ -12,19 +12,15 @@
 		let windowTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
 		let isDarkMode = theme === "true" || (theme === "auto" && windowTheme);
 
-		if (isDarkMode) {
-			document.documentElement.classList.add("dark");
-			localStorage.setItem("isDarkMode", "true");
-		} else {
-			document.documentElement.classList.remove("dark");
-			localStorage.setItem("isDarkMode", "false");
-		}
+		document.documentElement.classList.toggle("dark", isDarkMode);
+		localStorage.setItem("isDarkMode", isDarkMode.toString());
 
-		function toogleDarkMode() {
+		function toogleDarkMode(event) {
 			const isTransitionAvailable = document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 			if (!isTransitionAvailable) {
-				let isDark = localStorage.getItem("isDarkMode") === "true";
+				let isDark = localStorage.getItem("isDarkMode") == "true";
+				localStorage.setItem("isDarkMode", !isDark);
 				document.documentElement.classList.toggle("dark", !isDark);
 				return;
 			}
@@ -35,22 +31,19 @@
 
 				isDark = !isDark;
 
-				if (isDark) {
-					element.classList.add("dark");
-				} else {
-					element.classList.remove("dark");
-				}
-
+				element.classList.toggle("dark", isDark);
 				localStorage.setItem("isDarkMode", isDark);
 			});
 
 			transition.ready.then(() => {
-				const button = document.getElementById("toggle-theme")
+				const button = document.getElementById("toggle-theme");
 
 				let isDark = localStorage.getItem("isDarkMode") === "true";
 
-				const x = button.getBoundingClientRect().left + button.offsetWidth / 2;
-				const y = button.getBoundingClientRect().top + button.offsetHeight / 2;
+				// Use event instead of center of the button becuase in some cases the calculation is wrong
+				// This will fix later if i have time :D (or you can do it)
+				const x = event.clientX;
+				const y = event.clientY;
 				const endRadius = Math.hypot(Math.max(window.innerWidth - x, x), Math.max(window.innerHeight - y, y));
 
 				const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`];

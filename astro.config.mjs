@@ -19,13 +19,13 @@ export default defineConfig({
   },
   markdown: {
     rehypePlugins: [
-        rehypeAccessibleEmojis,
-        rehypeExternalLinks,
+      rehypeAccessibleEmojis,
+      [ rehypeExternalLinks,
         {
-          content: { type: 'text', value: ' ➚' },
           rel: [ 'external', 'nofollow', 'noopener', 'noreferrer' ],
-          target: ["_blank"]
-        }   
+          target: [ "_blank" ]
+        }
+      ]
     ]
   },
   integrations: [

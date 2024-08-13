@@ -19,7 +19,9 @@ for (const post of posts) {
 }
 ---
 
-<DefautLayout title="Andka Blog, a collection of my thoughts" description="Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!">
+<DefautLayout
+	title="Andka Blog, a collection of my thoughts"
+	description="Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!">
 	<div class="grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content">
 		<h1>
 			<span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
@@ -29,26 +31,33 @@ for (const post of posts) {
 			Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think
 			others might find interesting as well. I hope you enjoy reading them!
 		</p>
+		<button id="englishOnly" class="w-fit -mt-4 flex items-center gap-2"><span class="i-myna-square"></span><span class="i-myna-check-square hidden"></span> Show English Only</button>
 		{
 			Object.entries(postsByYear)
 				.sort(([a], [b]) => parseInt(b) - parseInt(a))
-				.map(([year, posts]: [string, any]) => (
+				.map(([year, posts]: [string, any[]], yearIndex: number) => (
 					<div class=" my-12 relative">
-						<div class=" text-2xl font-bold absolute -z-50 font-lexend text-9xl -top-12 -left-12 opacity-10 text-stroke dark:(text-d-base) text-l-base ">
+						<div
+							class=" text-2xl font-bold absolute -z-50 font-lexend text-9xl -top-12 -left-12 opacity-10 text-stroke dark:(text-d-base) text-l-base "
+							style={`--enter-stage: ${yearIndex + posts.length + 2} !important;`}>
 							{year}
 						</div>
-						<ul class=" mt-4 z-50 gap-4 grid">
+						<ul class=" mt-4 z-50 gap-4 grid slide-enter-content">
 							{posts
 								.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-								.map((post: any) => (
-									<li class:list={[
-										"mt-2 relative",
-										{"before:(content-['ID'] absolute -left-10 bg-gray bg-opacity-25 px-2 py-1 text-xs rounded-md) ": post.data.idOnly}
-									]
-									}>
+								.map((post: any, postIndex: number) => (
+									<li
+										class:list={[
+											"mt-2 relative",
+											{
+												"before:(content-['ID'] absolute -left-10 bg-#5551 text-#888 bg-opacity-25 px-2 py-1 text-xs rounded-md) lang-id":
+													post.data.idOnly,
+											},
+										]}
+										style={`--enter-stage: ${yearIndex > 0 ? yearIndex : ""}${postIndex + 2} !important;`}>
 										<a
 											href={`/blog/${post.slug}`}
-											class=" text-blue-400 inline-block hover:-translate-y-1 duration-300 transition-all transform inline-flex items-end gap-4">
+											class="inline-block duration-200 transition-all transform inline-flex items-end gap-4 opacity-90 hover:opacity-100">
 											<p>
 												{post.data.title}
 												<span class=" text-xs text-gray-500 inline-block">
@@ -67,3 +76,22 @@ for (const post of posts) {
 		}
 	</div>
 </DefautLayout>
+
+<script>
+	const showEnglishOnlyButton = document.getElementById("englishOnly") as HTMLButtonElement
+
+	showEnglishOnlyButton.addEventListener("click", ()=>{
+		const checkicon = showEnglishOnlyButton.querySelector('.i-myna-square')
+		const checkedicon = showEnglishOnlyButton.querySelector('.i-myna-check-square')
+
+		if (checkicon && checkedicon) {
+			checkicon.classList.toggle('hidden')
+			checkedicon.classList.toggle('hidden')
+		}
+
+		const posts = document.querySelectorAll('.lang-id')
+		posts.forEach(post => {
+			post.classList.toggle('hidden')
+		})	
+	})
+</script>
