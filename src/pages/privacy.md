@@ -15,7 +15,7 @@ Welcome to our Privacy Policy page. This document outlines the privacy practices
 
 - **DNS Services**: We use Cloudflare for DNS services[^2]. For details on how Cloudflare handles data, please review their [Privacy Policy](https://www.cloudflare.com/privacypolicy/).
 
-- **External Links**: All external links open in a new tab and are configured not to send referrer information in the header. We do not use anonymizing services, so you will know exactly where each link will take you. Additionally, we use the `noopener` attribute to prevent the new page from accessing the original page. External links are marked with a "North East Black Arrow" symbol (⬈) . If any external links are missing the `rel="external nofollow noopener noreferrer"`[^3] attribute, [let us know](mailto:hy@andka.my.id) and we will update them promptly.
+- **External Links**: All external links open in a new tab and are configured not to send referrer information in the header. We do not use anonymizing services, so you will know exactly where each link will take you. Additionally, we use the `noopener` attribute to prevent the new page from accessing the original page. If any external links are missing the `rel="external nofollow noopener noreferrer"`[^3] attribute, [let us know](mailto:hy@andka.my.id) and we will update them promptly.
 
 
 - **User Tracking and Analytics**: We do not implement any user tracking or analytics on this site. Our website exists solely for personal satisfaction, and we have no interest in tracking site popularity. Therefore, no data is collected, stored, or analyzed. There are no advertisements, tracking mechanisms, or analytics—just content for your reading pleasure.
