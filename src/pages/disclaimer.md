@@ -1,6 +1,6 @@
 ---
-layout: '../layouts/BlogPost.astro'
-title: 'Disclaimer'
+layout: "../layouts/BlogPost.astro"
+title: "Disclaimer"
 ---
 
 # Disclaimer

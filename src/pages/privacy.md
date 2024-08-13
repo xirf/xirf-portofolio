@@ -1,10 +1,11 @@
 ---
-layout: '../layouts/BlogPost.astro'
-title: 'Privacy Policy'
+layout: "../layouts/BlogPost.astro"
+title: "Privacy Policy"
 updatedDate: "Aug 13 2024"
 ---
 
 # Privacy Policy
+
 Last Updated August 13, 2024
 
 Welcome to our Privacy Policy page. This document outlines the privacy practices of our website.
@@ -17,15 +18,14 @@ Welcome to our Privacy Policy page. This document outlines the privacy practices
 
 - **External Links**: All external links open in a new tab and are configured not to send referrer information in the header. We do not use anonymizing services, so you will know exactly where each link will take you. Additionally, we use the `noopener` attribute to prevent the new page from accessing the original page. If any external links are missing the `rel="external nofollow noopener noreferrer"`[^3] attribute, [let us know](mailto:hy@andka.my.id) and we will update them promptly.
 
-
 - **User Tracking and Analytics**: We do not implement any user tracking or analytics on this site. Our website exists solely for personal satisfaction, and we have no interest in tracking site popularity. Therefore, no data is collected, stored, or analyzed. There are no advertisements, tracking mechanisms, or analytics—just content for your reading pleasure.
 
 If you have any questions or concerns about our privacy practices, please feel free to [contact us](mailto:hy@andka.my.id).
 
-<hr class="w-full bg-gray h-1px bg-opacity-25"> 
-
+<hr class="w-full bg-gray h-1px bg-opacity-25">
 
 [^1]: MDN Web Docs: [Web Storage API & Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
-[^2]: Cloudflare Learning Center: [What is DNS](https://www.cloudflare.com/learning/dns/what-is-dns/)
-[^3]: MDN Web Docs: [Link Types](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types)
 
+[^2]: Cloudflare Learning Center: [What is DNS](https://www.cloudflare.com/learning/dns/what-is-dns/)
+
+[^3]: MDN Web Docs: [Link Types](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types)
