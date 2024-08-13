@@ -9,7 +9,7 @@ type Props = CollectionEntry<"blog">["data"] & { headings: MarkdownHeading[] };
 const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.props;
 ---
 
-<Layout title={title} description={description} image={heroImage || undefined} isBlog={true}>
+<Layout title={title} description={description} image={heroImage || undefined}>
 	<div class="relative">
 		<nav class="fixed top-16 right-8 h-screen w-25% flex-col group hidden xl:flex">
 			<div class="i-myna-list w8 h8 self-end opacity-75 group-hover:opacity-100 ease-in-out duration-500"></div>
@@ -31,7 +31,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.
 				<div class="mb-8">
 					<h1 class="text-5xl font-bold mb-4">{title}</h1>
 					<div>
-						<FormattedDate date={pubDate} />
+						{pubDate && (<FormattedDate date={pubDate} />)}
 						{
 							updatedDate && (
 								<div>

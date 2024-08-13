@@ -166,5 +166,17 @@ const { title, description, image = "/images/screenshot-dark.png" } = Astro.prop
 			opacity: 1;
 		}
 	}
+
+	.prose :where(pre, code):not(:where(.not-prose, .not-prose *)) {
+		border-radius: 8px;
+		background-color: hsl(224, 10%, 23%);
+		margin-block: -0.125rem;
+		padding: 0.125rem 0.375rem;
+	}
+
+	.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
+	.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
+		content: " ";
+	}
 </style>
 <ViewTransitions />

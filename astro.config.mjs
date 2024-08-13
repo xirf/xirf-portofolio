@@ -8,13 +8,25 @@ import yaml from "@rollup/plugin-yaml";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import expressiveCode from "astro-expressive-code";
-
+import rehypeExternalLinks from "rehype-external-links";
+import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://andka.my.id",
   vite: {
     plugins: [ yaml() ]
+  },
+  markdown: {
+    rehypePlugins: [
+        rehypeAccessibleEmojis,
+        rehypeExternalLinks,
+        {
+          content: { type: 'text', value: ' ➚' },
+          rel: [ 'external', 'nofollow', 'noopener', 'noreferrer' ],
+          target: ["_blank"]
+        }   
+    ]
   },
   integrations: [
     expressiveCode({
@@ -34,7 +46,5 @@ export default defineConfig({
     UnoCss({ injectReset: true }),
   ],
   output: "hybrid",
-  adapter: vercel({
-    webAnalytics: true
-  }),
+  adapter: vercel(),
 });

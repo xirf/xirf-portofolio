@@ -27,12 +27,14 @@
     "eslint": "latest",
     "eslint-plugin-astro": "^1.2.2",
     "eslint-plugin-jsx-a11y": "^6.9.0",
+    "rehype-accessible-emojis": "^0.3.2",
+    "rehype-external-links": "^3.0.0",
     "typescript": "^5.5.2",
     "unocss": "^0.61.0"
   },
   "devDependencies": {
-    "@unocss/reset": "^0.61.0",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@unocss/reset": "^0.61.0"
   },
   "module": "index.ts",
   "peerDependencies": {
