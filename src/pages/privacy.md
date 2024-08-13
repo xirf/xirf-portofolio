@@ -22,7 +22,7 @@ Welcome to our Privacy Policy page. This document outlines the privacy practices
 
 If you have any questions or concerns about our privacy practices, please feel free to [contact us](mailto:hy@andka.my.id).
 
-<hr class="w-full bg-gray h-1px bg-opacity-25">
+<hr class="w-full bg-gray h-1px bg-opacity-25"> 
 
 
 [^1]: MDN Web Docs: [Web Storage API & Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)

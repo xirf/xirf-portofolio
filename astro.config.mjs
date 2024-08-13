@@ -19,6 +19,7 @@ export default defineConfig({
   },
   markdown: {
     rehypePlugins: [
+      [
         rehypeAccessibleEmojis,
         rehypeExternalLinks,
         {
@@ -26,6 +27,7 @@ export default defineConfig({
           rel: [ 'external', 'nofollow', 'noopener', 'noreferrer' ],
           target: ["_blank"]
         }   
+      ],
     ]
   },
   integrations: [
