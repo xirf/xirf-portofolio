@@ -36,8 +36,6 @@
 			});
 
 			transition.ready.then(() => {
-				const button = document.getElementById("toggle-theme");
-
 				let isDark = localStorage.getItem("isDarkMode") === "true";
 
 				// Use event instead of center of the button becuase in some cases the calculation is wrong

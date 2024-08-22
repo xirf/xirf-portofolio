@@ -2,7 +2,7 @@
 title: "Building a New Home"
 description: "I've been meaning to start a blog for a while now. I've always enjoyed writing, and I've been eager to share my thoughts and experiences with the world."
 pubDate: "Jan 13 2024"
-heroImage: "./../assets/images/screenshot-dark.png"
+heroImage: "/images/screenshot-dark.png"
 ---
 
 I've been meaning to start a blog for a while now. I've always enjoyed writing, and I've been eager to share my thoughts and experiences with the world. However, I've been held back by the complexity of setting up a blog. I wanted something simple, fast, and easy to maintain. I didn't want to deal with databases, server-side rendering, or complex build processes. I wanted to focus on writing and sharing my thoughts without worrying about the technical details.

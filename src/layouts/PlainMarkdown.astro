@@ -1,0 +1,36 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+import Layout from "./Layout.astro";
+
+type Props = MarkdownLayoutProps<{
+    title: string;
+    description: string;
+}>
+
+const { title, description } = Astro.props.frontmatter
+---
+
+<Layout title={title} description={description}>
+	<div class="relative" id="top">
+		<div class="px-8">
+			<article class="max-w-3xl m-auto prose slide-enter-content pb32">
+				<slot />
+			</article>
+		</div>
+	</div>
+	<a href="#top" id="back-to-top" class="fixed bottom-4 right-4 m-4 i-solar-alt-arrow-up-bold w8 h8"> </a>
+</Layout>
+
+<style is:global>
+	.prose h1 {
+		font-size: 2.5rem;
+	}
+
+    .prose{
+        text-align: justify;
+    }
+    
+    li{
+        margin: 0 0 1rem 0;
+    }
+</style>
