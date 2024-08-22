@@ -3,7 +3,7 @@ title: "Accepted in Bangkit Academy"
 description: "Bangkit Academy is a program that aims to equip students with the necessary skills to become data professionals. The program is a collaboration between Google, Gojek, Tokopedia, and Traveloka."
 pubDate: "Feb 28 2024"
 updatedDate: "Aug 22 2024"
-heroImage: "../assets/images/accepted-in-bangkit.jpg"
+heroImage: "/images/accepted-in-bangkit.jpg"
 ---
 
 I am happy to announce that I have been accepted into the Bangkit Academy program. The program is a collaboration between Google, Gojek, Tokopedia, and Traveloka. Bangkit Academy is a program that aims to equip students with in-demand skills and tech certifications. The program offers 3 interdisciplinary learning paths - machine learning, mobile development, and cloud computing. By the end of this program, I will be equipped with the tech expertise, soft skills, and English proficiency I need to transit from academia to the workplace and succeed at leading companies.
