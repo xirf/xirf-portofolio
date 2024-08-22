@@ -1,11 +1,11 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../layouts/Layout.astro";
 
 const posts = (await getCollection("blog"))
-	.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
-	.filter((post) => {
-		// Skip draft posts in production
+	.sort((a:CollectionEntry<"blog">, b:CollectionEntry<"blog">) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+	// Skip draft posts in production
+	.filter((post:CollectionEntry<"blog">) => {
 		if (import.meta.env.DEV) return true;
 		return !post.data.draft;
 	});
