@@ -7,8 +7,8 @@ export async function getStaticPaths() {
 	const numOfPost = posts.length;
 
 	return posts
-		.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
-		.map((post, i) => ({
+		.sort((a: any, b:any) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+		.map((post:any, i:number) => ({
 			params: { slug: post.slug },
 			props: {
 				post,
@@ -31,20 +31,23 @@ const { Content, headings } = await post.render();
 
 	<div class="grid gap-2">
 		<a href="/blog" <a class="decoration-none">&gt; cd ../blog</a>
-		{
-			prevPost && (
-				<a class="decoration-none" href={`/blog/${prevPost.slug}`}>
-					&gt; cd ../"{prevPost.data.title}"
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+			{
+				prevPost && (
+				<a href={`/blog/${prevPost.slug}`} class="bg-#30344600 decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out text-left flex flex-col gap-2 p-4">
+					<span class="inline-flex opacity50 items-center gap-2"><i class="i-myna-chevron-double-left"></i> Previous</span>
+					<span>{prevPost.data.title}</span>
 				</a>
 			)
 		}
 		{
 			nextPost && (
-				<a href={`/blog/${nextPost.slug}`} class=" decoration-none">
-					{" "}
-					&gt; cd "{nextPost.data.title}"{" "}
+				<a href={`/blog/${nextPost.slug}`} class="#303446 decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out flex flex-col gap-2 p-4 text-left lg:text-right">
+					<span class="inline-flex opacity50 items-center lg:justify-end gap-2">Next <i class="i-myna-chevron-double-right"></i></span>
+					<span>{nextPost.data.title}</span>
 				</a>
 			)
 		}
+		</div>
 	</div>
 </BlogPost>

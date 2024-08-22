@@ -9,9 +9,7 @@ const blog = defineCollection({
 		updatedDate: z.coerce.date().optional(),
 		idOnly: z.boolean().optional(),
 		draft: z.boolean().optional(),
-		heroImage: image().refine(img => img.width < 1080 && img.height <= 720, {
-			message: "Image too big. Max width: 1080px, max height: 720px",
-		}),
+		heroImage: image()
 	}),
 });
 
