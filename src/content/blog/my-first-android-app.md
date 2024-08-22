@@ -2,6 +2,8 @@
 title: "My First Android App"
 description: "It's been almost a month since I joined Bangkit Academy, and I've just finished my first Android courses. In my latest blog post, I'm sharing my thoughts on this experience."
 pubDate: "Mar 17 2024"
+updatedAt: "Aug 22 2024"
+heroImage: "./../assets/images/my-android-app.png"
 ---
 
 It's been a month since I shared my exciting news about [joining Bangkit Academy](/blog/accepted-in-bangkit-academy). And guess what? I've just completed my first Android development courses, and I'm thrilled to announce that I built my very own Android app!

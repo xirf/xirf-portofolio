@@ -13,6 +13,7 @@ export default defineConfig({
     ],
     shortcuts: {
         "y-animate": "animate-fade-in-up animate-count-1 animate-500ms",
+        "btn-normal": "bg-#8881 rounded-md p-2"
     },
     content: {
         pipeline: {

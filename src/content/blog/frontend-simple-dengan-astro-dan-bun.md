@@ -2,16 +2,9 @@
 title: "Frontend Simpel dengan Astro dan Uno"
 description: ""
 pubDate: "Aug 1 2024"
-heroImage: "/images/astro-and-uno-is-all.png"
+heroImage: "./assets/images/build-with-astro-and-uno.png"
 idOnly: true
 ---
-
-<figure>
-  <img src="/images/astro-and-uno-is-all.png" alt="Astro and Uno is all i need">
-  <figcaption>
-    Kombinasi simple AstroJs dan UnoCss
-  </figcaption>
-</figure>
 
 Protofolio kalian pakai apa?, kebanyakan pasti jawab React atau turunannya kaya Nextjs. Nextjs itu seru, ekosistemnya bagus komunitas nya gede dan banyak banget library yang dapat kalian gunakan buat mempercantik portofolio kalian.
 

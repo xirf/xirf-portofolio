@@ -4,6 +4,8 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import LoadingIndicator from "../components/LoadingIndicator.astro";
 
+import '../styles/global.css';
+
 interface Props {
 	title: string;
 	description: string;
@@ -23,7 +25,7 @@ const { title, description, image } = Astro.props;
 		<a href="#main" class="sr-only focus:not-sr-only" tabindex="0">Skip to main content</a>
 		<LoadingIndicator color="#bcc0cc" height="2px" threshold={0} animationDuration={200} />
 		<Header />
-		<main id="main">
+		<main id="main" class="pb-10 lg:pb-0">
 			<slot />
 		</main>
 		<Footer />
