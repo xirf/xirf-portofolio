@@ -8,13 +8,6 @@ import { getImage, Image } from "astro:assets";
 type Props = CollectionEntry<"blog">["data"] & { headings: MarkdownHeading[] };
 
 const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.props;
-
-const thumbnail = await getImage({
-	 	src: heroImage,
-	  	format: "webp",
-		width: 800,
-		inferSize: true,
-	 });
 ---
 
 <Layout title={title} description={description} image={heroImage || undefined}>
@@ -35,12 +28,9 @@ const thumbnail = await getImage({
 					</div>
 					<div class="w-full h-fit object-c">
 						<img
-							src={thumbnail.src} 
-							srcset={thumbnail.srcSet.values.join(", ")}
+							src={heroImage} 
 							alt={"Thumbnail for " + title} 
-							width={thumbnail.attributes.width}
-							height={thumbnail.attributes.height}
-							class="rounded-lg mt-8 shimmer w-full h-auto" />
+							class="rounded-lg mt-8 shimmer min-w-md min-h-32 w-full h-auto" />
 					</div>
 				</div>
 				<nav class="fixed top-16 right-8 h-screen w-25% flex-col group hidden xl:flex">
