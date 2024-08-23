@@ -18,6 +18,9 @@ Visit [andka.my.id](https://andka.my.id) for live preview
         alt="XIRF - Personal Blog & Portfolio" />
 </figure>
 
+> [!NOTE]
+> This web will moved to use CMS in the future
+
 ## Installation
 
 To run this project locally, you need to have Node.js and npm installed on your machine.
