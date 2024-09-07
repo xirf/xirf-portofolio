@@ -20,7 +20,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings, hasMath }
 		<div class="px-8">
 			<article class="max-w-3xl m-auto prose slide-enter-content pb32">
 				<div class="mb-8">
-					<h1 class="text-5xl font-bold mb-4">{title}</h1>
+					<h1 class="leading-none md:text-5xl font-bold mb-4">{title}</h1>
 					<div>
 						{pubDate && <FormattedDate date={pubDate} />}
 						{
@@ -35,7 +35,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings, hasMath }
 						<img
 							src={heroImage} 
 							alt={"Thumbnail for " + title} 
-							class="rounded-lg mt-8 shimmer min-w-md min-h-32 w-full h-auto" />
+							class="rounded-lg mt-8 shimmer min-h-32 w-full h-auto" />
 					</div>
 				</div>
 				<nav class="fixed top-16 right-8 h-screen w-25% flex-col group hidden xl:flex">

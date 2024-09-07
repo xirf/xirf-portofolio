@@ -2,7 +2,7 @@
 title: "Memahami Matematika dengan Kode #1 - Aritmatika"
 description: "Belajar matematika kadang berasa melelahkan dan sulit untuk dipahami, apalagi jika sudah masuk ke dalam konsep yang kopleks seperti aljabar abstrak, kalkulus, atau teori bilangan."
 pubDate: "Sep 7 2024"
-heroImage: "/images/screenshot-dark.png"
+heroImage: "/images/math-p1.png"
 idOnly: true
 hasMath: true
 ---
