@@ -9,15 +9,18 @@ import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-s
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import expressiveCode from "astro-expressive-code";
 import rehypeExternalLinks from "rehype-external-links";
+import remarkMath from "remark-math";
+import rehypeMath from "rehype-katex";
 import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://andka.jamcoder.id",
+  site: "https://andka.my.id",
   vite: {
     plugins: [ yaml() ]
   },
   markdown: {
+    remarkPlugins: [ remarkMath ],
     rehypePlugins: [
       rehypeAccessibleEmojis,
       [ rehypeExternalLinks,
@@ -25,7 +28,8 @@ export default defineConfig({
           rel: [ 'external', 'nofollow', 'noopener', 'noreferrer' ],
           target: [ "_blank" ]
         }
-      ]
+      ],
+      rehypeMath
     ]
   },
   integrations: [
@@ -45,6 +49,6 @@ export default defineConfig({
     }),
     UnoCss({ injectReset: true }),
   ],
-  output: "hybrid",
-  adapter: vercel()
+  output: "static",
+  // adapter: vercel()
 });

@@ -28,6 +28,8 @@
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "rehype-accessible-emojis": "^0.3.2",
     "rehype-external-links": "^3.0.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "typescript": "^5.5.2",
     "unocss": "^0.61.0"
   },

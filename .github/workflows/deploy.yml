@@ -3,7 +3,7 @@ name: Deploy to CyberPanel via FTP
 on:
   push:
     branches:
-      - main  # Replace with your branch name
+      - main 
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18.x'  # Use the Node.js version compatible with your project
+        node-version: '18.x'
 
     - name: Install dependencies
       run: npm install
@@ -26,18 +26,11 @@ jobs:
       run: |
         sed -i 's/output: "hybrid"/output: "static"/' astro.config.mjs
         sed -i 's/adapter: vercel()//' astro.config.mjs
+        sed -i 's#import vercel from "@astrojs/vercel/serverless";##' astro.config.mjs
+        sed -i 's#site: "https://andka.my.id",#site: "https://andka.jamcoder.id",#' astro.config.mjs
 
     - name: Build project
-      run: npm run build  # Ensure your build script is defined in package.json
-
-    - name: Clean Destination Folder on Server
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
-      with:
-        server: andka.jamcoder.id
-        username: admin_andka
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./public-html/
-        dangerous-clean-slate: true 
+      run: npm run build 
 
     - name: Upload via FTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
@@ -47,3 +40,5 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: ./public_html/
+        dangerous-clean-slate: true 
+
