@@ -33,17 +33,17 @@ jobs:
     - name: Clean Destination Folder on Server
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
+        server: andka.jamcoder.id
+        username: admin_andka
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public-html
+        server-dir: ./public-html/
         dangerous-clean-slate: true 
 
     - name: Upload via FTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
+        server: andka.jamcoder.id
+        username: admin_andka
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist 
-        server-dir: /public_html
+        server-dir: ./public_html/
