@@ -13,7 +13,7 @@ import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://andka.my.id",
+  site: "https://andka.jamcoder.id",
   vite: {
     plugins: [ yaml() ]
   },

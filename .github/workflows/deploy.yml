@@ -1,0 +1,49 @@
+name: Deploy to CyberPanel via FTP
+
+on:
+  push:
+    branches:
+      - main  # Replace with your branch name
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'  # Use the Node.js version compatible with your project
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Modify Astro Config for Static Output
+      run: |
+        sed -i 's/output: "hybrid"/output: "static"/' astro.config.mjs
+        sed -i 's/adapter: vercel()//' astro.config.mjs
+
+    - name: Build project
+      run: npm run build  # Ensure your build script is defined in package.json
+
+    - name: Clean Destination Folder on Server
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /public-html
+        dangerous-clean-slate: true 
+
+    - name: Upload via FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./dist 
+        server-dir: /public_html
