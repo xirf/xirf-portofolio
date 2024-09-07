@@ -45,5 +45,5 @@ jobs:
         server: andka.jamcoder.id
         username: admin_andka
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist 
+        local-dir: ./dist/
         server-dir: ./public_html/
