@@ -28,6 +28,10 @@ android:
       image: i-solar-smartphone-2-bold-duotone
 
 web:
+    - name: Math With Code
+      description: Math learning platform with code
+      url: https://mathwithcode.tech
+      image: i-solar-calculator-bold-duotone
     - name: ASCII Image
       description: Converts images to ASCII with image background
       url: https://github.com/xirf/ascii-image
