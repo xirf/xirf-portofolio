@@ -1,9 +1,19 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
-import DefautLayout from "../../layouts/Layout.astro";
+import DefautLayout from "../../../layouts/Layout.astro";
+
+const tag = Astro.params.slug;
+
+if (!tag) {
+	return Astro.rewrite("/404");
+}
 
 const posts = (await getCollection("blog"))
-	.sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => new Date(b.data.properties.created_at.date.start).getTime() - new Date(a.data.properties.created_at.date.start).getTime())
+	.sort(
+		(a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) =>
+			new Date(b.data.properties.created_at.date.start).getTime() - new Date(a.data.properties.created_at.date.start).getTime()
+	)
+	.filter((p) => p.data.properties.tags && p.data.properties.tags.includes(tag));
 
 let postsByYear: Record<number, typeof posts> = {};
 
@@ -19,12 +29,10 @@ for (const post of posts) {
 	description="Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!">
 	<div class="grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content">
 		<h1>
-			<span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
-			<span class="font-light text-sm">A collection of my thoughts</span>
+			<span class="text-3xl lg:text-4xl font-bold font-lexend capitalize">{tag}</span>
 		</h1>
 		<p>
-			Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think
-			others might find interesting as well. I hope you enjoy reading them!
+			Here {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with "{tag}".
 		</p>
 		{
 			Object.entries(postsByYear)
@@ -38,7 +46,10 @@ for (const post of posts) {
 						</div>
 						<ul class=" mt-4 z-50 gap-4 grid slide-enter-content">
 							{posts
-								.sort((a: any, b: any) => b.data.properties.created_at.date.start.valueOf() - a.data.properties.created_at.date.start.valueOf())
+								.sort(
+									(a: any, b: any) =>
+										b.data.properties.created_at.date.start.valueOf() - a.data.properties.created_at.date.start.valueOf()
+								)
 								.map((post: any, postIndex: number) => (
 									<li
 										class:list={[

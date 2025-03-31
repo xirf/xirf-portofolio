@@ -1,17 +1,16 @@
-import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
-import vercel from "@astrojs/vercel/serverless";
-import { defineConfig } from "astro/config";
 import UnoCss from "unocss/astro";
-import yaml from "@rollup/plugin-yaml";
-
+import { defineConfig } from "astro/config";
+import expressiveCode from "astro-expressive-code";
+import mdx from "@astrojs/mdx";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import expressiveCode from "astro-expressive-code";
-import rehypeExternalLinks from "rehype-external-links";
-import remarkMath from "remark-math";
-import rehypeMath from "rehype-katex";
 import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
+import rehypeExternalLinks from "rehype-external-links";
+import rehypeMath from "rehype-katex";
+import remarkMath from "remark-math";
+import sitemap from "@astrojs/sitemap";
+import vercel from "@astrojs/vercel/serverless";
+import yaml from "@rollup/plugin-yaml";
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,29 +18,7 @@ export default defineConfig({
   vite: {
     plugins: [ yaml() ]
   },
-  markdown: {
-    remarkPlugins: [ remarkMath ],
-    rehypePlugins: [
-      rehypeAccessibleEmojis,
-      [ rehypeExternalLinks,
-        {
-          rel: [ 'external', 'nofollow', 'noopener', 'noreferrer' ],
-          target: [ "_blank" ]
-        }
-      ],
-      rehypeMath
-    ]
-  },
   integrations: [
-    expressiveCode({
-      themes: [ "catppuccin-frappe", "catppuccin-latte" ],
-      plugins: [ pluginCollapsibleSections(), pluginLineNumbers() ],
-      defaultProps: {
-        showLineNumbers: true,
-        wrap: true,
-      },
-    }),
-    mdx(),
     sitemap({
       changefreq: 'monthly',
       'priority': 0.7,
@@ -49,6 +26,6 @@ export default defineConfig({
     }),
     UnoCss({ injectReset: true }),
   ],
-  output: "static",
-  // adapter: vercel()
+  output: "server",
+  adapter: vercel()
 });

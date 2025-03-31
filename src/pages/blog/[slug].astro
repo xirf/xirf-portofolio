@@ -1,0 +1,114 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
+import { render } from "astro:content";
+import type { MarkdownHeading } from "astro";
+
+const posts = await getCollection("blog");
+const numOfPost = posts.length;
+const params = Astro.params.slug;
+const post = posts.find((post: any) => post.data.properties.slug === params);
+
+const postIndex = posts.findIndex((post: any) => post.data.properties.slug === params);
+
+function getAtIndex(index: number) {
+	return {
+		title: posts[index].data.properties.Name,
+		slug: posts[index].data.properties.slug,
+	};
+}
+
+function getExcerpt(html: string, wordCount = 100): string {
+	if (!html) return "";
+
+	const plainText = html.replace(/<[^>]*>/g, " ");
+
+	const cleanText = plainText.replace(/\s+/g, " ").trim();
+
+	const words = cleanText.split(" ");
+	const excerpt = words.slice(0, wordCount).join(" ");
+
+	return words.length > wordCount ? `${excerpt}...` : excerpt;
+}
+
+if (!post || !post.rendered) {
+	return Astro.rewrite("/404");
+}
+
+const pageData = {
+	post: {
+		html: post.rendered.html,
+		thumbnail: post.data.properties.thumbnail,
+		title: post.data.properties.Name,
+		slug: post.data.properties.slug,
+		description: getExcerpt(post.rendered.html, 100),
+		pubDate: new Date(post.data.properties.created_at.date.start),
+		headings: post.rendered.metadata?.headings,
+		tags: post.data.properties.tags,
+	},
+	numOfPost,
+	params,
+	postIndex,
+};
+const prevPost = postIndex > 0 ? getAtIndex(postIndex - 1) : null;
+const nextPost = postIndex < numOfPost - 1 ? getAtIndex(postIndex + 1) : null;
+
+const { Content } = await render(post);
+---
+
+<BlogPost {...pageData.post} headings={pageData.post.headings as MarkdownHeading[]}>
+	<Content />
+	<hr class="w-20 mx-auto px-10vw bg-gray h-1px opacity50" />
+
+	<div class="grid gap-2">
+		<div>
+			<p>Tags:</p>
+			<div class="flex gap-2 flex-wrap">
+				{
+					pageData.post.tags.map((tag) => (
+						<a href={`/blog/tags/${tag}`} class="btn-normal decoration-none font-normal px-4">
+							<span>{tag}</span>
+						</a>
+					))
+				}
+			</div>
+		</div>
+		<!-- prev home and next -->
+		<div class="grid grid-cols-3 gap-2">
+			<div>
+				{
+					prevPost && (
+						<a
+							href={`/blog/${prevPost.slug}`}
+							class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out text-left flex flex-col gap-2 p-4">
+							<span class="inline-flex opacity50 items-center gap-2">
+								<i class="i-myna-chevron-double-left" /> Previous
+							</span>
+							<span>{prevPost.title}</span>
+						</a>
+					)
+				}
+			</div>
+
+			<a
+				href="/blog"
+				class="bg-#30344600 decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out flex flex-col gap-2 p-4 flex items-center justify-center">
+				<span>Back to Blog</span>
+			</a>
+			<div>
+				{
+					nextPost && (
+						<a
+							href={`/blog/${nextPost.slug}`}
+							class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out flex flex-col gap-2 p-4 text-left lg:text-right">
+							<span class="inline-flex opacity50 items-center lg:justify-end gap-2">
+								Next <i class="i-myna-chevron-double-right" />
+							</span>
+							<span>{nextPost.title}</span>
+						</a>
+					)
+				}
+			</div>
+		</div>
+	</div>
+</BlogPost>

@@ -152,27 +152,30 @@
     }
 }
 
-.prose :where(pre, code):not(:where(.not-prose, .not-prose *)) {
-    border-radius: 8px;
+.prose :where(pre, code):not(:where(.shiki, .shiki *)) {
+    border-radius: 4px;
     background-color: #dce0e8;
-    padding: 0.125rem;
-    margin: 0 0.125rem;
+    padding: .15rem .3rem;
 }
 
-.dark .prose :where(pre, code):not(:where(.not-prose, .not-prose *)) {
+.dark .prose :where(pre, code):not(:where(.shiki, .shiki *)) {
     background-color: #353841;
+    max-width: 80vw;
+    white-space: pre-wrap;
+
 }
 
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
-    content: " ";
+    content: "" !important;
+
 }
 
 .shimmer {
     background-image: linear-gradient(-45deg, lightgray 42%, #fff 50%, lightgray 58%);
     background-position-x: -50%;
     background-size: 300%;
-    animation-name: shimmer ;
+    animation-name: shimmer;
     animation-duration: 1.5s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
@@ -191,6 +194,7 @@
     from {
         background-position-x: -50%;
     }
+
     to {
         background-position-x: -350%;
     }
