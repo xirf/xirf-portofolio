@@ -1,7 +1,7 @@
 import UnoCss from "unocss/astro";
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
-import vercel from "@astrojs/vercel/serverless";
+import vercel from "@astrojs/vercel";
 import yaml from "@rollup/plugin-yaml";
 
 // https://astro.build/config

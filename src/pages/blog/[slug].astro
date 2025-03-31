@@ -1,5 +1,5 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { getCollection } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import { render } from "astro:content";
 import type { MarkdownHeading } from "astro";
@@ -42,7 +42,7 @@ const pageData = {
 		title: post.data.properties.Name,
 		slug: post.data.properties.slug,
 		description: getExcerpt(post.rendered.html, 100),
-		pubDate: new Date(post.data.properties.created_at.date.start),
+		pubDate: new Date(post.data.properties.created_at.date?.start || new Date()),
 		headings: post.rendered.metadata?.headings,
 		tags: post.data.properties.tags,
 	},
@@ -56,7 +56,12 @@ const nextPost = postIndex < numOfPost - 1 ? getAtIndex(postIndex + 1) : null;
 const { Content } = await render(post);
 ---
 
-<BlogPost {...pageData.post} headings={pageData.post.headings as MarkdownHeading[]}>
+<BlogPost
+	title={pageData.post.title}
+	thumbnail={pageData.post.thumbnail!}
+	pubDate={pageData.post.pubDate}
+	description={pageData.post.description}
+	headings={pageData.post.headings as MarkdownHeading[]}>
 	<Content />
 	<hr class="w-20 mx-auto px-10vw bg-gray h-1px opacity50" />
 

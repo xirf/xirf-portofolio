@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
 	title: string;
@@ -41,4 +41,5 @@ const { title, description, image = "/images/screenshot-dark.png" } = Astro.prop
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
-<ViewTransitions />
+
+<ClientRouter />

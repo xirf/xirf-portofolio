@@ -6,9 +6,7 @@ import {
 } from "notion-astro-loader/schemas";
 
 import { notionLoader } from "notion-astro-loader";
-import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 import rehypeExternalLinks from 'rehype-external-links';
-import rehypeMath from "rehype-katex";
 import rehypeShiki from "@shikijs/rehype";
 
 const blog = defineCollection({

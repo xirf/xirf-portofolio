@@ -2,15 +2,19 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../layouts/Layout.astro";
 
-const posts = (await getCollection("blog"))
-	.sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => new Date(b.data.properties.created_at.date.start).getTime() - new Date(a.data.properties.created_at.date.start).getTime())
+const posts = (await getCollection("blog")).sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
+	const dateA = b.data.properties.created_at.date?.start ? new Date(b.data.properties.created_at.date.start).getTime() : 0;
+	const dateB = a.data.properties.created_at.date?.start ? new Date(a.data.properties.created_at.date.start).getTime() : 0;
+	return dateA - dateB;
+});
 
 let postsByYear: Record<number, typeof posts> = {};
 
 for (const post of posts) {
-	const year = new Date(post.data.properties.created_at.date.start).getFullYear();
-	if (!postsByYear[year]) postsByYear[year] = [];
-	postsByYear[year].push(post);
+	const createdAtDate = post.data.properties.created_at.date;
+	const year = createdAtDate ? new Date(createdAtDate.start).getFullYear() : null;
+	if (year && !postsByYear[year]) postsByYear[year] = [];
+	if (year) postsByYear[year].push(post);
 }
 ---
 
@@ -38,7 +42,10 @@ for (const post of posts) {
 						</div>
 						<ul class=" mt-4 z-50 gap-4 grid slide-enter-content">
 							{posts
-								.sort((a: any, b: any) => b.data.properties.created_at.date.start.valueOf() - a.data.properties.created_at.date.start.valueOf())
+								.sort(
+									(a: any, b: any) =>
+										b.data.properties.created_at.date.start.valueOf() - a.data.properties.created_at.date.start.valueOf()
+								)
 								.map((post: any, postIndex: number) => (
 									<li
 										class:list={[

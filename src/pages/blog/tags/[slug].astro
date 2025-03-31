@@ -9,16 +9,23 @@ if (!tag) {
 }
 
 const posts = (await getCollection("blog"))
-	.sort(
-		(a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) =>
-			new Date(b.data.properties.created_at.date.start).getTime() - new Date(a.data.properties.created_at.date.start).getTime()
-	)
+	.sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
+		const dateA = a.data.properties.created_at.date?.start;
+		const dateB = b.data.properties.created_at.date?.start;
+
+		if (dateB && dateA) {
+			return new Date(dateB).getTime() - new Date(dateA).getTime();
+		}
+
+		return 0;
+	})
 	.filter((p) => p.data.properties.tags && p.data.properties.tags.includes(tag));
 
 let postsByYear: Record<number, typeof posts> = {};
 
 for (const post of posts) {
-	const year = new Date(post.data.properties.created_at.date.start).getFullYear();
+	const date = post.data.properties.created_at.date?.start;
+	const year = new Date(date || new Date()).getFullYear();
 	if (!postsByYear[year]) postsByYear[year] = [];
 	postsByYear[year].push(post);
 }
@@ -32,7 +39,8 @@ for (const post of posts) {
 			<span class="text-3xl lg:text-4xl font-bold font-lexend capitalize">{tag}</span>
 		</h1>
 		<p>
-			Here {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with "{tag}".
+			Here {posts.length}
+			{posts.length === 1 ? "post" : "posts"} tagged with "{tag}".
 		</p>
 		{
 			Object.entries(postsByYear)

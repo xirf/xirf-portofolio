@@ -9,7 +9,7 @@ interface Props {
 	description: string;
 	pubDate?: Date;
 	updatedDate?: Date;
-	thumbnail?: string;
+	thumbnail: string;
 	headings: MarkdownHeading[];
 }
 
@@ -99,7 +99,7 @@ const { title, description, pubDate, updatedDate, thumbnail, headings } = Astro.
 	let lastVisibleHeading = (headingIndicator[0] as HTMLElement).dataset.slug;
 	let scrollIndex = 0;
 
-	window.addEventListener("scroll", (e) => {
+	window.addEventListener("scroll", () => {
 		const scrollPos = window.scrollY;
 
 		if (scrollPos > headingsScrollPos[scrollIndex]) {
