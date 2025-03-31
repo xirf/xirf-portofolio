@@ -4,6 +4,8 @@ import BlogPost from "../../layouts/BlogPost.astro";
 import { render } from "astro:content";
 import type { MarkdownHeading } from "astro";
 
+export const prerender = false;
+
 const posts = await getCollection("blog");
 const numOfPost = posts.length;
 const params = Astro.params.slug;

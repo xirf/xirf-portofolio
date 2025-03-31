@@ -14,10 +14,12 @@ export default defineConfig({
     sitemap({
       changefreq: 'monthly',
       'priority': 0.7,
-      'lastmod': new Date().toISOString().split('T')[ 0 ],
+      'lastmod': new Date(),
     }),
     UnoCss({ injectReset: true }),
   ],
   output: "server",
-  adapter: vercel()
+  adapter: vercel({
+    edgeMiddleware: true
+  })
 });

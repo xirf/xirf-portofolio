@@ -3,6 +3,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import { getCollection } from "astro:content";
 import rss from "@astrojs/rss";
 
+export const prerender = false;
+
 export async function GET(context) {
   function getExcerpt(html, wordCount = 100) {
     if (!html) return "";

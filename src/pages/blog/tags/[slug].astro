@@ -2,6 +2,8 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../../layouts/Layout.astro";
 
+export const prerender = false;
+
 const tag = Astro.params.slug;
 
 if (!tag) {

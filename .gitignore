@@ -26,3 +26,4 @@ pnpm-debug.log*
 
 # Use bun only
 pnpm-lock.yaml
+.vercel

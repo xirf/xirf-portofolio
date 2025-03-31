@@ -2,6 +2,8 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../layouts/Layout.astro";
 
+export const prerender = false;
+
 const posts = (await getCollection("blog")).sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
 	const dateA = b.data.properties.created_at.date?.start ? new Date(b.data.properties.created_at.date.start).getTime() : 0;
 	const dateB = a.data.properties.created_at.date?.start ? new Date(a.data.properties.created_at.date.start).getTime() : 0;
