@@ -1,7 +1,7 @@
 {
   "name": "andka-portofolio",
   "type": "module",
-  "version": "0.0.2",
+  "version": "1.0.2",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
