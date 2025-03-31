@@ -33,7 +33,7 @@ const { title, description, pubDate, updatedDate, thumbnail, headings } = Astro.
 					</div>
 					{
 						thumbnail && (
-							<div class="w-full h-fit object-c">
+							<div class="w-full h-fit object-contain">
 								<img src={thumbnail} alt={"Thumbnail for " + title} class="rounded-lg mt-8 shimmer aspect-video w-full h-auto" />
 							</div>
 						)
