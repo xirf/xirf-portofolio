@@ -6,17 +6,17 @@ import rss from "@astrojs/rss";
 export const prerender = false;
 
 export async function GET(context) {
-  function getExcerpt(html, wordCount = 100) {
+  function getExcerpt(html, sentences = 1) {
     if (!html) return "";
 
     const plainText = html.replace(/<[^>]*>/g, " ");
 
     const cleanText = plainText.replace(/\s+/g, " ").trim();
 
-    const words = cleanText.split(" ");
-    const excerpt = words.slice(0, wordCount).join(" ");
+    const sentences = cleanText.split(".").filter(sentence => sentence.trim() !== "");
+    const excerpt = sentences.slice(0, sentences).join(".");
 
-    return words.length > wordCount ? `${excerpt}...` : excerpt;
+    return sentences < words.length ? `${excerpt.trim()}...` : excerpt.trim();
   }
 
   const posts = await getCollection("blog");

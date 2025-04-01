@@ -168,7 +168,11 @@
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
     content: "" !important;
+    white-space: pre-wrap;
 
+}
+.prose :where(code):not(:where(.shiki,.shiki *)){
+    white-space: pre-wrap !important;
 }
 
 .shimmer {

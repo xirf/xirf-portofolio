@@ -7,39 +7,35 @@ interface Props {
 	title: string;
 	description: string;
 	pubDate?: Date;
-	updatedDate?: Date;
 	thumbnail: string;
 	headings: MarkdownHeading[];
+	caption?: string;
 }
 
-const { title, description, pubDate, updatedDate, thumbnail, headings } = Astro.props;
+const { title, description, pubDate, thumbnail, headings, caption } = Astro.props;
 ---
 
 <Layout title={title} description={description} image={thumbnail || undefined}>
 	<div class="relative" id="top">
-		<div class="px-8">
+		<div class="px-8 pt-10">
 			<article class="max-w-3xl m-auto slide-enter-content pb32">
 				<div class="mb-8">
-					<h1 class="leading-none md:text-5xl font-bold mb-4" id={title.replace(/\s+/g, "-").toLowerCase()}>{title}</h1>
-					<div>
+					<h1 class="leading-none text-2xl md:text-5xl font-bold mb-4" id={title.replace(/\s+/g, "-").toLowerCase()}>{title}</h1>
+					<p class="text-sm">
 						{pubDate && <FormattedDate date={pubDate} />}
-						{
-							updatedDate && (
-								<div>
-									Last updated on <FormattedDate date={updatedDate} />
-								</div>
-							)
-						}
-					</div>
+					</p>
 					{
 						thumbnail && (
-							<div class="w-full h-fit object-contain">
-								<img src={thumbnail} alt={"Thumbnail for " + title} class="rounded-lg mt-8 shimmer aspect-video w-full h-auto" />
-							</div>
+							<figure class="w-full h-fit object-contain">
+								<picture>
+									<img src={thumbnail} alt={"Thumbnail for " + title} class="rounded-lg mt-8 shimmer aspect-video w-full h-auto" />
+								</picture>
+								{caption && <figcaption class="text-xs mt-2 text-gray-500 dark:text-gray-400">Image: {caption}</figcaption>}
+							</figure>
 						)
 					}
 				</div>
-				<nav class="fixed top-32 right-8 h-500px flex-col group xl:flex z-99">
+				<nav class="fixed top-32 right-8 h-500px flex-col group xl:flex z-99 hidden lg:block">
 					<div class="relative group w-62 h-500px">
 						<div class="grid space-y-2 absolute top-0 right-0">
 							<div class="grid space-y-2">
@@ -75,13 +71,27 @@ const { title, description, pubDate, updatedDate, thumbnail, headings } = Astro.
 						</div>
 					</div>
 				</nav>
+				<details
+					class="group top-32 right-8 flex-col z-99 block bg-l-on-base/10 dark:bg-d-on-base/10 md:hidden p-4 rounded-md">
+					<summary class="relative flex items-center gap-1"><i  class="i-myna-list w-5 h-5"></i> Table of Contents</summary>
+					<nav class="relative grid gap-1 mt-4">
+						<a href={`#${title.replace(/\s+/g, "-").toLowerCase()}`} class="decoration-none">{title.trim()}</a>
+						{
+							headings.map((h) => (
+								<a href={`#${h.slug}`} class="decoration-none" style={`margin-left: ${h.depth * 1}rem;`}>
+									{h.text.trim()}
+								</a>
+							))
+						}
+					</nav>
+				</details>
 				<div class="prose w-full max-w-none">
 					<slot />
 				</div>
 			</article>
 		</div>
 	</div>
-	<a href="#top" id="back-to-top" class="fixed bottom-4 right-4 m-4 i-solar-alt-arrow-up-bold w8 h8 z-100"> </a>
+	<a href="#top" id="back-to-top" class="fixed lg:bottom-4 bottom-16 right-4 m-4 i-solar-alt-arrow-up-bold w8 h8 z-100"> </a>
 </Layout>
 
 <script>
