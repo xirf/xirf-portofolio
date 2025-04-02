@@ -6,7 +6,7 @@ import rss from "@astrojs/rss";
 export const prerender = false;
 
 export async function GET(context) {
-  function getExcerpt(html, sentences = 1) {
+  function getExcerpt(html, count = 1) {
     if (!html) return "";
 
     const plainText = html.replace(/<[^>]*>/g, " ");
@@ -14,9 +14,9 @@ export async function GET(context) {
     const cleanText = plainText.replace(/\s+/g, " ").trim();
 
     const sentences = cleanText.split(".").filter(sentence => sentence.trim() !== "");
-    const excerpt = sentences.slice(0, sentences).join(".");
+    const excerpt = sentences.slice(0, count).join(".");
 
-    return sentences < words.length ? `${excerpt.trim()}...` : excerpt.trim();
+    return excerpt.trim();
   }
 
   const posts = await getCollection("blog");
