@@ -1,4 +1,8 @@
-
+---
+title: "Git Cheat Sheet"
+description: "Git Cheat Sheet"
+pubDate: "Jun 4 2025"
+---
 # 🧠 Git Cheat Sheet
 
 ## 🔧 Setup
