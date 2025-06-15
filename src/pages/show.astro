@@ -1,0 +1,78 @@
+ <!-- Tidak pakai Astro.url agar tetap jalan saat dibuka langsung -->
+
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Astro Web Viewer</title>
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+      }
+      .form-container {
+        position: sticky;
+        top: 0;
+        background: #f0f0f0;
+        padding: 10px;
+        z-index: 999;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      iframe {
+        width: 100%;
+        height: calc(100vh - 60px);
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <form id="viewerForm" method="get">
+        <label>URL:</label>
+        <input
+          type="text"
+          name="url"
+          id="urlInput"
+          placeholder="https://..."
+          required
+          style="width:300px; padding:5px;"
+        />
+
+        <select id="urlSelect">
+  <option value="">-- Bookmark --</option>
+  <option value="https://mryoga.my.id">Personal</option>
+  <option value="https://blog.mryoga.my.id">Catatan</option>
+  <option value="https://code.mryoga.my.id">Snippet Code</option>
+</select>
+
+
+        <button type="submit">Tampilkan</button>
+        <button type="button" onclick="window.location.reload()">?? Muat Ulang</button>
+      </form>
+    </div>
+
+    <iframe id="viewerFrame"></iframe>
+
+    <script>
+      // Ambil URL dari query string
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get("url") ?? "";
+
+      const input = document.getElementById("urlInput");
+      const iframe = document.getElementById("viewerFrame");
+      const select = document.getElementById("urlSelect");
+      const form = document.getElementById("viewerForm");
+
+      // Isi input dan iframe berdasarkan URL
+      input.value = url;
+      iframe.src = url;
+
+      // Saat dropdown dipilih
+      select.addEventListener("change", () => {
+        input.value = select.value;
+        form.submit(); // reload dengan URL baru
+      });
+    </script>
+  </body>
+</html>
