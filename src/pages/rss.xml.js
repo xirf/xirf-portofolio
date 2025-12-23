@@ -28,13 +28,12 @@ export async function GET(context) {
       site: context.site,
       customData: '<language>en-us</language>',
       items: posts.map((post) => ({
-        categories: post.data.properties.tags,
+        categories: post.data.tags,
         author: 'Andika',
-        link: `/blog/${post.data.properties.slug}/`,
-        title: post.data.properties.Name || '=--',
-        pubDate: new Date(post.data.properties.created_at.date.start),
-        description: getExcerpt(post.rendered.html || ''),
-        content: post.rendered.html,
+        link: `/blog/${post.data.slug}/`,
+        title: post.data.title || '=--',
+        pubDate: new Date(post.data.pubDate),
+        description: post.data.title,
       })),
     }
 

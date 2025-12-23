@@ -159,7 +159,7 @@
 }
 
 .dark .prose :where(pre, code):not(:where(.shiki, .shiki *)) {
-    background-color: #353841;
+    background-color: transparent;
     max-width: 80vw;
     white-space: pre-wrap;
 
@@ -192,6 +192,16 @@
 
 .math-inline svg {
     display: inline !important;
+}
+
+hr{
+    width: 100%;
+    height: 1px;
+    background-color: #232634;
+}
+
+.dark hr{
+    background-color: #95a3bd86;
 }
 
 @keyframes shimmer {

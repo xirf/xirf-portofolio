@@ -9,118 +9,111 @@ export const prerender = false;
 const posts = await getCollection("blog");
 const numOfPost = posts.length;
 const params = Astro.params.slug;
-const post = posts.find((post: any) => post.data.properties.slug === params);
+const post = posts.find((post: any) => post.data.slug === params);
 
-const postIndex = posts.findIndex((post: any) => post.data.properties.slug === params);
+const postIndex = posts.findIndex((post: any) => post.data.slug === params);
 
 function getAtIndex(index: number) {
-	return {
-		title: posts[index].data.properties.Name,
-		slug: posts[index].data.properties.slug,
-	};
+  return {
+    title: posts[index].data.title,
+    slug: posts[index].data.slug,
+  };
 }
 
-function getExcerpt(html: string, sentences = 1): string {
-	if (!html) return "";
-
-	const plainText = html.replace(/<[^>]*>/g, " ");
-
-	const cleanText = plainText.replace(/\s+/g, " ").trim();
-
-	const words = cleanText.split(".");
-	const excerpt = words.slice(0, sentences).join(".");
-
-	return excerpt.trim();
-}
-
-if (!post || !post.rendered) {
-	return Astro.rewrite("/404");
+if (!post) {
+  return Astro.rewrite("/404");
 }
 
 const pageData = {
-	post: {
-		html: post.rendered.html,
-		thumbnail: post.data.properties.thumbnail,
-		title: post.data.properties.Name,
-		slug: post.data.properties.slug,
-		description: getExcerpt(post.rendered.html, 1),
-		pubDate: new Date(post.data.properties.created_at.date?.start || new Date()),
-		headings: post.rendered.metadata?.headings,
-		credit: post.data.properties.credit,
-		tags: post.data.properties.tags,
-	},
-	numOfPost,
-	params,
-	postIndex,
+  post: {
+    html: "", // Will be rendered by Content component
+    thumbnail: post.data.thumbnail,
+    title: post.data.title,
+    slug: post.data.slug,
+    description: post.data.title, // Using title as description for now
+    pubDate: new Date(post.data.pubDate),
+    headings: [], // Will be populated by render
+    credit: post.data.credit,
+    tags: post.data.tags,
+  },
+  numOfPost,
+  params,
+  postIndex,
 };
-const prevPost = getAtIndex(postIndex);
-const nextPost = getAtIndex(postIndex);
-// const prevPost = postIndex > 0 ? getAtIndex(postIndex - 1) : null;
-// const nextPost = postIndex < numOfPost - 1 ? getAtIndex(postIndex + 1) : null;
 
-const { Content } = await render(post);
+const prevPost = postIndex > 0 ? getAtIndex(postIndex - 1) : null;
+const nextPost = postIndex < numOfPost - 1 ? getAtIndex(postIndex + 1) : null;
+
+const { Content, headings } = await render(post);
 ---
 
 <BlogPost
-	title={pageData.post.title}
-	thumbnail={pageData.post.thumbnail!}
-	pubDate={pageData.post.pubDate}
-	description={pageData.post.description}
-	caption={pageData.post.credit}
-	headings={pageData.post.headings as MarkdownHeading[]}>
-	<Content />
-	
-	<div class="grid gap-2">
-		<div>
-			<p>Tags:</p>
-			<div class="flex gap-2 flex-wrap">
-				{
-					pageData.post.tags.map((tag) => (
-						<a href={`/blog/tags/${tag}`} class="btn-normal decoration-none font-normal px-4">
-							<span>{tag}</span>
-						</a>
-					))
-				}
-			</div>
-		</div>
-		<hr class="w-20 mx-auto px-10vw bg-gray h-1px opacity50" />
-		
-		<a
-			href="/blog">
-			<span class="inline-flex opacity50 items-center lg:justify-end gap-2 mt-4">
-				<i class="i-myna-chevron-double-left" /> Back to Blog
-			</span>
-		</a>
-		<div class="grid lg:grid-cols-2 gap-2 mt-2">
-			<div>
-				{
-					prevPost && (
-						<a
-							href={`/blog/${prevPost.slug}`}
-							class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out text-left flex flex-col gap-2 p-4">
-							<span class="inline-flex opacity50 items-center gap-2">
-								<i class="i-myna-chevron-double-left" /> Previous
-							</span>
-							<span>{prevPost.title}</span>
-						</a>
-					)
-				}
-			</div>
+  title={pageData.post.title}
+  thumbnail={pageData.post.thumbnail!}
+  pubDate={pageData.post.pubDate}
+  description={pageData.post.description}
+  caption={pageData.post.credit}
+  headings={headings as MarkdownHeading[]}
+>
+  <Content />
 
-			<div>
-				{
-					nextPost && (
-						<a
-							href={`/blog/${nextPost.slug}`}
-							class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out flex flex-col gap-2 p-4 text-left lg:text-right">
-							<span class="inline-flex opacity50 items-center lg:justify-end gap-2">
-								Next <i class="i-myna-chevron-double-right" />
-							</span>
-							<span>{nextPost.title}</span>
-						</a>
-					)
-				}
-			</div>
-		</div>
-	</div>
+  <div class="grid gap-2">
+    <div>
+      <p>Tags:</p>
+      <div class="flex gap-2 flex-wrap">
+        {
+          pageData.post.tags.map((tag) => (
+            <a
+              href={`/blog/tags/${tag}`}
+              class="btn-normal decoration-none font-normal px-4"
+            >
+              <span>{tag}</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+    <hr class="w-20 mx-auto px-10vw bg-gray h-1px opacity50" />
+
+    <a href="/blog">
+      <span
+        class="inline-flex opacity50 items-center lg:justify-end gap-2 mt-4"
+      >
+        <i class="i-myna-chevron-double-left"></i> Back to Blog
+      </span>
+    </a>
+    <div class="grid lg:grid-cols-2 gap-2 mt-2">
+      <div>
+        {
+          prevPost && (
+            <a
+              href={`/blog/${prevPost.slug}`}
+              class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out text-left flex flex-col gap-2 p-4"
+            >
+              <span class="inline-flex opacity50 items-center gap-2">
+                <i class="i-myna-chevron-double-left" /> Previous
+              </span>
+              <span>{prevPost.title}</span>
+            </a>
+          )
+        }
+      </div>
+
+      <div>
+        {
+          nextPost && (
+            <a
+              href={`/blog/${nextPost.slug}`}
+              class="btn-normal decoration-none opacity-75 hover:(opacity-100 bg-#30344620) rounded-md transition-all duration-300 ease-in-out flex flex-col gap-2 p-4 text-left lg:text-right"
+            >
+              <span class="inline-flex opacity50 items-center lg:justify-end gap-2">
+                Next <i class="i-myna-chevron-double-right" />
+              </span>
+              <span>{nextPost.title}</span>
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
 </BlogPost>

@@ -4,78 +4,84 @@ import DefautLayout from "../../layouts/Layout.astro";
 
 export const prerender = false;
 
-const posts = (await getCollection("blog")).sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
-	const dateA = b.data.properties.created_at.date?.start ? new Date(b.data.properties.created_at.date.start).getTime() : 0;
-	const dateB = a.data.properties.created_at.date?.start ? new Date(a.data.properties.created_at.date.start).getTime() : 0;
-	return dateA - dateB;
-});
+const posts = (await getCollection("blog")).sort(
+  (a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
+    const dateA = new Date(b.data.pubDate).getTime();
+    const dateB = new Date(a.data.pubDate).getTime();
+    return dateA - dateB;
+  }
+);
 
 let postsByYear: Record<number, typeof posts> = {};
 
 for (const post of posts) {
-	const createdAtDate = post.data.properties.created_at.date;
-	const year = createdAtDate ? new Date(createdAtDate.start).getFullYear() : null;
-	if (year && !postsByYear[year]) postsByYear[year] = [];
-	if (year) postsByYear[year].push(post);
+  const year = new Date(post.data.pubDate).getFullYear();
+  if (!postsByYear[year]) postsByYear[year] = [];
+  postsByYear[year].push(post);
 }
 ---
 
 <DefautLayout
-	title="Andka Blog, a collection of my thoughts"
-	description="Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!">
-	<div class="grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content">
-		<h1>
-			<span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
-			<span class="font-light text-sm">A collection of my thoughts</span>
-		</h1>
-		<p>
-			Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think
-			others might find interesting as well. I hope you enjoy reading them!
-		</p>
-		{
-			Object.entries(postsByYear)
-				.sort(([a], [b]) => parseInt(b) - parseInt(a))
-				.map(([year, posts]: [string, any[]], yearIndex: number) => (
-					<div class=" my-12 relative">
-						<div
-							class=" text-2xl font-bold absolute -z-50 font-lexend text-9xl -top-12 -left-12 opacity-10 text-stroke dark:(text-d-base) text-l-base "
-							style={`--enter-stage: ${yearIndex + posts.length + 2} !important;`}>
-							{year}
-						</div>
-						<ul class=" mt-4 z-50 gap-4 grid slide-enter-content">
-							{posts
-								.sort(
-									(a: any, b: any) =>
-										b.data.properties.created_at.date.start.valueOf() - a.data.properties.created_at.date.start.valueOf()
-								)
-								.map((post: any, postIndex: number) => (
-									<li
-										class:list={[
-											"mt-2 relative",
-											{
-												"before:(content-['ID'] absolute -left-10 bg-#5551 text-#888 bg-opacity-25 px-2 py-1 text-xs rounded-md) lang-id":
-													post.data.idOnly,
-											},
-										]}
-										style={`--enter-stage: ${yearIndex > 0 ? yearIndex : ""}${postIndex + 2} !important;`}>
-										<a
-											href={`/blog/${post.data.properties.slug}`}
-											class="inline-block duration-200 transition-all transform inline-flex items-end gap-4 opacity-90 hover:opacity-100">
-											<p>
-												{post.data.properties.Name}
-												<span class=" text-xs text-gray-500 inline-block">
-													{new Date(post.data.properties.created_at.date.start).toLocaleDateString("en-US", {
-														day: "2-digit",
-														month: "long",
-													})}
-												</span>
-											</p>
-										</a>
-									</li>
-								))}
-						</ul>
-					</div>
-				))
-		}
-	</div>
+  title="Andka Blog, a collection of my thoughts"
+  description="Here you can find a collection of my thoughts on various topics. I try to write about things that I find interesting, and that I think others might find interesting as well. I hope you enjoy reading them!"
+>
+  <div
+    class="grid gap-6 mt-32 max-w-3xl mx-auto px-12 mb-20 slide-enter-content"
+  >
+    <h1>
+      <span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
+      <span class="font-light text-sm">A collection of my thoughts</span>
+    </h1>
+    <p>
+      Here you can find a collection of my thoughts on various topics. I try to
+      write about things that I find interesting, and that I think others might
+      find interesting as well. I hope you enjoy reading them!
+    </p>
+    {
+      Object.entries(postsByYear)
+        .sort(([a], [b]) => parseInt(b) - parseInt(a))
+        .map(([year, posts]: [string, any[]], yearIndex: number) => (
+          <div class=" my-12 relative">
+            <div
+              class=" text-2xl font-bold absolute -z-50 font-lexend text-9xl -top-12 -left-12 opacity-10 text-stroke dark:(text-d-base) text-l-base "
+              style={`--enter-stage: ${yearIndex + posts.length + 2} !important;`}
+            >
+              {year}
+            </div>
+            <ul class=" mt-4 z-50 gap-4 grid slide-enter-content">
+              {posts
+                .sort(
+                  (a: any, b: any) =>
+                    new Date(b.data.pubDate).valueOf() -
+                    new Date(a.data.pubDate).valueOf()
+                )
+                .map((post: any, postIndex: number) => (
+                  <li
+                    class="mt-2 relative"
+                    style={`--enter-stage: ${yearIndex > 0 ? yearIndex : ""}${postIndex + 2} !important;`}
+                  >
+                    <a
+                      href={`/blog/${post.data.slug}`}
+                      class="inline-block duration-200 transition-all transform inline-flex items-end gap-4 opacity-90 hover:opacity-100"
+                    >
+                      <p>
+                        {post.data.title}
+                        <span class=" text-xs text-gray-500 inline-block">
+                          {new Date(post.data.pubDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "2-digit",
+                              month: "long",
+                            }
+                          )}
+                        </span>
+                      </p>
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+    }
+  </div>
 </DefautLayout>

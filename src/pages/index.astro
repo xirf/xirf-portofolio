@@ -2,66 +2,80 @@
 import Layout from "../layouts/Layout.astro";
 
 const socialMedia = [
-	{
-		link: "https://github.com/xirf",
-		icon: "i-myna-brand-github",
-		name: "Github",
-	},
-	{
-		link: "https://www.facebook.com/0xirf",
-		icon: "i-myna-brand-facebook",
-		name: "Facebook",
-	},
-	{
-		link: "https://twitter.com/xirfs",
-		icon: "i-myna-brand-x",
-		name: "Twitter",
-	},
+  {
+    link: "https://github.com/xirf",
+    icon: "i-myna-brand-github",
+    name: "Github",
+  },
+  {
+    link: "https://www.facebook.com/0xirf",
+    icon: "i-myna-brand-facebook",
+    name: "Facebook",
+  },
+  {
+    link: "https://twitter.com/xirfs",
+    icon: "i-myna-brand-x",
+    name: "Twitter",
+  },
 ];
 ---
 
 <Layout
-	title="Andka is xirf, welcome to my home"
-	description="Andika Nur Pratama, a student in Informatics Engineering, technology is my passion and dreaming about a better world with it and making it happen is a dream come true. I am generally into web dev things but over the past few month I have begun learning about android dev using kotlin if you are interested, you can visit my projects here. Ouside coding, I often spend my time playing some non-serious games, watching animes and reading manga if you have any recommendations please don't hesitate to suggest them. I live in Magetan, East Java so in case you're around don't hesitate to contact me, perhaps we'll grab some coffee or do some collaboration.">
-	<div class="flex items-center justify-center min-h-70vh p-12">
-		<div class="w-full grid gap-3 max-w-xl slide-enter-content">
-			<h1 class="dark:text-#e5e7eb text-4xl font-bold item">
-				Andka<span class="text-sm font-normal opacity-75 ml-1">or <span class="bold underline">Xirf</span></span>
-			</h1>
-			<div>
-				<p>Hi, I am Andika Nur Pratama</p>
-				<p>Currently a student in Informatics Engineering.</p>
-			</div>
-			<p>
-				Technology is my passion and dreaming about a better world with it and making it happen is a dream come true. I am generally into web
-				dev things but over the past few month I have begun learning about android dev using kotlin if you are interested, you can visit my <a
-					href="/projects"
-					class="font-bold underline">projects here</a
-				>.
-			</p>
-			<p>
-				Ouside coding, I often spend my time playing some non-serious games, watching animes and reading manga if you have any recommendations
-				please don't hesitate to suggest them. I live in Magetan, East Java so in case you're around don't hesitate to contact me, perhaps
-				we'll grab some coffee or do some collaboration.
-			</p>
-			<div class="w-20 h-1px bg-gray opacity-50 mx-auto mt-2"></div>
-			<div class="text-sm">
-				<p>Find me on</p>
-				<div class="flex items-start justify-start gap-4 mt-2">
-					{
-						socialMedia.map((url) => (
-							<a
-								href={url.link}
-								class="btn-normal flex items-center justify-center gap-2 transition-all duration-300 ease-in-out hover:(opacity-100 bg-#8882) opacity-90"
-								target="_blank"
-								rel="external nofollow noopener noreferrer">
-								<span class:list={[url.icon, "inline-block", "w-4", "h-4"]} />
-								{url.name}
-							</a>
-						))
-					}
-				</div>
-			</div>
-		</div>
-	</div>
+  title="Andka is xirf, welcome to my home"
+  description="Andika Nur Pratama, a student in Informatics Engineering, technology is my passion and dreaming about a better world with it and making it happen is a dream come true. I am generally into web dev things but over the past few month I have begun learning about android dev using kotlin if you are interested, you can visit my projects here. Ouside coding, I often spend my time playing some non-serious games, watching animes and reading manga if you have any recommendations please don't hesitate to suggest them. I live in Magetan, East Java so in case you're around don't hesitate to contact me, perhaps we'll grab some coffee or do some collaboration."
+>
+  <div class="flex items-center justify-center min-h-70vh p-12">
+    <div class="w-full grid gap-3 max-w-xl slide-enter-content">
+      <h1 class="dark:text-#e5e7eb text-4xl font-bold item">Andka</h1>
+      <div>
+        <p>Hi, I am Andika Nur Pratama</p>
+        <p>Currently a fullstack flutter developer</p>
+      </div>
+      <p>
+        Technology is my passion and dreaming about a better world with it and
+        making it happen is a dream come true. I am generally into multiplatfrom
+        development using flutter and vue.js. The code was fun and I always
+        learning new things. If you are interested, you can visit my <a
+          href="/projects"
+          class="font-bold underline">projects here</a
+        >.
+      </p>
+      <p>
+        Recently i created <a
+          href="https://pub.dev/packages/latex_math_evaluator"
+          target="_blank"
+          class="font-bold underline"
+          rel="nofollow noopener noreferrer">latex_math_evaluator</a
+        > as new serious challenge. I will wait for your feedback about it.
+      </p>
+      <p>
+        <b>Off-duty?</b> You'll find me immersed in video games or catching up on
+        manga and anime. I'm always looking for a good story, so feel free to share
+        your favorites!
+      </p>
+      <p>
+        I call <b>Madiun, East Java</b> home. If you're nearby, don't be a stranger
+        let's grab a cup of coffee and maybe build something awesome together.
+      </p>
+      <div class="w-20 h-1px bg-gray opacity-50 mx-auto mt-2"></div>
+      <div class="text-sm">
+        <p>Find me on</p>
+        <div class="flex items-start justify-start gap-4 mt-2">
+          {
+            socialMedia.map((url) => (
+              <a
+                href={url.link}
+                class="btn-normal flex items-center justify-center gap-2 transition-all duration-300 ease-in-out hover:(opacity-100 bg-#8882) opacity-90"
+                target="_blank"
+                rel="external nofollow noopener noreferrer"
+              >
+                <span class:list={[url.icon, "inline-block", "w-4", "h-4"]} />
+                {url.name}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
 </Layout>

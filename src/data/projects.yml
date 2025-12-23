@@ -1,48 +1,53 @@
 # leave url blank to block the link
 # image is a icon aside the project name, you can use any icon from https://icon-sets.iconify.design/solar/
 ---
+current:
+  - name: Latex Math Evaluator
+    url: https://pub.dev/packages/latex_math_evaluator
+    description: Dart package that can evaluate latex math expression
+    image: i-solar-calculator-minimalistic-bold-duotone
 android:
-    - name: Craft It
-      url: https://github.com/7exp/craftit-android
-      description: My capstone project at Bangkit Academy
-      image: i-solar-sledgehammer-bold-duotone
-      
-    - name: Asclepius
-      url: https://github.com/xirf/asclepius
-      description: Fist try implementing ML on android
-      image: i-solar-document-medicine-bold-duotone
+  - name: Craft It
+    url: https://github.com/7exp/craftit-android
+    description: My capstone project at Bangkit Academy
+    image: i-solar-sledgehammer-bold-duotone
 
-    - name: Github Friends
-      url: https://github.com/xirf/githubfriends
-      description: App for my network test project
-      image: i-solar-gift-bold-duotone
+  - name: Asclepius
+    url: https://github.com/xirf/asclepius
+    description: Fist try implementing ML on android
+    image: i-solar-document-medicine-bold-duotone
 
-    - name: Hanashi
-      url: https://github.com/xirf/hanashi
-      description: Final project for my dicoding class
-      image: i-solar-hashtag-square-bold-duotone
+  - name: Github Friends
+    url: https://github.com/xirf/githubfriends
+    description: App for my network test project
+    image: i-solar-gift-bold-duotone
 
-    - name: Yomu Toki
-      url: https://github.com/xirf/yomutoki
-      description: My first android app
-      image: i-solar-smartphone-2-bold-duotone
+  - name: Hanashi
+    url: https://github.com/xirf/hanashi
+    description: Final project for my dicoding class
+    image: i-solar-hashtag-square-bold-duotone
+
+  - name: Yomu Toki
+    url: https://github.com/xirf/yomutoki
+    description: My first android app
+    image: i-solar-smartphone-2-bold-duotone
 
 web:
-    - name: Math With Code
-      description: Math learning platform with code
-      url: https://mathwithcode.tech
-      image: i-solar-calculator-bold-duotone
-    - name: ASCII Image
-      description: Converts images to ASCII with image background
-      url: https://github.com/xirf/ascii-image
-      image: i-solar-gallery-favourite-bold-duotone
-    - name: DBook
-      description: Library admin panel with Astro
-      url:
-      image: i-solar-book-bookmark-bold-duotone
+  - name: Math With Code
+    description: Math learning platform with code
+    url: https://mathwithcode.tech
+    image: i-solar-calculator-bold-duotone
+  - name: ASCII Image
+    description: Converts images to ASCII with image background
+    url: https://github.com/xirf/ascii-image
+    image: i-solar-gallery-favourite-bold-duotone
+  - name: DBook
+    description: Library admin panel with Astro
+    url:
+    image: i-solar-book-bookmark-bold-duotone
 
 fun:
-    - name: Be My Valentine
-      description: Classic button game
-      url: https://github.com/xirf/bmyv
-      image: i-solar-heart-pulse-2-bold-duotone
+  - name: Be My Valentine
+    description: Classic button game
+    url: https://github.com/xirf/bmyv
+    image: i-solar-heart-pulse-2-bold-duotone
