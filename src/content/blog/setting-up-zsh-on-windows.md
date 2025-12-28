@@ -243,6 +243,71 @@ fi
 
 ---
 
+## Git Authentication with GitHub CLI
+
+If you have GitHub CLI (`gh`) installed on Windows and want to use it with Cygwin Git, you might encounter authentication errors like:
+
+```
+'C:\Program Files\GitHub CLI\gh.exe' auth git-credential get: line 1: C:\Program Files\GitHub CLI\gh.exe: command not found
+fatal: Authentication failed
+```
+
+This happens because Cygwin Git tries to use Windows paths that don't work in the Cygwin environment.
+
+### Solution: Configure Git to Use GitHub CLI
+
+First, verify that `gh` is accessible in Cygwin:
+
+```bash
+which gh
+# Should output: /cygdrive/c/Program Files/GitHub CLI/gh
+```
+
+If you're not already authenticated, log in with GitHub CLI:
+
+```bash
+gh auth login
+```
+
+Then configure Git to use `gh` as the credential helper:
+
+```bash
+# Remove any broken credential helpers
+git config --global --unset-all credential.helper
+
+# Set gh as the credential helper
+git config --global credential.helper '!gh auth git-credential'
+```
+
+Verify the configuration:
+
+```bash
+git config --global --list | grep credential
+# Should show: credential.helper=!gh auth git-credential
+```
+
+Now Git operations will authenticate through GitHub CLI automatically:
+
+```bash
+git push  # Works without prompting for credentials
+```
+
+### Alternative: Use Personal Access Token
+
+If you prefer not to use GitHub CLI:
+
+```bash
+# Use Git's built-in credential storage
+git config --global credential.helper store
+
+# Next time you push, enter your username and Personal Access Token
+git push
+```
+
+Create a Personal Access Token at [github.com/settings/tokens](https://github.com/settings/tokens) with `repo` scope.
+
+---
+
 ## Conclusion
 
 With these steps, you should have Zsh running on Windows through Cygwin, with optional Oh My Zsh configuration for themes and plugins. The VS Code integration allows you to use this shell directly in your editor.
