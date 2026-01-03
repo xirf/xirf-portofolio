@@ -9,7 +9,11 @@ interface Props {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = "/images/screenshot-dark.png" } = Astro.props;
+const {
+	title,
+	description,
+	image = "/images/screenshot-dark.png",
+} = Astro.props;
 ---
 
 <meta charset="utf-8" />
@@ -17,12 +21,12 @@ const { title, description, image = "/images/screenshot-dark.png" } = Astro.prop
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
 <link rel="canonical" href={canonicalURL} />
-<script defer is:inline>
+<script is:inline>
 	!(function () {
 		var e = window.matchMedia("(prefers-color-scheme: dark)").matches;
 		var t = localStorage.getItem("isDarkMode") || "auto";
 		if (t === "true" || (e && t !== "false")) {
-			document.documentElement.classList.toggle("dark", !0);
+			document.documentElement.classList.add("dark");
 		}
 	})();
 </script>

@@ -26,19 +26,18 @@ export function initMermaid() {
   });
 
   const renderMermaid = async () => {
-    // Find all code blocks that Shiki has marked as mermaid
     const diagrams = document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]');
 
     for (const diagram of diagrams) {
       const code = diagram.textContent || '';
       const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-      
+
       try {
         const { svg } = await mermaid.render(id, code);
         const container = document.createElement('div');
         container.className = 'mermaid-diagram';
         container.innerHTML = svg;
-       container.style.display = 'flex';
+        container.style.display = 'flex';
         container.style.justifyContent = 'center';
         container.style.backgroundColor = '#2C3041';
         container.style.borderRadius = '8px';

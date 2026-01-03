@@ -9,7 +9,7 @@ const posts = (await getCollection("blog")).sort(
     const dateA = new Date(b.data.pubDate).getTime();
     const dateB = new Date(a.data.pubDate).getTime();
     return dateA - dateB;
-  }
+  },
 );
 
 let postsByYear: Record<number, typeof posts> = {};
@@ -30,13 +30,7 @@ for (const post of posts) {
   >
     <h1>
       <span class="text-3xl lg:text-4xl font-bold font-lexend">Blog</span>
-      <span class="font-light text-sm">A collection of my thoughts</span>
     </h1>
-    <p>
-      Here you can find a collection of my thoughts on various topics. I try to
-      write about things that I find interesting, and that I think others might
-      find interesting as well. I hope you enjoy reading them!
-    </p>
     {
       Object.entries(postsByYear)
         .sort(([a], [b]) => parseInt(b) - parseInt(a))
@@ -53,7 +47,7 @@ for (const post of posts) {
                 .sort(
                   (a: any, b: any) =>
                     new Date(b.data.pubDate).valueOf() -
-                    new Date(a.data.pubDate).valueOf()
+                    new Date(a.data.pubDate).valueOf(),
                 )
                 .map((post: any, postIndex: number) => (
                   <li
@@ -72,7 +66,7 @@ for (const post of posts) {
                             {
                               day: "2-digit",
                               month: "long",
-                            }
+                            },
                           )}
                         </span>
                       </p>

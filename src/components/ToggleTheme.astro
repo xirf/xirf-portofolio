@@ -2,69 +2,51 @@
 
 ---
 
-<button class="toggle-theme flex items-center" id="toggle-theme" aria-label="Toggle theme" title="Toggle theme">
+<button
+	class="toggle-theme flex items-center"
+	id="toggle-theme"
+	aria-label="Toggle theme"
+	title="Toggle theme"
+>
 	<div class="w5 h5 i-myna-moon dark:(i-myna-sun w5 h5)"></div>
 </button>
 
 <script is:inline>
 	document.addEventListener("astro:page-load", () => {
 		let theme = localStorage.getItem("isDarkMode") || "auto";
-		let windowTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+		let windowTheme = window.matchMedia(
+			"(prefers-color-scheme: dark)",
+		).matches;
 		let isDarkMode = theme === "true" || (theme === "auto" && windowTheme);
 
 		document.documentElement.classList.toggle("dark", isDarkMode);
 		localStorage.setItem("isDarkMode", isDarkMode.toString());
 
-		function toogleDarkMode(event) {
-			const isTransitionAvailable = document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		function toggleDarkMode() {
+			const canTransition =
+				document.startViewTransition &&
+				!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			let isDark = !document.documentElement.classList.contains("dark");
 
-			if (!isTransitionAvailable) {
-				let isDark = localStorage.getItem("isDarkMode") == "true";
-				localStorage.setItem("isDarkMode", !isDark);
-				document.documentElement.classList.toggle("dark", !isDark);
+			if (!canTransition) {
+				document.documentElement.classList.toggle("dark", isDark);
+				localStorage.setItem("isDarkMode", isDark);
 				return;
 			}
 
-			const transition = document.startViewTransition(async () => {
-				const element = document.documentElement;
-				let isDark = element.classList.contains("dark");
-
-				isDark = !isDark;
-
-				element.classList.toggle("dark", isDark);
+			document.startViewTransition(() => {
+				document.documentElement.classList.toggle("dark", isDark);
 				localStorage.setItem("isDarkMode", isDark);
-			});
-
-			transition.ready.then(() => {
-				let isDark = localStorage.getItem("isDarkMode") === "true";
-
-				// Use event instead of center of the button becuase in some cases the calculation is wrong
-				// This will fix later if i have time :D (or you can do it)
-				const x = event.clientX;
-				const y = event.clientY;
-				const endRadius = Math.hypot(Math.max(window.innerWidth - x, x), Math.max(window.innerHeight - y, y));
-
-				const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`];
-
-				document.documentElement.animate(
-					{
-						clipPath: isDark ? [...clipPath].reverse() : clipPath,
-					},
-					{
-						duration: 500,
-						easing: "ease-out",
-						pseudoElement: isDark ? "::view-transition-old(root)" : "::view-transition-new(root)",
-					}
-				);
 			});
 		}
 
-		document.getElementById("toggle-theme").addEventListener("click", toogleDarkMode);
+		document
+			.getElementById("toggle-theme")
+			.addEventListener("click", toggleDarkMode);
 	});
 
 	document.addEventListener("astro:after-swap", () => {
-		localStorage.getItem("isDarkMode") === "true"
-			? document.documentElement.classList.add("dark")
-			: document.documentElement.classList.remove("dark");
+		let isDark = localStorage.getItem("isDarkMode") === "true";
+		document.documentElement.classList.toggle("dark", isDark);
 	});
 </script>

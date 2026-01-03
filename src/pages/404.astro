@@ -4,17 +4,32 @@ import Layout from "../layouts/Layout.astro";
 export const prerender = false;
 ---
 
-<Layout title="Woops, looks like you're lost" description="The page you're looking for doesn't exist.">
-	<div class="flex min-h-80vh p-12 max-w-6xl mx-auto relative items-center justify-center">
-		<main class="flex flex-col gap-2 slide-enter-content max-w-sm text-center bg-gradient-to-t from-#101417 to-#212a34 p-8 rounded-3xl">
-			<h1 class="text-center text-3xl font-bold text-#e5e7eb">404</h1>
-			<div class="w-full h-full max-w-xs max-h-xs relative mx-auto flex items-center justify-center my-4">
+<Layout
+	title="Woops, looks like you're lost"
+	description="The page you're looking for doesn't exist."
+>
+	<div
+		class="flex min-h-80vh p-12 max-w-6xl mx-auto relative items-center justify-center"
+	>
+		<main
+			class="flex flex-col gap-2 slide-enter-content max-w-sm text-center"
+		>
+			<div
+				class="w-full h-full max-w-xs max-h-xs relative mx-auto flex items-center justify-center my-4"
+			>
 				<div class="flex flex-col" id="ghost">
-					<div id="ghost-body" class="rounded-t-full w32 h34 grid place-items-center bg-white"></div>
-					<div class="grid place-items-center absolute top-12 z-100 left-1/2 -translate-x-1/2">
+					<div
+						id="ghost-body"
+						class="rounded-t-full w32 h34 grid place-items-center bg-d-on-base dark:bg-l-on-base"
+					>
+					</div>
+					<div
+						class="grid place-items-center absolute top-12 z-100 left-1/2 -translate-x-1/2"
+					>
 						<div
 							class="face w-20 h7"
-							style="--left-lower-rotation:20deg;--left-lower-position:40%;--left-upper-rotation:0deg;--left-upper-position:0%;--right-lower-rotation:-20deg;--right-lower-position:40%;--right-upper-rotation:0deg;--right-upper-position:0%;--face-rotation-x:0deg;--face-rotation-y:0deg;--face-rotation-z:0deg;">
+							style="--left-lower-rotation:20deg;--left-lower-position:40%;--left-upper-rotation:0deg;--left-upper-position:0%;--right-lower-rotation:-20deg;--right-lower-position:40%;--right-upper-rotation:0deg;--right-upper-position:0%;--face-rotation-x:0deg;--face-rotation-y:0deg;--face-rotation-z:0deg;"
+						>
 							<div class="eye left">
 								<div class="lower">
 									<div class="lid"></div>
@@ -33,24 +48,40 @@ export const prerender = false;
 							</div>
 						</div>
 					</div>
-					<div id="ghost-bottom" class="grid grid-cols-5 w-full -mt-4 z-2">
+					<div
+						id="ghost-bottom"
+						class="grid grid-cols-5 w-full -mt-4 z-2"
+					>
 						{
 							Array.from({ length: 5 }).map((_, i) => (
-								<div class:list={["w-full h7 rounded-50px", i % 2 === 0 ? "bg-white" : "bg-#151b20"]} />
+								<div
+									class:list={[
+										"w-full h7 rounded-50px",
+										i % 2 === 0
+											? "bg-d-on-base dark:bg-l-on-base"
+											: "bg-l-base dark:bg-d-base",
+									]}
+								/>
 							))
 						}
 					</div>
 				</div>
 			</div>
-			<h2 class="text-center text-lg text-white">Oops !</h2>
-			<p class="text-center text-gray-400">It looks like we couldn't find the page you were looking for.</p>
-			<a href="/" class="text-center text-white underline">Let's go back home</a>
+			<h2 class="text-center text-lg">You're lost.</h2>
+			<div class="text-center text-gray-400">
+				<p>This page doesn't exist, but this ghost does.</p>
+				<p>Good news: she's friendly and knows the way out.</p>
+			</div>
+			<div class="w-20 h-1px bg-gray opacity-50 mx-auto mt-2"></div>
+			<a href="/" class="btn-normal mx-auto mt-2">Let's go back home</a>
 		</main>
 	</div>
 </Layout>
 
 <script is:inline>
-	console.log("Eyes animation credited to Zed Dash on https://codepen.io/z-/pen/wvBPvby, with some modification");
+	console.log(
+		"Eyes animation credited to Zed Dash on https://codepen.io/z-/pen/wvBPvby, with some modification",
+	);
 
 	let states = {
 		neutral: {
@@ -107,7 +138,7 @@ export const prerender = false;
 				},
 			},
 		},
-		
+
 		pain: {
 			face: {
 				rotationX: 0,
@@ -137,7 +168,8 @@ export const prerender = false;
 		},
 	};
 
-	let face = document.querySelector(".face");
+	const face = document.querySelector(".face");
+	const ghost = document.querySelector("#ghost");
 	const setState = (state) => {
 		if (states[state] == undefined) return;
 		face.setAttribute(
@@ -154,7 +186,7 @@ export const prerender = false;
         --face-rotation-x:${states[state].face.rotationX}deg;
         --face-rotation-y:${states[state].face.rotationY}deg;
         --face-rotation-z:${states[state].face.rotationZ}deg;
-    `
+    `,
 		);
 	};
 
@@ -170,7 +202,20 @@ export const prerender = false;
 		return ind;
 	};
 
+	let isHover = false;
+
+	ghost.addEventListener("mouseover", () => {
+		isHover = true;
+		setState("pain");
+	});
+
+	ghost.addEventListener("mouseout", () => {
+		setState("sad");
+		isHover = false;
+	});
+
 	setInterval(() => {
+		if (isHover) return;
 		setState(emotions[nextState()]);
 	}, 1500);
 </script>
@@ -201,17 +246,17 @@ export const prerender = false;
 		grid-template-columns: var(--eye-size) var(--eye-gap) var(--eye-size);
 		grid-template-rows: var(--eye-size);
 		grid-template-areas: "left . right";
-		filter: blur(4px) contrast(8);
-		transform: translateZ(8vmin) rotateX(var(--face-rotation-x)) rotateY(var(--face-rotation-y)) rotateZ(var(--face-rotation-z));
+		filter: blur(4px);
+		transform: translateZ(8vmin) rotateX(var(--face-rotation-x))
+			rotateY(var(--face-rotation-y)) rotateZ(var(--face-rotation-z));
 		transition: 0.75s cubic-bezier(0.25, 0.5, 0.5, 1);
-		mix-blend-mode: lighten;
 	}
 	body .face .eye {
 		position: relative;
-		background: black;
+		background: #eff1f5;
 		border-radius: 100%;
 		overflow: hidden;
-		box-shadow: 0 0 0 8px white;
+		box-shadow: 0 0 0 8px #4c4f69;
 	}
 	body .face .eye,
 	body .face .eye * {
@@ -231,7 +276,7 @@ export const prerender = false;
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background: white;
+		background: #4c4f69;
 	}
 	body .face .eye > div.lower .lid {
 		top: calc(100% - var(--position));
@@ -262,17 +307,17 @@ export const prerender = false;
 		--position: var(--right-upper-position);
 	}
 
-    @keyframes float {
-        0%,
-        100% {
-            transform: translateY(-1%);
-        }
-        50% {
-            transform: translateY(1%);
-        }
-    }
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(-1%);
+		}
+		50% {
+			transform: translateY(1%);
+		}
+	}
 
-    #ghost{
-        animation: float 2s ease-in-out infinite;
-    }
+	#ghost {
+		animation: float 2s ease-in-out infinite;
+	}
 </style>

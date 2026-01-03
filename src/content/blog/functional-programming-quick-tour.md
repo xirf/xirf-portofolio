@@ -121,7 +121,7 @@ Since FP relies on immutability, we generally avoid loop counters (like `i++`). 
 
 This is often the most confusing part of FP, but it is essentially about **safety boxes**. In standard programming, if a value might be `null`, you have to write `if (value !== null)` checks everywhere. In FP, we wrap that value in a container (often called a Monad, like `Maybe` or `Either`).
 
-A great way to visualize this is the **Railway Pattern**. You have a "Happy Path" (Green) and a "Failure Path" (Red). If an error occurs, the data switches tracks to the failure path, bypassing all subsequent operations safely.
+A great way to visualize this is the **Railway Pattern**. You have a "Happy Path" (Success) and a "Failure Path" (Error). If an error occurs, the data switches tracks to the failure path, bypassing all subsequent operations safely.
 
 ```mermaid
 graph LR

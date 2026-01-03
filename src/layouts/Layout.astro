@@ -4,7 +4,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import LoadingIndicator from "../components/LoadingIndicator.astro";
 
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
 	title: string;
@@ -21,11 +21,20 @@ const { title, description, image } = Astro.props;
 	<head>
 		<BaseHead title={title} description={description} image={image} />
 	</head>
-	<body class=" dark:(bg-d-base text-d-on-base) bg-l-base text-l-on-base font-sans pb-5 md:pb-3em">
-		<a href="#main" class="sr-only focus:not-sr-only" tabindex="0">Skip to main content</a>
-		<LoadingIndicator color="#bcc0cc" height="2px" threshold={0} animationDuration={200} />
+	<body
+		class="dark:(bg-d-base text-d-on-base) bg-l-base text-l-on-base font-sans pb-5 md:pb-3em min-h-svh flex flex-col"
+	>
+		<a href="#main" class="sr-only focus:not-sr-only" tabindex="0"
+			>Skip to main content</a
+		>
+		<LoadingIndicator
+			color="#bcc0cc"
+			height="2px"
+			threshold={0}
+			animationDuration={200}
+		/>
 		<Header />
-		<main id="main" class="pb-10 lg:pb-0">
+		<main id="main" class="pb-10 lg:pb-0 grow">
 			<slot />
 		</main>
 		<Footer />

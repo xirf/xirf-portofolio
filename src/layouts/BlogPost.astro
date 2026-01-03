@@ -132,48 +132,59 @@ const { title, description, pubDate, thumbnail, headings, caption } =
 
 <script>
   import { initMermaid } from "../plugins/mermaid";
-  initMermaid();
 
-  const headingIndicator = document.querySelectorAll(".heading-indicator");
-  const slugs = Array.from(headingIndicator).map(
-    (h) => (h as HTMLElement).dataset.slug
-  );
-  const headingsScrollPos = slugs.map((slug) => {
-    const heading = document.querySelector(`#${CSS.escape(slug!)}`);
-    if (heading) {
-      return heading.getBoundingClientRect().top + window.scrollY;
-    }
-    return 0;
-  });
+  function initPage() {
+    initMermaid();
 
-  let lastVisibleHeading = (headingIndicator[0] as HTMLElement).dataset.slug;
-  let scrollIndex = 0;
+    const headingIndicator = document.querySelectorAll(".heading-indicator");
+    if (headingIndicator.length === 0) return;
 
-  window.addEventListener("scroll", () => {
-    const scrollPos = window.scrollY;
-
-    if (scrollPos > headingsScrollPos[scrollIndex]) {
-      scrollIndex++;
-      lastVisibleHeading = slugs[scrollIndex];
-    } else if (scrollPos < headingsScrollPos[scrollIndex - 1]) {
-      scrollIndex--;
-      lastVisibleHeading = slugs[scrollIndex];
-    }
-
-    document.querySelectorAll(".heading-indicator").forEach((h) => {
-      let tocItem = document.querySelector(
-        `a[href="#${(h as HTMLElement).dataset.slug}"]`
-      ) as HTMLElement;
-      if (lastVisibleHeading === (h as HTMLElement).dataset.slug) {
-        tocItem.style.opacity = "100%";
-        (h as HTMLElement).style.opacity = "75%";
-      } else {
-        tocItem.removeAttribute("style");
-        tocItem?.classList.remove("bg-d-on-base/10");
-        (h as HTMLElement).style.opacity = "10%";
+    const slugs = Array.from(headingIndicator).map(
+      (h) => (h as HTMLElement).dataset.slug,
+    );
+    const headingsScrollPos = slugs.map((slug) => {
+      const heading = document.querySelector(`#${CSS.escape(slug!)}`);
+      if (heading) {
+        return heading.getBoundingClientRect().top + window.scrollY;
       }
+      return 0;
     });
-  });
+
+    let lastVisibleHeading = (headingIndicator[0] as HTMLElement).dataset.slug;
+    let scrollIndex = 0;
+
+    // Remove previous scroll listener to avoid duplicates
+    const scrollHandler = () => {
+      const scrollPos = window.scrollY;
+
+      if (scrollPos > headingsScrollPos[scrollIndex]) {
+        scrollIndex++;
+        lastVisibleHeading = slugs[scrollIndex];
+      } else if (scrollPos < headingsScrollPos[scrollIndex - 1]) {
+        scrollIndex--;
+        lastVisibleHeading = slugs[scrollIndex];
+      }
+
+      document.querySelectorAll(".heading-indicator").forEach((h) => {
+        let tocItem = document.querySelector(
+          `a[href="#${(h as HTMLElement).dataset.slug}"]`,
+        ) as HTMLElement;
+        if (lastVisibleHeading === (h as HTMLElement).dataset.slug) {
+          tocItem.style.opacity = "100%";
+          (h as HTMLElement).style.opacity = "75%";
+        } else {
+          tocItem.removeAttribute("style");
+          tocItem?.classList.remove("bg-d-on-base/10");
+          (h as HTMLElement).style.opacity = "10%";
+        }
+      });
+    };
+
+    window.addEventListener("scroll", scrollHandler);
+  }
+
+  // Run on initial load and after View Transitions navigation
+  document.addEventListener("astro:page-load", initPage);
 </script>
 
 <style is:global>
