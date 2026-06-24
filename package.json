@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@unocss/astro": "^66.7.2",
     "@unocss/reset": "^66.7.2"
   },
   "module": "index.ts",
