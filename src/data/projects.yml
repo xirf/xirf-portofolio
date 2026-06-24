@@ -2,11 +2,47 @@
 # image is a icon aside the project name, you can use any icon from https://icon-sets.iconify.design/solar/
 ---
 current:
+- name: PPU-OCV
+  url: https://github.com/PT-Perkasa-Pilar-Utama/ppu-ocv
+  description: A type-safe, modular, chainable image processing library
+  image: i-solar-gallery-edit-bold-duotone
+- name: Magpie
+  url: https://github.com/xirf/Magpie
+  description: Torrent client controller bot
+  image: i-solar-accumulator-bold-duotone
+
+Library: 
   - name: TeXpr
     url: https://pub.dev/packages/texpr
     description: Dart package for evaluating LaTeX math expressions
     image: i-solar-calculator-minimalistic-bold-duotone
+  - name: Macula
+    url: https://github.com/xirf/macula
+    description: OCR Error Detection Library
+    image: i-solar-pen-new-square-bold-duotone
+  - name: Molniya
+    description: Performant Data processing library on TS
+    url: https://github.com/xirf/molniya
+    image: i-solar-pie-chart-2-bold-duotone
+web:
+  - name: Json Chizu
+    description: Free JSON-Crack Alternative 
+    url: https://shiko.andka.id
+    image: i-solar-ruler-angular-bold-duotone
+  - name: Math With Code
+    description: Math learning platform
+    url: https://mathwithcode.tech
+    image: i-solar-calculator-bold-duotone
+  - name: ASCII Image
+    description: Image to ASCII converter
+    url: https://github.com/xirf/ascii-image
+    image: i-solar-gallery-favourite-bold-duotone
+  
 android:
+  - name: Just Widget
+    url: https://github.com/xirf/JustWidget
+    description: minimalistic weather widget
+    image: i-solar-cloud-sun-2-bold-duotone
   - name: Craft It
     url: https://github.com/7exp/craftit-android
     description: Capstone project for Bangkit Academy
@@ -31,14 +67,3 @@ android:
     url: https://github.com/xirf/yomutoki
     description: Android reading app
     image: i-solar-smartphone-2-bold-duotone
-
-web:
-  - name: Math With Code
-    description: Math learning platform
-    url: https://mathwithcode.tech
-    image: i-solar-calculator-bold-duotone
-  - name: ASCII Image
-    description: Image to ASCII converter
-    url: https://github.com/xirf/ascii-image
-    image: i-solar-gallery-favourite-bold-duotone
-  

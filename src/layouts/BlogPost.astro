@@ -10,13 +10,14 @@ interface Props {
   thumbnail: string;
   headings: MarkdownHeading[];
   caption?: string;
+  isId?: boolean;
 }
 
-const { title, description, pubDate, thumbnail, headings, caption } =
+const { title, description, pubDate, thumbnail, headings, caption, isId } =
   Astro.props;
 ---
 
-<Layout title={title} description={description} image={thumbnail || undefined}>
+<Layout title={title} description={description} image={thumbnail || undefined} isId={isId}>
   <div class="relative" id="top">
     <div class="px-8 pt-10">
       <article class="max-w-3xl m-auto slide-enter-content pb32">

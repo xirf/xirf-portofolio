@@ -1,17 +1,27 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import { render } from "astro:content";
 import type { MarkdownHeading } from "astro";
 
-export const prerender = false;
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post: any) => ({
+    params: { slug: post.data.slug },
+    props: { post, posts },
+  }));
+}
 
-const posts = await getCollection("blog");
+interface Props {
+  post: CollectionEntry<"blog">;
+  posts: CollectionEntry<"blog">[];
+}
+
+const { post, posts } = Astro.props as Props;
 const numOfPost = posts.length;
 const params = Astro.params.slug;
-const post = posts.find((post: any) => post.data.slug === params);
 
-const postIndex = posts.findIndex((post: any) => post.data.slug === params);
+const postIndex = posts.findIndex((p: any) => p.data.slug === post.data.slug);
 
 function getAtIndex(index: number) {
   return {
@@ -54,6 +64,7 @@ const { Content, headings } = await render(post);
   description={pageData.post.description}
   caption={pageData.post.credit}
   headings={headings as MarkdownHeading[]}
+  isId={post.data.isId}
 >
   <Content />
 

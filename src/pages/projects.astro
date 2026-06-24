@@ -58,7 +58,7 @@ const projectKeys = Object.keys(projects) as Array<keyof typeof projects>;
 										const animationOffset = `--enter-stage: ${prevProjectLength + projectIndex + 5} !important;`;
 
 										return p.url ? (
-											<a href={p.url} target="_blank" class={className} style={animationOffset}>
+											<a href={p.url} target="_blank" rel="external nofollow noopener noreferrer" class={className} style={animationOffset}>
 												{pContent}
 											</a>
 										) : (

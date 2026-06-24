@@ -2,15 +2,23 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../../layouts/Layout.astro";
 
-export const prerender = false;
-
-const tag = Astro.params.slug;
-
-if (!tag) {
-  return Astro.rewrite("/404");
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+  return tags.map((tag) => ({
+    params: { slug: tag },
+    props: { posts },
+  }));
 }
 
-const posts = (await getCollection("blog"))
+interface Props {
+  posts: CollectionEntry<"blog">[];
+}
+
+const { posts: allPosts } = Astro.props as Props;
+const tag = Astro.params.slug;
+
+const posts = allPosts
   .sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
     const dateA = a.data.pubDate;
     const dateB = b.data.pubDate;

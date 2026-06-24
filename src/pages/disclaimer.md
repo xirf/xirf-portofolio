@@ -1,7 +1,6 @@
 ---
 layout: '../layouts/PlainMarkdown.astro'
 title: 'Disclaimer'
-heroImage: '../assets/images/disclaimer.jpg'
 ---
 
 # Disclaimer

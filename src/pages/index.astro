@@ -24,36 +24,32 @@ const socialMedia = [
   title="Andka is xirf, welcome to my home"
   description="Andika Nur Pratama, a student in Informatics Engineering, technology is my passion and dreaming about a better world with it and making it happen is a dream come true. I am generally into web dev things but over the past few month I have begun learning about android dev using kotlin if you are interested, you can visit my projects here. Ouside coding, I often spend my time playing some non-serious games, watching animes and reading manga if you have any recommendations please don't hesitate to suggest them. I live in Magetan, East Java so in case you're around don't hesitate to contact me, perhaps we'll grab some coffee or do some collaboration."
 >
-  <div class="flex items-center justify-center min-h-70vh p-12">
-    <div class="w-full grid gap-3 max-w-xl slide-enter-content">
-      <h1 class="dark:text-#e5e7eb text-4xl font-bold item">Andika</h1>
-      <div>
-        <p>A fullstack developer</p>
-      </div>
+  <div class="relative z-1 flex items-center justify-center min-h-70vh p-12">
+    <div class="w-full grid gap-3 max-w-xl">
+      <h1 class="dark:text-#e5e7eb text-4xl font-bold item" id="glitch-name">
+        <span class="g-seg">And</span><span class="g-char" id="gi">i</span><span
+          class="g-seg">ka</span
+        >
+      </h1>
       <p>
-        I work with multiplatform development using Flutter and Vue.js. I enjoy
-        coding and continue to learn new things. You can view my
-        <a href="/projects" class="font-bold underline">projects here</a>.
+        <i>I build things that don't exist yet, or fix things that bother me.</i
+        >
       </p>
       <p>
-        I recently created <a
-          href="https://pub.dev/packages/texpr"
-          target="_blank"
-          class="font-bold underline"
-          rel="nofollow noopener noreferrer">TeXpr</a
-        > as a new challenge. Feedback is welcome.
+        Lately that means Rust, TypeScript, Dart, and whatever i feels needs
+        this week. I spend a weird amount of time making things smaller, faster,
+        or less annoying to use. Sometimes it ships. Sometimes it just lives in
+        a repo with a README and one star from a stranger.
       </p>
+      <p>I'm not really trying to be impressive. Just curious.</p>
       <p>
-        <b>Off-duty?</b> I play video games and read manga and anime. I'm open to
-        recommendations if you have any.
+        Off-duty? Manga, anime, games. Recs welcome if you know the obscure
+        stuff.
       </p>
-      <p>
-        I'm based in <b>Madiun, East Java</b>. If you're in the area, feel free
-        to connect over coffee.
-      </p>
+      <p>Based in Madiun, East Java. Say hi if you want.</p>
       <div class="w-20 h-1px bg-gray opacity-50 mx-auto mt-2"></div>
       <div class="text-sm">
-        <p>Links:</p>
+        <p>Let's talk:</p>
         <div class="flex items-start justify-start gap-4 mt-2">
           {
             socialMedia.map((url) => (
@@ -73,3 +69,316 @@ const socialMedia = [
     </div>
   </div>
 </Layout>
+
+<style scoped>
+  /* ── Base — lock layout ── */
+  #glitch-name {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .g-char {
+    display: inline-block;
+    position: relative;
+    /* width locked by JS so hiding never shifts siblings */
+    text-align: center;
+    transition: none;
+  }
+
+  /* ── Scanlines during glitch ── */
+  #glitch-name.glitching {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    background-size: 100% 4px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: word-jitter 0.08s steps(2) infinite;
+  }
+
+  /* RGB split pseudo-layers */
+  #glitch-name.glitching::before,
+  #glitch-name.glitching::after {
+    content: "Andika";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  #glitch-name.glitching::before {
+    background-color: #ff003c;
+    z-index: -1;
+    animation: slice-r 0.1s steps(1) infinite;
+  }
+  #glitch-name.glitching::after {
+    background-color: #00e5ff;
+    z-index: -1;
+    animation: slice-c 0.1s steps(1) infinite;
+  }
+
+  /* Per-char corruption tinting */
+  #glitch-name .g-char.corrupted {
+    color: #ff003c;
+    text-shadow: 2px 0 #00e5ff;
+  }
+  #glitch-name .g-char.corrupted:nth-child(even) {
+    color: #00e5ff;
+    text-shadow: -2px 0 #ff003c;
+  }
+
+  /* Jitter on the "i" char during scramble */
+  #glitch-name.glitching .g-char {
+    animation: char-jitter 0.08s steps(1) infinite;
+  }
+
+  /* Settling: RGB shadow fades, no translate */
+  #glitch-name.settling {
+    animation: settle-fade 0.3s ease-out forwards;
+  }
+
+  /* ── Keyframes ── */
+
+  @keyframes word-jitter {
+    0% {
+      transform: translateX(0);
+      filter: none;
+    }
+    20% {
+      transform: translateX(-4px) skewX(-3deg);
+      filter: hue-rotate(60deg);
+    }
+    40% {
+      transform: translateX(3px) skewX(4deg);
+      filter: hue-rotate(180deg);
+    }
+    60% {
+      transform: translateX(-2px) skewX(-1deg);
+      filter: hue-rotate(240deg);
+    }
+    80% {
+      transform: translateX(4px) skewX(2deg);
+      filter: hue-rotate(90deg);
+    }
+    100% {
+      transform: translateX(0);
+      filter: none;
+    }
+  }
+
+  @keyframes char-jitter {
+    0% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-1px);
+    }
+    50% {
+      transform: translateY(2px);
+    }
+    75% {
+      transform: translateY(-1px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes settle-fade {
+    0% {
+      text-shadow:
+        -3px 0 #ff003c,
+        3px 0 #00e5ff;
+      filter: hue-rotate(60deg);
+    }
+    50% {
+      text-shadow:
+        -1px 0 #ff003c,
+        1px 0 #00e5ff;
+      filter: none;
+    }
+    100% {
+      text-shadow: none;
+      filter: none;
+    }
+  }
+
+  @keyframes slice-r {
+    0% {
+      clip-path: inset(0);
+      transform: translate(0);
+    }
+    10% {
+      clip-path: inset(15% 0 55% 0);
+      transform: translate(-4px, 0);
+    }
+    20% {
+      clip-path: inset(55% 0 10% 0);
+      transform: translate(5px, 0);
+    }
+    30% {
+      clip-path: inset(5% 0 75% 0);
+      transform: translate(-3px, 0);
+    }
+    40% {
+      clip-path: inset(65% 0 5% 0);
+      transform: translate(4px, 0);
+    }
+    50% {
+      clip-path: inset(20% 0 40% 0);
+      transform: translate(-5px, 0);
+    }
+    60% {
+      clip-path: inset(50% 0 15% 0);
+      transform: translate(3px, 0);
+    }
+    70% {
+      clip-path: inset(10% 0 65% 0);
+      transform: translate(-4px, 0);
+    }
+    80% {
+      clip-path: inset(40% 0 25% 0);
+      transform: translate(5px, 0);
+    }
+    90% {
+      clip-path: inset(75% 0 0% 0);
+      transform: translate(-2px, 0);
+    }
+    100% {
+      clip-path: inset(0);
+      transform: translate(0);
+    }
+  }
+
+  @keyframes slice-c {
+    0% {
+      clip-path: inset(0);
+      transform: translate(0);
+    }
+    10% {
+      clip-path: inset(60% 0 10% 0);
+      transform: translate(4px, 0);
+    }
+    20% {
+      clip-path: inset(10% 0 60% 0);
+      transform: translate(-5px, 0);
+    }
+    30% {
+      clip-path: inset(70% 0 5% 0);
+      transform: translate(3px, 0);
+    }
+    40% {
+      clip-path: inset(5% 0 70% 0);
+      transform: translate(-4px, 0);
+    }
+    50% {
+      clip-path: inset(35% 0 25% 0);
+      transform: translate(5px, 0);
+    }
+    60% {
+      clip-path: inset(0% 0 55% 0);
+      transform: translate(-3px, 0);
+    }
+    70% {
+      clip-path: inset(55% 0 10% 0);
+      transform: translate(4px, 0);
+    }
+    80% {
+      clip-path: inset(15% 0 50% 0);
+      transform: translate(-5px, 0);
+    }
+    90% {
+      clip-path: inset(45% 0 20% 0);
+      transform: translate(2px, 0);
+    }
+    100% {
+      clip-path: inset(0);
+      transform: translate(0);
+    }
+  }
+</style>
+
+<script >
+  (() => {
+    const _word = document.getElementById("glitch-name");
+    const _gi = document.getElementById("gi");
+    if (!_word || !_gi) return;
+    const word = _word as HTMLElement;
+    const gi = _gi as HTMLElement;
+
+    const CHARS = "▓░█▒╬╫╪┼┤├│║╗╝╚╔╦╩═≡±∞§¶∆∇∑∏∫√╬╠╣╦╩┼─│┌┐└┘├┤┬┴£¢¥©®×÷≠≤≥";
+    const CYCLE_MS = 5000;
+
+    function randChar(): string {
+      return CHARS[Math.floor(Math.random() * CHARS.length)];
+    }
+
+    let scrambleId: ReturnType<typeof setInterval> | null = null;
+    let iVisible = true;
+
+    function startScramble(): void {
+      word.classList.add("glitching");
+      // Scramble the "i" character rapidly
+      scrambleId = setInterval(() => {
+        gi.textContent = randChar();
+      }, 55);
+    }
+
+    function stopScramble(): void {
+      if (scrambleId !== null) clearInterval(scrambleId);
+      scrambleId = null;
+      word.classList.remove("glitching");
+    }
+
+    function settle(): void {
+      word.classList.add("settling");
+      setTimeout(() => word.classList.remove("settling"), 300);
+    }
+
+    function hideI(): void {
+      gi.style.display = "none";
+      iVisible = false;
+    }
+
+    function showI(): void {
+      gi.style.display = "inline-block";
+      gi.textContent = "i";
+      iVisible = true;
+    }
+
+    // ── Cycle: show → glitch-hide → wait → glitch-show → wait → repeat ──
+    function cycle(): void {
+      if (iVisible) {
+        // "Andika" visible → scramble → hide "i"
+        startScramble();
+        setTimeout(() => {
+          stopScramble();
+          hideI();
+          settle();
+        }, 700);
+      } else {
+        // "Andka" visible → scramble → show "i"
+        startScramble();
+        setTimeout(() => {
+          stopScramble();
+          showI();
+          settle();
+        }, 700);
+      }
+    }
+
+    // Kick off: first hide after 2s
+    setTimeout(() => {
+      cycle(); // hide "i"
+      setInterval(cycle, CYCLE_MS);
+    }, 2000);
+  })();
+</script>

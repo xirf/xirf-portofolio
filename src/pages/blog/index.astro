@@ -2,8 +2,6 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import DefautLayout from "../../layouts/Layout.astro";
 
-export const prerender = false;
-
 const posts = (await getCollection("blog")).sort(
   (a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
     const dateA = new Date(b.data.pubDate).getTime();
@@ -59,6 +57,14 @@ for (const post of posts) {
                       class="inline-block duration-200 transition-all transform inline-flex items-end gap-4 opacity-90 hover:opacity-100"
                     >
                       <p>
+                        {post.data.isId ? (
+                          <span
+                            class="w-4 h-3 rounded-sm inline-block absolute -left-6 top-1.5"
+                            style="background-image: linear-gradient(red 0%, red 50%, white 50%, white 100%);"
+                          />
+                        ) : (
+                          ""
+                        )}
                         {post.data.title}
                         <span class=" text-xs text-gray-500 inline-block">
                           {new Date(post.data.pubDate).toLocaleDateString(

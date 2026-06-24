@@ -3,9 +3,8 @@ import mermaid from 'mermaid';
 export function initMermaid() {
   mermaid.initialize({
     startOnLoad: false,
-    layout: 'LR',
-    'theme': 'base',
-    'themeVariables': {
+    theme: 'base',
+    themeVariables: {
       'primaryColor': '#8caaee',
       'primaryTextColor': '#A7D188',
       'primaryBorderColor': '#8caaee',
@@ -27,13 +26,32 @@ export function initMermaid() {
 
   const renderMermaid = async () => {
     const diagrams = document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]');
+    console.log(`[Mermaid] Found ${diagrams.length} diagrams`);
+
+    if (diagrams.length === 0) return;
+
+    // Ensure mermaid is loaded
+    if (!mermaid || typeof mermaid.render !== 'function') {
+      console.error('[Mermaid] Mermaid not properly loaded');
+      return;
+    }
 
     for (const diagram of diagrams) {
-      const code = diagram.textContent || '';
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+      const code = (diagram.textContent || '').trim();
+      const id = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
+
+      if (!code) continue;
 
       try {
-        const { svg } = await mermaid.render(id, code);
+        console.log('[Mermaid] Rendering diagram:', id, code.substring(0, 50));
+        const result = await mermaid.render(id, code);
+        const svg = typeof result === 'string' ? result : result.svg;
+
+        if (!svg) {
+          console.error('[Mermaid] No SVG returned for diagram:', id);
+          continue;
+        }
+
         const container = document.createElement('div');
         container.className = 'mermaid-diagram';
         container.innerHTML = svg;
@@ -42,13 +60,14 @@ export function initMermaid() {
         container.style.backgroundColor = '#2C3041';
         container.style.borderRadius = '8px';
         diagram.replaceWith(container);
+        console.log('[Mermaid] Successfully rendered:', id);
       } catch (error) {
-        console.error('Mermaid rendering error:', error);
+        console.error('Mermaid rendering error for diagram', id, ':', error);
       }
     }
   };
 
-  // Run on page load
+  // Run on page load or when DOM is already ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderMermaid);
   } else {

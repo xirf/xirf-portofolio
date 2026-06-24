@@ -3,8 +3,7 @@ title: "Functional Programming Quick Tour"
 slug: "functional-programming-quick-tour"
 pubDate: 2025-03-30
 tags: ["functional-programming", "javascript"]
-thumbnail: "https://cdn.andka.my.id/blog/functional-programming.png"
-credit: '"Learning Functional Programming" by Jack Widman, published by O’Reilly Media. Book cover image © O’Reilly Media. Used here for educational and illustrative purposes.'
+thumbnail: "https://cdn.andka.my.id/blogs/functional-programming.avif"
 ---
 
 Functional Programming (FP) is a programming paradigm that focuses on writing code in a declarative way using pure functions and expressions. While it has roots in mathematical concepts, it can be applied practically in software development.
