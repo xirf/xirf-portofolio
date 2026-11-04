@@ -1,0 +1,471 @@
+<div class="flex flex-wrap items-center gap-2">
+	<div class="inline-flex rounded-md bg-#8881 p-0.5" role="tablist" aria-label="Mode">
+		<button type="button" class="tool-btn bg-transparent" data-mode="find" role="tab">Find in text</button>
+		<button type="button" class="tool-btn bg-transparent" data-mode="whole" role="tab">Whole values</button>
+	</div>
+	<p id="mode-hint" class="text-sm opacity-70 m-0"></p>
+</div>
+
+<!-- Find in text -->
+<div data-panel="find" class="flex flex-col gap-3">
+	<div class="flex flex-wrap items-center gap-2">
+		<div class="inline-flex rounded-md bg-#8881 p-0.5" role="group" aria-label="Text mode">
+			<button type="button" class="tool-btn bg-transparent" data-edit="select"><span class="i-myna-search w-4 h-4"></span>Select examples</button>
+			<button type="button" class="tool-btn bg-transparent" data-edit="edit">Edit text</button>
+		</div>
+		<span class="grow"></span>
+		<button type="button" class="tool-btn" id="clear-marks">Clear marks</button>
+		<button type="button" class="tool-btn" id="sample">Sample</button>
+	</div>
+
+	<div id="canvas-wrap" class="relative">
+		<textarea id="text" hidden class="tool-area h-64" spellcheck="false" placeholder="Paste a log, CSV, HTML, an email…"></textarea>
+		<pre
+			id="canvas"
+			class="tool-field m-0 min-h-40 max-h-[32rem] overflow-auto whitespace-pre-wrap break-words leading-loose cursor-text select-text"
+			aria-label="Text to select examples from"></pre>
+		<div id="pop" hidden class="absolute z-10 -translate-x-1/2 flex gap-1 rounded-lg border border-#8883 bg-l-base dark:bg-#1b1c21 p-1 shadow-xl text-sm">
+			<button type="button" class="tool-btn py-1 text-green-700 dark:text-green-400" data-mark="+">✓ Should match <kbd class="text-xs opacity-60">M</kbd></button>
+			<button type="button" class="tool-btn py-1 text-red-700 dark:text-red-400" data-mark="-">✕ Should not <kbd class="text-xs opacity-60">N</kbd></button>
+		</div>
+	</div>
+
+	<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+		<span class="flex items-center gap-1.5"><span class="rb-pos px-1.5 rounded">abc</span> example to match</span>
+		<span class="flex items-center gap-1.5"><span class="rb-neg px-1.5 rounded">abc</span> must not match</span>
+		<span class="flex items-center gap-1.5"><span class="rb-extra px-1.5 rounded">abc</span> also matched (click to exclude)</span>
+		<span class="flex items-center gap-1.5"><span class="rb-pos rb-missed px-1.5 rounded">abc</span> missed</span>
+	</div>
+</div>
+
+<!-- Whole values -->
+<div data-panel="whole" hidden class="grid md:grid-cols-2 gap-4">
+	<label class="block">
+		<span class="tool-label text-green-700 dark:text-green-400">Should match <span class="normal-case opacity-70">(one per line)</span></span>
+		<textarea id="pos" class="tool-area h-44" wrap="off" spellcheck="false"></textarea>
+	</label>
+	<label class="block">
+		<span class="tool-label text-red-700 dark:text-red-400">Should NOT match <span class="normal-case opacity-70">(one per line, optional)</span></span>
+		<textarea id="neg" class="tool-area h-44" wrap="off" spellcheck="false"></textarea>
+	</label>
+</div>
+
+<!-- Result -->
+<div id="result" class="tool-panel flex flex-col gap-3"></div>
+<div id="alternatives"></div>
+
+<style is:global>
+	.rb-pos {
+		background: #bbf7d0;
+		color: #14532d;
+		box-shadow: 0 0 0 1px #22c55e88;
+	}
+	.rb-neg {
+		background: #fecaca;
+		color: #7f1d1d;
+		box-shadow: 0 0 0 1px #ef444488;
+		text-decoration: line-through;
+	}
+	.rb-extra {
+		background: #fde68a66;
+		box-shadow: 0 0 0 1px #f59e0b99;
+		border-radius: 3px;
+		cursor: pointer;
+	}
+	.rb-missed {
+		box-shadow: 0 0 0 2px #ef4444;
+	}
+	.dark .rb-pos {
+		background: #16653488;
+		color: #dcfce7;
+	}
+	.dark .rb-neg {
+		background: #991b1b88;
+		color: #fee2e2;
+	}
+	.dark .rb-extra {
+		background: #a1620755;
+	}
+	#canvas [data-mark],
+	#canvas [data-extra] {
+		cursor: pointer;
+		border-radius: 3px;
+	}
+</style>
+
+<script>
+	import { navigate } from "astro:transitions/client";
+	import { $, $$, copyText, debounce, encodeState, escapeHtml, hashState, mountTool, toast } from "../../../lib/tools/dom";
+	import { buildFind, buildWhole, type FindResult, type Range, type WholeResult } from "../../../lib/tools/regex-gen";
+
+	interface Mark extends Range {
+		t: "+" | "-";
+		s: string; // the text, used to relocate marks after edits
+	}
+
+	const SAMPLE_TEXT = `Order #10023 shipped to hello@andka.id on 2026-03-14, total $149.00
+Order #10024 refunded, contact support@example.co.uk, total $20.50
+Ticket #88 reopened by first.last+tag@mail.example.org on 2026-03-15
+Order #10031 shipped to budi.santoso@gmail.com on 2026-03-16, total $1,240.00`;
+	const SAMPLE_POS = "INV-2024-0042\nINV-2023-1187\nINV-2025-0003";
+	const SAMPLE_NEG = "INV-24-0042\ninv-2024-0042\nINV-2024-42";
+
+	mountTool("regex-builder", (root) => {
+		const text = $<HTMLTextAreaElement>(root, "#text");
+		const canvas = $(root, "#canvas");
+		const pop = $(root, "#pop");
+		const wrap = $(root, "#canvas-wrap");
+		const pos = $<HTMLTextAreaElement>(root, "#pos");
+		const neg = $<HTMLTextAreaElement>(root, "#neg");
+		const result = $(root, "#result");
+		const alternatives = $(root, "#alternatives");
+
+		let mode: "find" | "whole" = "find";
+		let editing = false;
+		let marks: Mark[] = [];
+		let chosen = ""; // pattern the user picked from the alternatives
+		let pending: Range | null = null;
+		let current: (FindResult | WholeResult) | null = null;
+
+		const state = hashState(
+			() => ({ mode, text: text.value, marks, pos: pos.value, neg: neg.value, chosen }),
+			(s) => {
+				if (s.mode) mode = s.mode;
+				if (s.text !== undefined) text.value = s.text;
+				if (s.marks) marks = s.marks;
+				if (s.pos !== undefined) pos.value = s.pos;
+				if (s.neg !== undefined) neg.value = s.neg;
+				if (s.chosen) chosen = s.chosen;
+			},
+		);
+
+		/* ---------------- mode switching ---------------- */
+
+		function setMode(m: typeof mode) {
+			mode = m;
+			$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) => {
+				b.classList.toggle("tool-btn-active", b.dataset.mode === m);
+				b.setAttribute("aria-selected", String(b.dataset.mode === m));
+			});
+			$$(root, "[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== m));
+			$(root, "#mode-hint").textContent =
+				m === "find"
+					? "Highlight what you want to capture. The pattern updates as you go."
+					: "List values that should and shouldn't match. Useful for validation patterns.";
+			chosen = "";
+			run();
+		}
+
+		function setEditing(on: boolean) {
+			editing = on;
+			text.hidden = !on;
+			canvas.hidden = on;
+			$$<HTMLButtonElement>(root, "[data-edit]").forEach((b) => b.classList.toggle("tool-btn-active", (b.dataset.edit === "edit") === on));
+			hidePop();
+			if (on) text.focus();
+			else run();
+		}
+
+		/* ---------------- selection → marks ---------------- */
+
+		function offsetOf(node: Node, offset: number) {
+			const r = document.createRange();
+			r.setStart(canvas, 0);
+			r.setEnd(node, offset);
+			return r.toString().length;
+		}
+
+		function hidePop() {
+			pop.hidden = true;
+			pending = null;
+		}
+
+		const onSelection = debounce(() => {
+			if (mode !== "find" || editing) return;
+			const sel = window.getSelection();
+			if (!sel || sel.isCollapsed || !sel.rangeCount) return hidePop();
+			const range = sel.getRangeAt(0);
+			if (!canvas.contains(range.commonAncestorContainer)) return hidePop();
+			let start = offsetOf(range.startContainer, range.startOffset);
+			let end = offsetOf(range.endContainer, range.endOffset);
+			const src = text.value;
+			while (start < end && /\s/.test(src[start])) start++;
+			while (end > start && /\s/.test(src[end - 1])) end--;
+			if (end <= start) return hidePop();
+			pending = { start, end };
+			const rect = range.getBoundingClientRect();
+			const box = wrap.getBoundingClientRect();
+			const half = (pop.offsetWidth || 280) / 2 + 4;
+			pop.style.left = `${Math.min(Math.max(rect.left - box.left + rect.width / 2, half), box.width - half)}px`;
+			pop.style.top = `${rect.bottom - box.top + 8}px`;
+			pop.hidden = false;
+		}, 120);
+
+		function addMark(t: "+" | "-", r: Range) {
+			marks = marks.filter((m) => m.end <= r.start || m.start >= r.end);
+			marks.push({ ...r, t, s: text.value.slice(r.start, r.end) });
+			marks.sort((a, b) => a.start - b.start);
+			window.getSelection()?.removeAllRanges();
+			hidePop();
+			chosen = "";
+			update();
+		}
+
+		pop.addEventListener("pointerdown", (e) => e.preventDefault()); // keep the selection alive
+		pop.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-mark]");
+			if (b && pending) addMark(b.dataset.mark as "+" | "-", pending);
+		});
+		document.addEventListener("selectionchange", onSelection);
+		const onKey = (e: KeyboardEvent) => {
+			if (!pending || pop.hidden) return;
+			if (e.key === "m" || e.key === "M") addMark("+", pending);
+			else if (e.key === "n" || e.key === "N") addMark("-", pending);
+			else if (e.key === "Escape") hidePop();
+			else return;
+			e.preventDefault();
+		};
+		document.addEventListener("keydown", onKey);
+
+		canvas.addEventListener("click", (e) => {
+			if (!window.getSelection()?.isCollapsed) return;
+			const el = e.target as HTMLElement;
+			const mark = el.closest<HTMLElement>("[data-mark]");
+			const extra = el.closest<HTMLElement>("[data-extra]");
+			if (mark) {
+				marks.splice(Number(mark.dataset.mark), 1);
+				chosen = "";
+				update();
+			} else if (extra) {
+				const [start, end] = extra.dataset.extra!.split(":").map(Number);
+				addMark("-", { start, end });
+			}
+		});
+
+		/** After editing, keep marks whose text can still be found near the old spot. */
+		function relocateMarks() {
+			const src = text.value;
+			marks = marks
+				.map((m) => {
+					if (src.slice(m.start, m.end) === m.s) return m;
+					let best = -1;
+					for (let i = src.indexOf(m.s); i !== -1; i = src.indexOf(m.s, i + 1))
+						if (best === -1 || Math.abs(i - m.start) < Math.abs(best - m.start)) best = i;
+					return best === -1 ? null : { ...m, start: best, end: best + m.s.length };
+				})
+				.filter((m): m is Mark => m !== null);
+		}
+
+		/* ---------------- rendering ---------------- */
+
+		function renderCanvas(r: FindResult | null) {
+			const src = text.value;
+			type Seg = Range & { cls: string; attr: string; title: string };
+			const segs: Seg[] = marks.map((m, i) => ({
+				start: m.start,
+				end: m.end,
+				cls: m.t === "+" ? `rb-pos${r?.missed.some((x) => x.start === m.start && x.end === m.end) ? " rb-missed" : ""}` : "rb-neg",
+				attr: `data-mark="${i}"`,
+				title: m.t === "+" ? "Example (click to remove)" : "Must not match (click to remove)",
+			}));
+			for (const x of r?.extras ?? []) {
+				if (segs.some((s) => s.start < x.end && x.start < s.end)) continue;
+				segs.push({ ...x, cls: "rb-extra", attr: `data-extra="${x.start}:${x.end}"`, title: "Also matched: click to exclude" });
+			}
+			segs.sort((a, b) => a.start - b.start);
+			let html = "";
+			let at = 0;
+			for (const s of segs) {
+				if (s.start < at) continue;
+				html += escapeHtml(src.slice(at, s.start));
+				html += `<span class="${s.cls}" ${s.attr} title="${s.title}">${escapeHtml(src.slice(s.start, s.end))}</span>`;
+				at = s.end;
+			}
+			canvas.innerHTML = html + escapeHtml(src.slice(at)) + "\n";
+			if (!src) canvas.innerHTML = `<span class="opacity-50">Switch to “Edit text” and paste something to work with.</span>`;
+		}
+
+		function slashed(c: { pattern: string; flags: string }, extraFlags = "") {
+			return `/${c.pattern}/${[...new Set(c.flags + extraFlags)].join("")}`;
+		}
+
+		function run() {
+			let list: (FindResult | WholeResult)[];
+			if (mode === "find") {
+				const p = marks.filter((m) => m.t === "+");
+				const n = marks.filter((m) => m.t === "-");
+				list = p.length ? buildFind(text.value, p, n) : [];
+			} else {
+				const lines = (s: string) => s.split("\n").map((l) => l.replace(/\r$/, "")).filter((l) => l.length);
+				list = buildWhole(lines(pos.value), lines(neg.value));
+			}
+			const valid = list.filter((c) => c.valid);
+			current = valid.find((c) => c.pattern === chosen) ?? valid[0] ?? null;
+			if (mode === "find" && !editing) renderCanvas(current as FindResult | null);
+			renderResult(list, valid);
+		}
+
+		function renderResult(list: (FindResult | WholeResult)[], valid: typeof list) {
+			const extraFlags = mode === "find" ? "g" : "";
+			if (!list.length) {
+				result.innerHTML =
+					mode === "find"
+						? `<p class="m-0 opacity-70">Select a piece of the text above and mark it as <b>Should match</b>. One example is enough to start; two or three make the pattern much better.</p>`
+						: `<p class="m-0 opacity-70">Add at least one value that should match.</p>`;
+				alternatives.innerHTML = "";
+				return;
+			}
+			if (!current) {
+				const closest = [...list].sort((a, b) => fails(a) - fails(b)).slice(0, 3);
+				result.innerHTML = `<p class="tool-error m-0">No pattern I can build separates these examples.</p>
+					<p class="text-sm m-0 opacity-80">Try more examples to match, or check that something isn't marked both ways. Closest attempts:</p>
+					${closest.map((c) => `<code class="text-sm block">${escapeHtml(slashed(c, extraFlags))} <span class="opacity-60 font-sans">· ${failText(c)}</span></code>`).join("")}`;
+				alternatives.innerHTML = "";
+				return;
+			}
+			const c = current;
+			const code = slashed(c, extraFlags);
+			let checks = "";
+			if (mode === "find") {
+				const f = c as FindResult;
+				const p = marks.filter((m) => m.t === "+").length;
+				const n = marks.filter((m) => m.t === "-").length;
+				checks = `<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+					<span class="tool-ok">✓ finds all ${p} example${p > 1 ? "s" : ""}</span>
+					${n ? `<span class="tool-ok">✓ avoids ${n} exclusion${n > 1 ? "s" : ""}</span>` : ""}
+					${f.extras.length ? `<span class="text-amber-600 dark:text-amber-400">+ ${f.extras.length} other match${f.extras.length > 1 ? "es" : ""}, outlined in yellow. Click any you don't want.</span>` : `<span class="opacity-70">no other matches</span>`}
+				</div>`;
+			} else {
+				const lines = (s: string) => s.split("\n").filter((l) => l.length);
+				const re = new RegExp(c.pattern, c.flags);
+				checks = `<div class="grid sm:grid-cols-2 gap-x-6 text-sm font-mono">
+					<div>${lines(pos.value).map((l) => `<div class="${re.test(l) ? "tool-ok" : "tool-error"} truncate">${re.test(l) ? "✓" : "✕"} ${escapeHtml(l)}</div>`).join("")}</div>
+					<div>${lines(neg.value).map((l) => `<div class="${!re.test(l) ? "tool-ok" : "tool-error"} truncate">${!re.test(l) ? "✓ rejects" : "✕ matches"} ${escapeHtml(l)}</div>`).join("")}</div>
+				</div>`;
+			}
+			result.innerHTML = `
+				<div class="flex flex-wrap items-center justify-between gap-2">
+					<span class="tool-label mb-0">Your regex · <span class="normal-case">${escapeHtml(c.label)}</span></span>
+					<div class="flex gap-1">
+						<button type="button" class="tool-btn py-0.5 px-2 text-xs" data-copy-value="${escapeHtml(code)}"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+						<button type="button" class="tool-btn py-0.5 px-2 text-xs" data-copy-value="${escapeHtml(c.pattern)}" title="Without slashes, e.g. for a config file or another language">Copy source</button>
+						<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="open-tester">Open in tester →</button>
+					</div>
+				</div>
+				<code class="block text-lg md:text-xl break-all tool-heading">${escapeHtml(code)}</code>
+				<div class="flex flex-wrap gap-1.5">${c.explain.map((e) => `<span class="tool-chip">${escapeHtml(e)}</span>`).join("")}</div>
+				${checks}`;
+			$(root, "#open-tester").addEventListener("click", openInTester);
+
+			// In find mode, patterns that find exactly the same things are duplicates; keep the first (simplest).
+			const seen = new Set<string>();
+			const sig = (v: FindResult | WholeResult) => ("matches" in v ? v.matches.map((m) => `${m.start}:${m.end}`).join(",") : v.pattern);
+			if (mode === "find") seen.add(sig(c));
+			const others = valid.filter((v) => {
+				if (v === c) return false;
+				const k = sig(v);
+				if (seen.has(k)) return false;
+				seen.add(k);
+				return true;
+			});
+			alternatives.innerHTML = others.length
+				? `<span class="tool-label">Other patterns that also work <span class="normal-case opacity-70">(click to use)</span></span>
+				<div class="flex flex-col gap-1">${others
+					.slice(0, 8)
+					.map(
+						(o) => `<button type="button" data-choose="${escapeHtml(o.pattern)}" class="text-left flex flex-wrap items-baseline gap-x-3 rounded-md px-3 py-1.5 hover:bg-#8881 transition-colors">
+							<code class="text-sm break-all">${escapeHtml(slashed(o, extraFlags))}</code>
+							<span class="text-xs opacity-60">${escapeHtml(o.label)}${mode === "find" ? ` · ${otherMatches((o as FindResult).extras.length)}` : ""}</span>
+						</button>`,
+					)
+					.join("")}</div>`
+				: "";
+		}
+
+		const otherMatches = (n: number) => (n ? `${n} other match${n === 1 ? "" : "es"}` : "no other matches");
+		const fails = (c: FindResult | WholeResult) =>
+			"missed" in c ? c.missed.length + c.hitNegatives.length : c.failures.positive.length + c.failures.negative.length;
+		const failText = (c: FindResult | WholeResult) =>
+			"missed" in c
+				? `misses ${c.missed.length}, hits ${c.hitNegatives.length} excluded`
+				: `misses ${c.failures.positive.length}, wrongly accepts ${c.failures.negative.length}`;
+
+		async function openInTester() {
+			if (!current) return;
+			const t = mode === "find" ? text.value : [pos.value, neg.value].filter(Boolean).join("\n");
+			const flags = [...new Set(current.flags + (mode === "find" ? "g" : "gm"))].join("");
+			const enc = await encodeState({ p: current.pattern, f: flags, t, r: "" });
+			navigate(`/tools/regex#s=${enc}`);
+		}
+
+		alternatives.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-choose]");
+			if (!b) return;
+			chosen = b.dataset.choose!;
+			update();
+			result.scrollIntoView({ block: "nearest", behavior: "smooth" });
+		});
+
+		const update = () => {
+			run();
+			state.save();
+		};
+
+		$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) =>
+			b.addEventListener("click", () => {
+				setMode(b.dataset.mode as typeof mode);
+				state.save();
+			}),
+		);
+		$$<HTMLButtonElement>(root, "[data-edit]").forEach((b) => b.addEventListener("click", () => setEditing(b.dataset.edit === "edit")));
+		text.addEventListener(
+			"input",
+			debounce(() => {
+				relocateMarks();
+				state.save();
+			}, 200),
+		);
+		[pos, neg].forEach((el) => el.addEventListener("input", debounce(update, 150)));
+		$(root, "#clear-marks").addEventListener("click", () => {
+			marks = [];
+			chosen = "";
+			update();
+		});
+		$(root, "#sample").addEventListener("click", () => {
+			text.value = SAMPLE_TEXT;
+			marks = [];
+			const at = (s: string) => ({ start: SAMPLE_TEXT.indexOf(s), end: SAMPLE_TEXT.indexOf(s) + s.length, s });
+			marks.push({ ...at("hello@andka.id"), t: "+" });
+			setEditing(false);
+			update();
+			toast("Now select another email and mark it");
+		});
+
+		state.ready.then(() => {
+			if (!text.value) {
+				text.value = SAMPLE_TEXT;
+				const s = "10023";
+				const i = SAMPLE_TEXT.indexOf(s);
+				const j = SAMPLE_TEXT.indexOf("10024");
+				marks = [
+					{ start: i, end: i + 5, t: "+", s },
+					{ start: j, end: j + 5, t: "+", s: "10024" },
+				];
+			}
+			if (!pos.value && !neg.value) {
+				pos.value = SAMPLE_POS;
+				neg.value = SAMPLE_NEG;
+			}
+			const keep = chosen;
+			setEditing(false);
+			setMode(mode);
+			chosen = keep;
+			run();
+		});
+
+		return () => {
+			document.removeEventListener("selectionchange", onSelection);
+			document.removeEventListener("keydown", onKey);
+		};
+	});
+</script>

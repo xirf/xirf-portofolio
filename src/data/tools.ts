@@ -166,6 +166,18 @@ export const tools: Tool[] = [
 		shareable: true,
 	},
 	{
+		slug: "regex-builder",
+		name: "Regex Builder",
+		description: "Highlight what should match and what shouldn't. Get the regex.",
+		summary:
+			"Build a regular expression from examples instead of syntax. Highlight the parts of a text you want to capture, or list values that should and shouldn't match, and you get a pattern that is checked against every example, plus stricter and looser alternatives to pick from.",
+		category: "Text",
+		icon: "i-solar-magic-stick-3-bold-duotone",
+		keywords: ["regex", "regexp", "generator", "builder", "from examples", "extract", "pattern", "infer", "learn"],
+		shareable: true,
+		isNew: true,
+	},
+	{
 		slug: "diff",
 		name: "Text Diff",
 		description: "Compare two texts line by line with in-line character highlights.",
