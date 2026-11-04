@@ -1,0 +1,149 @@
+<div class="grid md:grid-cols-2 gap-6">
+	<div class="tool-panel">
+		<table class="w-full text-sm">
+			<thead>
+				<tr>
+					<th class="text-left font-normal tool-label"></th>
+					{["Read", "Write", "Execute"].map((h) => <th class="font-normal tool-label text-center">{h}</th>)}
+				</tr>
+			</thead>
+			<tbody>
+				{
+					["Owner", "Group", "Others"].map((who, i) => (
+						<tr class="border-t border-#8882">
+							<td class="py-2.5">{who}</td>
+							{[0, 1, 2].map((j) => (
+								<td class="text-center">
+									<input type="checkbox" class="w-4 h-4 cursor-pointer accent-current" data-who={i} data-what={j} aria-label={`${who} ${["read", "write", "execute"][j]}`} />
+								</td>
+							))}
+						</tr>
+					))
+				}
+			</tbody>
+		</table>
+		<div class="flex flex-wrap gap-2 mt-4 border-t border-#8882 pt-3">
+			<label class="tool-btn text-xs"><input type="checkbox" id="setuid" /> setuid</label>
+			<label class="tool-btn text-xs"><input type="checkbox" id="setgid" /> setgid</label>
+			<label class="tool-btn text-xs"><input type="checkbox" id="sticky" /> sticky</label>
+		</div>
+	</div>
+
+	<div class="flex flex-col gap-3">
+		<label class="block">
+			<span class="tool-label">Octal</span>
+			<input id="octal" class="tool-field text-2xl tracking-widest" spellcheck="false" autocomplete="off" inputmode="numeric" />
+		</label>
+		<label class="block">
+			<span class="tool-label">Symbolic (as in ls -l)</span>
+			<input id="symbolic" class="tool-field text-2xl tracking-widest" spellcheck="false" autocomplete="off" />
+		</label>
+		<p id="error" class="tool-error m-0"></p>
+		<div>
+			<span class="tool-label">Commands</span>
+			<div id="commands" class="flex flex-col gap-1.5"></div>
+		</div>
+	</div>
+</div>
+
+<ul id="describe" class="text-sm m-0 pl-5 flex flex-col gap-1"></ul>
+
+<div>
+	<span class="tool-label">Common modes</span>
+	<div class="flex flex-wrap gap-1.5" id="common">
+		{
+			[
+				["644", "files"],
+				["755", "dirs & scripts"],
+				["600", "private keys"],
+				["700", "~/.ssh"],
+				["640", "configs with secrets"],
+				["775", "shared dirs"],
+				["1777", "/tmp"],
+				["2775", "group project dirs"],
+				["4755", "setuid binary"],
+			].map(([m, label]) => (
+				<button type="button" class="tool-chip hover:bg-#8881 transition-colors py-1" data-mode={m}>
+					<code class="tool-heading">{m}</code> {label}
+				</button>
+			))
+		}
+	</div>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { describe, fromOctal, fromSymbolic, toChmodSymbolic, toOctal, toSymbolic, type Mode } from "../../../lib/tools/chmod";
+
+	mountTool("chmod", (root) => {
+		const boxes = $$<HTMLInputElement>(root, "input[data-who]");
+		const special = ["setuid", "setgid", "sticky"].map((id) => $<HTMLInputElement>(root, "#" + id));
+		const octal = $<HTMLInputElement>(root, "#octal");
+		const symbolic = $<HTMLInputElement>(root, "#symbolic");
+		let mode: Mode = fromOctal("755");
+
+		const state = hashState(
+			() => ({ m: toOctal(mode) }),
+			(s) => {
+				try {
+					if (s.m) mode = fromOctal(s.m);
+				} catch {
+					/* ignore bad hash */
+				}
+				render();
+			},
+		);
+
+		function render(skip?: HTMLInputElement) {
+			boxes.forEach((b) => (b.checked = mode.bits[Number(b.dataset.who)][Number(b.dataset.what)]));
+			special[0].checked = mode.setuid;
+			special[1].checked = mode.setgid;
+			special[2].checked = mode.sticky;
+			if (skip !== octal) octal.value = toOctal(mode);
+			if (skip !== symbolic) symbolic.value = toSymbolic(mode);
+			$(root, "#error").textContent = "";
+			const cmds = [`chmod ${toOctal(mode)} file`, `chmod ${toChmodSymbolic(mode)} file`, `find . -type f -exec chmod ${toOctal(mode)} {} +`];
+			$(root, "#commands").innerHTML = cmds
+				.map(
+					(c) => `<div class="flex items-center gap-2 rounded-md bg-#8881 px-3 py-1.5"><code class="flex-1 text-sm break-all">${escapeHtml(c)}</code>
+					<button type="button" class="tool-btn py-0.5 px-1.5" data-copy-value="${escapeHtml(c)}" aria-label="Copy command"><span class="i-myna-copy w-3.5 h-3.5"></span></button></div>`,
+				)
+				.join("");
+			$(root, "#describe").innerHTML = describe(mode)
+				.map((d) => `<li class="${d.startsWith("⚠") ? "text-amber-600 dark:text-amber-400" : ""}">${escapeHtml(d)}</li>`)
+				.join("");
+		}
+
+		const changed = () => {
+			mode = {
+				bits: [0, 1, 2].map((i) => [0, 1, 2].map((j) => boxes.find((b) => Number(b.dataset.who) === i && Number(b.dataset.what) === j)!.checked)),
+				setuid: special[0].checked,
+				setgid: special[1].checked,
+				sticky: special[2].checked,
+			};
+			render();
+			state.save();
+		};
+		[...boxes, ...special].forEach((b) => b.addEventListener("change", changed));
+
+		const typed = (el: HTMLInputElement, parse: (s: string) => Mode) => () => {
+			try {
+				mode = parse(el.value);
+				render(el);
+				state.save();
+			} catch (e) {
+				$(root, "#error").textContent = (e as Error).message;
+			}
+		};
+		octal.addEventListener("input", typed(octal, fromOctal));
+		symbolic.addEventListener("input", typed(symbolic, fromSymbolic));
+		$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) =>
+			b.addEventListener("click", () => {
+				mode = fromOctal(b.dataset.mode!);
+				render();
+				state.save();
+			}),
+		);
+		render();
+	});
+</script>

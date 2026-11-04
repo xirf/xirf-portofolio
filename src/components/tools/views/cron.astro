@@ -1,0 +1,140 @@
+<div>
+	<label class="tool-label" for="expr">Cron expression</label>
+	<input id="expr" class="tool-field text-xl md:text-2xl text-center tracking-widest py-3" spellcheck="false" autocomplete="off" value="*/15 9-17 * * 1-5" />
+	<div id="field-labels" class="grid grid-cols-5 text-center text-xs mt-2 gap-1"></div>
+</div>
+
+<p id="description" class="text-xl md:text-2xl tool-heading text-center my-2 min-h-8" aria-live="polite"></p>
+<p id="error" class="tool-error text-center m-0"></p>
+
+<div class="flex flex-wrap justify-center gap-1.5" id="presets">
+	{
+		[
+			["Every minute", "* * * * *"],
+			["Every 5 min", "*/5 * * * *"],
+			["Hourly", "0 * * * *"],
+			["Daily at midnight", "0 0 * * *"],
+			["Weekdays 9am", "0 9 * * 1-5"],
+			["Every Monday", "0 0 * * MON"],
+			["1st of month", "0 0 1 * *"],
+			["Quarterly", "0 0 1 */3 *"],
+			["Twice a day", "0 8,20 * * *"],
+		].map(([label, expr]) => (
+			<button type="button" class="tool-chip hover:bg-#8881 transition-colors py-1" data-expr={expr}>
+				{label}
+			</button>
+		))
+	}
+</div>
+
+<div class="grid md:grid-cols-[1fr_18rem] gap-6 mt-2">
+	<div>
+		<div class="flex items-center justify-between mb-1.5">
+			<span class="tool-label mb-0">Next runs</span>
+			<label class="text-xs flex items-center gap-1.5"><input type="checkbox" id="utc" /> Show in UTC</label>
+		</div>
+		<ol id="runs" class="m-0 p-0 list-none font-mono text-sm"></ol>
+	</div>
+	<div>
+		<span class="tool-label">Syntax</span>
+		<table class="text-sm w-full">
+			<tbody class="[&_td]:py-1 [&_td:first-child]:font-mono [&_td:first-child]:pr-3">
+				<tr><td>*</td><td>any value</td></tr>
+				<tr><td>5</td><td>exactly 5</td></tr>
+				<tr><td>1,15</td><td>1 and 15</td></tr>
+				<tr><td>9-17</td><td>9 through 17</td></tr>
+				<tr><td>*/10</td><td>every 10th</td></tr>
+				<tr><td>0-30/5</td><td>every 5th from 0 to 30</td></tr>
+				<tr><td>MON, JAN</td><td>day/month names</td></tr>
+				<tr><td>@daily</td><td>also @hourly, @weekly, @monthly, @yearly</td></tr>
+			</tbody>
+		</table>
+		<p class="text-xs opacity-70 mt-3">
+			When both day-of-month and day-of-week are set, the job runs when <em>either</em> matches. That's how Vixie cron behaves
+			and it catches people out.
+		</p>
+	</div>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { CronError, FIELDS, describeCron, nextRuns, parseCron } from "../../../lib/tools/cron";
+	import { relative } from "../../../lib/tools/time";
+
+	mountTool("cron", (root) => {
+		const expr = $<HTMLInputElement>(root, "#expr");
+		const utc = $<HTMLInputElement>(root, "#utc");
+
+		const state = hashState(
+			() => ({ e: expr.value, utc: utc.checked }),
+			(s) => {
+				if (s.e !== undefined) expr.value = s.e;
+				utc.checked = !!s.utc;
+				run();
+			},
+		);
+
+		function run() {
+			const err = $(root, "#error");
+			const desc = $(root, "#description");
+			const runs = $(root, "#runs");
+			const labels = $(root, "#field-labels");
+			err.textContent = "";
+			let badField: number | undefined;
+			try {
+				const c = parseCron(expr.value);
+				desc.textContent = describeCron(c);
+				const list = nextRuns(c, new Date(), 10, utc.checked);
+				const fmt = new Intl.DateTimeFormat(undefined, {
+					weekday: "short",
+					year: "numeric",
+					month: "short",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit",
+					timeZone: utc.checked ? "UTC" : undefined,
+				});
+				runs.innerHTML = list.length
+					? list
+							.map(
+								(d, i) =>
+									`<li class="flex justify-between gap-3 py-1.5 border-b border-#8882 ${i ? "opacity-80" : "tool-heading"}"><span>${fmt.format(d)}</span><span class="font-sans text-xs opacity-60">${relative(d)}</span></li>`,
+							)
+							.join("")
+					: `<li class="opacity-70 font-sans">This schedule never fires (e.g. February 30th).</li>`;
+				const parts = expr.value.trim().startsWith("@") ? c.fields.map((f) => f.raw) : expr.value.trim().split(/\s+/);
+				labels.innerHTML = FIELDS.map((f, i) => `<span class="opacity-60"><code class="block opacity-100 tool-heading">${escapeHtml(parts[i] ?? "")}</code>${f.name}</span>`).join("");
+			} catch (e) {
+				if (!(e instanceof CronError)) throw e;
+				desc.textContent = "";
+				runs.innerHTML = "";
+				err.textContent = e.message;
+				badField = e.field;
+				const parts = expr.value.trim().split(/\s+/);
+				labels.innerHTML = FIELDS.map(
+					(f, i) => `<span class="${i === badField ? "text-red-500" : "opacity-60"}"><code class="block">${escapeHtml(parts[i] ?? "·")}</code>${f.name}</span>`,
+				).join("");
+			}
+		}
+
+		expr.addEventListener("input", () => {
+			run();
+			state.save();
+		});
+		utc.addEventListener("change", () => {
+			run();
+			state.save();
+		});
+		$$<HTMLButtonElement>(root, "[data-expr]").forEach((b) =>
+			b.addEventListener("click", () => {
+				expr.value = b.dataset.expr!;
+				run();
+				state.save();
+			}),
+		);
+		run();
+		// Keep "next runs" fresh if the page is left open.
+		const timer = setInterval(run, 30_000);
+		return () => clearInterval(timer);
+	});
+</script>

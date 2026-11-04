@@ -1,0 +1,249 @@
+<div>
+	<label class="tool-label" for="pattern">Pattern</label>
+	<div class="flex items-stretch rounded-md bg-#8881 border border-#8882 focus-within:border-#8888 transition-colors font-mono">
+		<span class="px-3 py-2 opacity-50 select-none">/</span>
+		<input id="pattern" class="flex-1 min-w-0 bg-transparent py-2 outline-none text-sm" spellcheck="false" autocomplete="off" value="(?<user>[\w.+-]+)@(?<domain>[\w-]+\.[\w.]+)" />
+		<span class="py-2 opacity-50 select-none">/</span>
+		<input id="flags" class="w-16 bg-transparent px-2 py-2 outline-none text-sm" spellcheck="false" autocomplete="off" value="g" aria-label="Flags" />
+	</div>
+	<div class="flex flex-wrap gap-1.5 mt-2" id="flag-buttons">
+		{
+			[
+				["g", "global", "Find all matches"],
+				["i", "ignore case", "Case-insensitive"],
+				["m", "multiline", "^ and $ match at line breaks"],
+				["s", "dotAll", ". matches newlines"],
+				["u", "unicode", "Unicode mode, enables \\p{…}"],
+				["y", "sticky", "Match only at lastIndex"],
+			].map(([f, name, title]) => (
+				<button type="button" class="tool-chip hover:bg-#8881 transition-colors" data-flag={f} title={title}>
+					<code>{f}</code>
+					{name}
+				</button>
+			))
+		}
+	</div>
+	<p id="error" class="tool-error mt-2 mb-0"></p>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<div>
+		<label class="tool-label" for="text">Test string</label>
+		<textarea id="text" class="tool-area h-64" spellcheck="false">Contact us at hello@andka.id or support@example.co.uk.
+Not an email: user@localhost, @nobody, someone@.com
+Personal: first.last+tag@mail.example.org</textarea>
+	</div>
+	<div>
+		<span class="tool-label">Matches <span id="count" class="normal-case"></span></span>
+		<pre id="highlight" class="tool-field m-0 h-64 overflow-auto whitespace-pre-wrap break-words leading-relaxed"></pre>
+	</div>
+</div>
+
+<div>
+	<span class="tool-label">Match details</span>
+	<div id="details" class="overflow-x-auto max-h-80 overflow-y-auto"></div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<label class="block">
+		<span class="tool-label">Replace with <span class="normal-case opacity-70">($1, $&lt;name&gt;, $&amp;)</span></span>
+		<input id="replacement" class="tool-field" spellcheck="false" autocomplete="off" value="$<user> at $<domain>" />
+	</label>
+	<div>
+		<div class="flex items-center justify-between">
+			<span class="tool-label">Result</span>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#replaced"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+		</div>
+		<pre id="replaced" class="tool-field m-0 max-h-48 overflow-auto whitespace-pre-wrap break-words"></pre>
+	</div>
+</div>
+
+<div>
+	<div class="flex items-center justify-between">
+		<span class="tool-label">As code</span>
+		<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#code"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+	</div>
+	<pre id="code" class="tool-field m-0 overflow-x-auto"></pre>
+</div>
+
+<details class="tool-panel">
+	<summary class="cursor-pointer tool-heading text-sm">Cheat sheet</summary>
+	<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 mt-3 text-sm">
+		{
+			[
+				[".", "any char except newline"],
+				["\\d \\w \\s", "digit, word char, whitespace"],
+				["\\D \\W \\S", "negated versions"],
+				["\\b", "word boundary"],
+				["^ $", "start / end (of line with m)"],
+				["[abc] [^abc]", "set / negated set"],
+				["[a-z]", "range"],
+				["a* a+ a?", "0+, 1+, 0 or 1"],
+				["a{2,5}", "between 2 and 5"],
+				["a*? a+?", "lazy (as few as possible)"],
+				["(abc)", "capture group"],
+				["(?<name>abc)", "named group"],
+				["(?:abc)", "non-capturing group"],
+				["\\1 \\k<name>", "backreference"],
+				["a|b", "alternation"],
+				["(?=a) (?!a)", "lookahead"],
+				["(?<=a) (?<!a)", "lookbehind"],
+				["\\p{L} \\p{Emoji}", "Unicode property (u flag)"],
+			].map(([k, v]) => (
+				<div class="flex gap-3 py-0.5">
+					<code class="w-28 shrink-0">{k}</code>
+					<span class="opacity-80">{v}</span>
+				</div>
+			))
+		}
+	</div>
+</details>
+
+<script>
+	import { $, $$, debounce, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+
+	interface Match {
+		index: number;
+		text: string;
+		groups: (string | undefined)[];
+		named: Record<string, string | undefined> | null;
+	}
+	type Result = { ok: true; matches: Match[]; truncated: boolean; replaced: string } | { ok: false; error: string };
+
+	// Regexes run in a worker so a catastrophic pattern can be killed instead of freezing the tab.
+	const WORKER_SRC = `
+		self.onmessage = (e) => {
+			const { source, flags, text, replacement } = e.data;
+			try {
+				const global = new RegExp(source, flags.includes("g") ? flags : flags + "g");
+				const matches = [];
+				let truncated = false;
+				for (const m of text.matchAll(global)) {
+					if (matches.length >= 2000) { truncated = true; break; }
+					matches.push({ index: m.index, text: m[0], groups: m.slice(1), named: m.groups ?? null });
+					if (!flags.includes("g")) break;
+				}
+				const replaced = text.replace(new RegExp(source, flags), replacement);
+				self.postMessage({ ok: true, matches, truncated, replaced });
+			} catch (err) {
+				self.postMessage({ ok: false, error: String(err.message || err) });
+			}
+		};`;
+
+	mountTool("regex", (root) => {
+		const pattern = $<HTMLInputElement>(root, "#pattern");
+		const flags = $<HTMLInputElement>(root, "#flags");
+		const text = $<HTMLTextAreaElement>(root, "#text");
+		const replacement = $<HTMLInputElement>(root, "#replacement");
+		const highlight = $(root, "#highlight");
+		const error = $(root, "#error");
+		const workerUrl = URL.createObjectURL(new Blob([WORKER_SRC], { type: "text/javascript" }));
+		let worker: Worker | null = null;
+		let timeout: ReturnType<typeof setTimeout> | undefined;
+		let busy = false;
+
+		const state = hashState(
+			() => ({ p: pattern.value, f: flags.value, t: text.value, r: replacement.value }),
+			(s) => {
+				if (s.p !== undefined) pattern.value = s.p;
+				if (s.f !== undefined) flags.value = s.f;
+				if (s.t !== undefined) text.value = s.t;
+				if (s.r !== undefined) replacement.value = s.r;
+				run();
+			},
+		);
+
+		function getWorker() {
+			if (!worker) worker = new Worker(workerUrl);
+			return worker;
+		}
+
+		function run() {
+			const f = [...new Set(flags.value.replace(/[^dgimsuyv]/g, ""))].join("");
+			$$<HTMLButtonElement>(root, "[data-flag]").forEach((b) => b.classList.toggle("tool-btn-active", f.includes(b.dataset.flag!)));
+			$(root, "#code").textContent = `const re = /${pattern.value.replace(/\//g, "\\/")}/${f};\n${f.includes("g") ? "const matches = [...input.matchAll(re)];" : "const match = input.match(re);"}`;
+			if (busy) {
+				// Previous run is still going (probably stuck); start over.
+				worker?.terminate();
+				worker = null;
+			}
+			busy = true;
+			const w = getWorker();
+			clearTimeout(timeout);
+			timeout = setTimeout(() => {
+				w.terminate();
+				worker = null;
+				busy = false;
+				render({ ok: false, error: "Timed out after 1s. The pattern probably backtracks catastrophically, e.g. (a+)+ on a long input." });
+			}, 1000);
+			w.onmessage = (e: MessageEvent<Result>) => {
+				clearTimeout(timeout);
+				busy = false;
+				render(e.data);
+			};
+			w.postMessage({ source: pattern.value, flags: f, text: text.value, replacement: replacement.value });
+		}
+
+		function render(r: Result) {
+			error.textContent = "";
+			const count = $(root, "#count");
+			if (!r.ok) {
+				error.textContent = "✕ " + r.error;
+				highlight.textContent = text.value;
+				count.textContent = "";
+				$(root, "#details").innerHTML = "";
+				$(root, "#replaced").textContent = "";
+				return;
+			}
+			const src = text.value;
+			let html = "";
+			let pos = 0;
+			r.matches.forEach((m, i) => {
+				html += escapeHtml(src.slice(pos, m.index));
+				html += m.text
+					? `<mark class="tool-mark ${i % 2 ? "alt" : ""}" title="Match ${i + 1}">${escapeHtml(m.text)}</mark>`
+					: `<span class="inline-block w-0.5 h-4 align-middle bg-amber-500" title="Empty match ${i + 1}"></span>`;
+				pos = m.index + m.text.length;
+			});
+			highlight.innerHTML = html + escapeHtml(src.slice(pos)) + "\n";
+			count.textContent = `(${r.matches.length}${r.truncated ? "+, showing first 2000" : ""})`;
+
+			const named = r.matches[0]?.named ? Object.keys(r.matches[0].named) : [];
+			const groupCount = r.matches[0]?.groups.length ?? 0;
+			const headers = ["#", "Match", "Index", ...Array.from({ length: groupCount }, (_, i) => {
+				const name = named.find((n) => r.matches[0].named![n] === r.matches[0].groups[i] && r.matches[0].groups[i] !== undefined);
+				return `$${i + 1}${name ? ` <span class="opacity-60">${escapeHtml(name)}</span>` : ""}`;
+			})];
+			$(root, "#details").innerHTML = r.matches.length
+				? `<table class="w-full text-sm border-collapse"><thead><tr>${headers.map((h) => `<th class="text-left font-normal tool-label py-1 pr-4">${h}</th>`).join("")}</tr></thead><tbody>${r.matches
+						.slice(0, 200)
+						.map(
+							(m, i) =>
+								`<tr class="border-t border-#8882"><td class="py-1 pr-4 opacity-60">${i + 1}</td><td class="py-1 pr-4 font-mono break-all">${escapeHtml(m.text) || '<span class="opacity-50">(empty)</span>'}</td><td class="py-1 pr-4 font-mono opacity-70">${m.index}–${m.index + m.text.length}</td>${m.groups
+									.map((g) => `<td class="py-1 pr-4 font-mono break-all">${g === undefined ? '<span class="opacity-40">undefined</span>' : escapeHtml(g)}</td>`)
+									.join("")}</tr>`,
+						)
+						.join("")}</tbody></table>${r.matches.length > 200 ? `<p class="text-xs opacity-60">Showing the first 200 rows.</p>` : ""}`
+				: `<p class="text-sm opacity-60 m-0">No matches.</p>`;
+			$(root, "#replaced").textContent = r.replaced;
+		}
+
+		const update = debounce(() => {
+			run();
+			state.save();
+		}, 120);
+		[pattern, flags, text, replacement].forEach((el) => el.addEventListener("input", update));
+		$$<HTMLButtonElement>(root, "[data-flag]").forEach((b) =>
+			b.addEventListener("click", () => {
+				const f = b.dataset.flag!;
+				flags.value = flags.value.includes(f) ? flags.value.replace(f, "") : flags.value + f;
+				update();
+			}),
+		);
+		run();
+		return () => {
+			worker?.terminate();
+			URL.revokeObjectURL(workerUrl);
+		};
+	});
+</script>

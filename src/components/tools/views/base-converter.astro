@@ -1,0 +1,161 @@
+<div class="grid sm:grid-cols-2 gap-4">
+	{
+		[
+			["dec", "Decimal", "10", "1234567890"],
+			["hex", "Hexadecimal", "16", "0x499602d2"],
+			["bin", "Binary", "2", "0b1001…"],
+			["oct", "Octal", "8", "0o11145401322"],
+		].map(([id, label, radix, ph]) => (
+			<div>
+				<div class="flex items-center justify-between">
+					<label class="tool-label" for={id}>
+						{label} <span class="opacity-50 normal-case">base {radix}</span>
+					</label>
+					<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy={"#" + id}>
+						<span class="i-myna-copy w-3.5 h-3.5" />
+						Copy
+					</button>
+				</div>
+				<input id={id} data-radix={radix} class="tool-field" spellcheck="false" autocomplete="off" placeholder={ph} />
+			</div>
+		))
+	}
+	<div>
+		<label class="tool-label" for="custom">Any base <span class="opacity-50 normal-case">2–36</span></label>
+		<div class="flex gap-2">
+			<input id="custom-radix" type="number" min="2" max="36" value="36" class="tool-field w-20" aria-label="Custom radix" />
+			<input id="custom" data-radix="36" class="tool-field" spellcheck="false" autocomplete="off" />
+		</div>
+	</div>
+	<div>
+		<span class="tool-label">Info</span>
+		<p id="info" class="text-sm py-2 m-0 opacity-80"></p>
+	</div>
+</div>
+
+<div class="tool-panel">
+	<div class="flex flex-wrap items-center gap-3 mb-3">
+		<span class="tool-label mb-0">Bits</span>
+		<div class="inline-flex rounded-md bg-#8881 p-0.5" id="widths" role="group" aria-label="Bit width">
+			{[8, 16, 32, 64].map((w) => <button type="button" class="tool-btn bg-transparent py-1" data-width={w}>{w}</button>)}
+		</div>
+		<span class="text-xs opacity-60">Click a bit to flip it. Negative numbers use two's complement.</span>
+	</div>
+	<div id="bits" class="flex flex-wrap gap-y-3 gap-x-3 font-mono text-sm"></div>
+	<p id="bits-info" class="text-sm mt-3 mb-0 opacity-80"></p>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { bitLength, formatBig, fromBits, groupDigits, parseBig, toTwos } from "../../../lib/tools/base";
+
+	mountTool("base-converter", (root) => {
+		const fields = $$<HTMLInputElement>(root, "input[data-radix]");
+		const customRadix = $<HTMLInputElement>(root, "#custom-radix");
+		const custom = $<HTMLInputElement>(root, "#custom");
+		const info = $(root, "#info");
+		const bitsEl = $(root, "#bits");
+		const bitsInfo = $(root, "#bits-info");
+		let value: bigint | null = null;
+		let width = 32;
+
+		const state = hashState(
+			() => ({ v: value?.toString() ?? "", w: width }),
+			(s) => {
+				if (s.w) width = s.w;
+				if (s.v) setValue(BigInt(s.v), null);
+			},
+		);
+
+		function setValue(v: bigint | null, source: HTMLInputElement | null) {
+			value = v;
+			for (const f of fields) {
+				if (f === source) continue;
+				f.value = v === null ? "" : formatBig(v, Number(f.dataset.radix));
+			}
+			fields.forEach((f) => f.classList.remove("border-red-500"));
+			renderInfo();
+			renderBits();
+		}
+
+		function renderInfo() {
+			if (value === null) {
+				info.textContent = "Type in any field.";
+				return;
+			}
+			const bits = bitLength(value);
+			const safe = value <= BigInt(Number.MAX_SAFE_INTEGER) && value >= -BigInt(Number.MAX_SAFE_INTEGER);
+			info.innerHTML = [
+				`${bits} bit${bits > 1 ? "s" : ""} needed`,
+				safe ? "fits in a JS number" : `<span class="text-amber-600 dark:text-amber-400">exceeds Number.MAX_SAFE_INTEGER, use BigInt</span>`,
+				value >= 0n && value <= 0x10ffffn ? `as char: <code>${escapeHtml(String.fromCodePoint(Number(value)))}</code>` : "",
+			]
+				.filter(Boolean)
+				.join(" · ");
+		}
+
+		function renderBits() {
+			$$<HTMLButtonElement>(root, "[data-width]").forEach((b) => b.classList.toggle("tool-btn-active", Number(b.dataset.width) === width));
+			const pattern = value === null ? "0".repeat(width) : toTwos(value, width);
+			if (pattern === null) {
+				bitsEl.innerHTML = "";
+				bitsInfo.innerHTML = `<span class="tool-error">Doesn't fit in ${width} bits.</span>`;
+				return;
+			}
+			bitsEl.innerHTML = groupDigits(pattern, 8, "|")
+				.split("|")
+				.map((byte, bi, arr) => {
+					const start = width - (arr.length - bi) * 8;
+					return `<span class="inline-flex gap-0.5">${[...byte]
+						.map((b, i) => {
+							const pos = width - 1 - (start + i);
+							return `<button type="button" data-bit="${pos}" title="bit ${pos}" class="w-5 h-7 rounded ${b === "1" ? "bg-#8884 tool-heading" : "bg-#8881 opacity-60"} hover:bg-#8885 transition-colors">${b}</button>`;
+						})
+						.join("")}</span>`;
+				})
+				.join("");
+			const { signed, unsigned } = fromBits(pattern);
+			bitsInfo.innerHTML = `int${width}: <code>${signed}</code> · uint${width}: <code>${unsigned}</code> · hex: <code>0x${unsigned.toString(16).padStart(width / 4, "0")}</code>`;
+		}
+
+		fields.forEach((f) =>
+			f.addEventListener("input", () => {
+				if (!f.value.trim()) return setValue(null, f), state.save();
+				try {
+					setValue(parseBig(f.value, Number(f.dataset.radix)), f);
+					state.save();
+				} catch (e) {
+					f.classList.add("border-red-500");
+					info.innerHTML = `<span class="tool-error">${escapeHtml((e as Error).message)}</span>`;
+				}
+			}),
+		);
+		customRadix.addEventListener("input", () => {
+			const r = Math.min(36, Math.max(2, Number(customRadix.value) || 36));
+			custom.dataset.radix = String(r);
+			if (value !== null) custom.value = formatBig(value, r);
+		});
+		$(root, "#widths").addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-width]");
+			if (!b) return;
+			width = Number(b.dataset.width);
+			renderBits();
+			state.save();
+		});
+		bitsEl.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-bit]");
+			if (!b) return;
+			const pattern = toTwos(value ?? 0n, width)!;
+			const idx = width - 1 - Number(b.dataset.bit);
+			const flipped = pattern.slice(0, idx) + (pattern[idx] === "1" ? "0" : "1") + pattern.slice(idx + 1);
+			// Keep negative numbers negative when they were signed to begin with.
+			const { signed, unsigned } = fromBits(flipped);
+			setValue(value !== null && value < 0n ? signed : unsigned, null);
+			state.save();
+		});
+
+		state.ready.then(() => {
+			if (value === null) setValue(255n, null);
+		});
+	});
+</script>

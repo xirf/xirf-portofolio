@@ -1,0 +1,192 @@
+<div class="flex flex-wrap items-center gap-2">
+	<div class="inline-flex rounded-md bg-#8881 p-0.5" role="group" aria-label="Layout">
+		<button type="button" class="tool-btn bg-transparent" data-view="split">Split</button>
+		<button type="button" class="tool-btn bg-transparent" data-view="unified">Unified</button>
+	</div>
+	<label class="tool-btn"><input type="checkbox" id="ws" /> Ignore whitespace</label>
+	<label class="tool-btn"><input type="checkbox" id="case" /> Ignore case</label>
+	<span class="grow"></span>
+	<button type="button" class="tool-btn" id="swap"><span class="i-myna-arrow-left-right w-4 h-4"></span>Swap</button>
+	<button type="button" class="tool-btn" id="patch"><span class="i-myna-download w-4 h-4"></span>.patch</button>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<label class="block">
+		<span class="tool-label">Original</span>
+		<textarea id="left" class="tool-area h-56" wrap="off" spellcheck="false"></textarea>
+	</label>
+	<label class="block">
+		<span class="tool-label">Changed</span>
+		<textarea id="right" class="tool-area h-56" wrap="off" spellcheck="false"></textarea>
+	</label>
+</div>
+
+<div>
+	<div class="flex items-center gap-3 mb-1.5">
+		<span class="tool-label mb-0">Differences</span>
+		<span id="summary" class="text-sm"></span>
+	</div>
+	<div id="output" class="rounded-lg border border-#8882 overflow-x-auto font-mono text-xs leading-relaxed"></div>
+</div>
+
+<script>
+	import { $, $$, debounce, downloadText, escapeHtml, hashState, mountTool, toast } from "../../../lib/tools/dom";
+	import { diffLines, unifiedPatch, type Edit, type Row } from "../../../lib/tools/diff";
+
+	const LEFT = `import { readFile } from "node:fs/promises";
+
+export async function loadConfig(path) {
+  const raw = await readFile(path, "utf8");
+  const config = JSON.parse(raw);
+  config.port = config.port || 3000;
+  return config;
+}
+
+export const VERSION = "1.0.0";`;
+	const RIGHT = `import { readFile } from "node:fs/promises";
+
+export async function loadConfig(path = "./config.json") {
+  const raw = await readFile(path, "utf8");
+  const config = JSON.parse(raw);
+  config.port ??= 8080;
+  config.host ??= "localhost";
+  return Object.freeze(config);
+}
+
+export const VERSION = "1.1.0";`;
+
+	const BG = {
+		del: "bg-red-500/10",
+		ins: "bg-green-500/10",
+		delStrong: "bg-red-500/30 rounded-sm",
+		insStrong: "bg-green-500/30 rounded-sm",
+	};
+
+	mountTool("diff", (root) => {
+		const left = $<HTMLTextAreaElement>(root, "#left");
+		const right = $<HTMLTextAreaElement>(root, "#right");
+		const ws = $<HTMLInputElement>(root, "#ws");
+		const ic = $<HTMLInputElement>(root, "#case");
+		const output = $(root, "#output");
+		let view = matchMedia("(max-width: 767px)").matches ? "unified" : "split";
+		let rows: Row[] = [];
+		const expanded = new Set<number>();
+
+		const state = hashState(
+			() => ({ l: left.value, r: right.value, v: view, ws: ws.checked, ic: ic.checked }),
+			(s) => {
+				if (s.l !== undefined) left.value = s.l;
+				if (s.r !== undefined) right.value = s.r;
+				if (s.v) view = s.v;
+				ws.checked = !!s.ws;
+				ic.checked = !!s.ic;
+				run();
+			},
+		);
+
+		const parts = (p: Edit<string>[], strong: string) =>
+			p.map((e) => (e.op === "equal" ? escapeHtml(e.items.join("")) : `<span class="${strong}">${escapeHtml(e.items.join(""))}</span>`)).join("");
+		const num = (n?: number) => `<td class="select-none text-right pr-2 pl-3 opacity-40 w-1 align-top">${n ?? ""}</td>`;
+		const code = (html: string, cls = "", sign = " ") =>
+			`<td class="whitespace-pre pr-4 align-top ${cls}"><span class="select-none opacity-50 mr-1">${sign}</span>${html || " "}</td>`;
+
+		function run() {
+			$$<HTMLButtonElement>(root, "[data-view]").forEach((b) => b.classList.toggle("tool-btn-active", b.dataset.view === view));
+			rows = diffLines(left.value, right.value, { ignoreWhitespace: ws.checked, ignoreCase: ic.checked });
+			const added = rows.filter((r) => r.type === "insert" || r.type === "change").length;
+			const removed = rows.filter((r) => r.type === "delete" || r.type === "change").length;
+			$(root, "#summary").innerHTML =
+				added || removed
+					? `<span class="text-green-600 dark:text-green-400">+${added}</span> <span class="text-red-600 dark:text-red-400">−${removed}</span>`
+					: `<span class="opacity-60">${left.value || right.value ? "Identical" : ""}</span>`;
+			render();
+		}
+
+		function render() {
+			const CONTEXT = 3;
+			const changed = rows.map((r) => r.type !== "equal");
+			const near = (i: number) => {
+				for (let d = -CONTEXT; d <= CONTEXT; d++) if (changed[i + d]) return true;
+				return false;
+			};
+			let html = "";
+			for (let i = 0; i < rows.length; i++) {
+				if (!near(i) && !expanded.has(i)) {
+					let j = i;
+					while (j < rows.length && !near(j) && !expanded.has(j)) j++;
+					if (j - i > 1) {
+						html += `<tr><td colspan="${view === "split" ? 4 : 3}" class="text-center py-1 bg-#8881"><button type="button" data-expand="${i}-${j}" class="text-xs opacity-70 hover:opacity-100 font-sans">⋯ ${j - i} unchanged lines</button></td></tr>`;
+						i = j - 1;
+						continue;
+					}
+				}
+				html += view === "split" ? splitRow(rows[i]) : unifiedRow(rows[i]);
+			}
+			output.innerHTML = rows.length ? `<table class="w-full border-collapse">${html}</table>` : "";
+		}
+
+		function splitRow(r: Row) {
+			switch (r.type) {
+				case "equal":
+					return `<tr>${num(r.ln)}${code(escapeHtml(r.left))}${num(r.rn)}${code(escapeHtml(r.right))}</tr>`;
+				case "delete":
+					return `<tr>${num(r.ln)}${code(escapeHtml(r.left), BG.del, "−")}${num()}${code("", "bg-#8881")}</tr>`;
+				case "insert":
+					return `<tr>${num()}${code("", "bg-#8881")}${num(r.rn)}${code(escapeHtml(r.right), BG.ins, "+")}</tr>`;
+				case "change":
+					return `<tr>${num(r.ln)}${code(parts(r.leftParts, BG.delStrong), BG.del, "−")}${num(r.rn)}${code(parts(r.rightParts, BG.insStrong), BG.ins, "+")}</tr>`;
+			}
+		}
+
+		function unifiedRow(r: Row) {
+			switch (r.type) {
+				case "equal":
+					return `<tr>${num(r.ln)}${num(r.rn)}${code(escapeHtml(r.left))}</tr>`;
+				case "delete":
+					return `<tr>${num(r.ln)}${num()}${code(escapeHtml(r.left), BG.del, "−")}</tr>`;
+				case "insert":
+					return `<tr>${num()}${num(r.rn)}${code(escapeHtml(r.right), BG.ins, "+")}</tr>`;
+				case "change":
+					return `<tr>${num(r.ln)}${num()}${code(parts(r.leftParts, BG.delStrong), BG.del, "−")}</tr><tr>${num()}${num(r.rn)}${code(parts(r.rightParts, BG.insStrong), BG.ins, "+")}</tr>`;
+			}
+		}
+
+		const update = debounce(() => {
+			expanded.clear();
+			run();
+			state.save();
+		}, 150);
+		[left, right].forEach((el) => el.addEventListener("input", update));
+		[ws, ic].forEach((el) => el.addEventListener("change", update));
+		$$<HTMLButtonElement>(root, "[data-view]").forEach((b) =>
+			b.addEventListener("click", () => {
+				view = b.dataset.view!;
+				run();
+				state.save();
+			}),
+		);
+		output.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-expand]");
+			if (!b) return;
+			const [from, to] = b.dataset.expand!.split("-").map(Number);
+			for (let i = from; i < to; i++) expanded.add(i);
+			render();
+		});
+		$(root, "#swap").addEventListener("click", () => {
+			[left.value, right.value] = [right.value, left.value];
+			update();
+		});
+		$(root, "#patch").addEventListener("click", () => {
+			if (!rows.some((r) => r.type !== "equal")) return toast("No differences to export");
+			downloadText("changes.patch", unifiedPatch(rows, 3, ["a/original", "b/changed"]), "text/x-diff");
+		});
+
+		state.ready.then(() => {
+			if (!left.value && !right.value) {
+				left.value = LEFT;
+				right.value = RIGHT;
+			}
+			run();
+		});
+	});
+</script>

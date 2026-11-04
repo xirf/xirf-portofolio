@@ -1,0 +1,151 @@
+<div class="flex flex-wrap items-center gap-2">
+	<div class="inline-flex rounded-md bg-#8881 p-0.5" role="group" aria-label="Output mode">
+		<button type="button" class="tool-btn bg-transparent" data-mode="format">Format</button>
+		<button type="button" class="tool-btn bg-transparent" data-mode="minify">Minify</button>
+		<button type="button" class="tool-btn bg-transparent" data-mode="escape" title="Output the JSON as a string literal">Stringify</button>
+	</div>
+	<select id="indent" class="tool-field w-auto py-1.5" aria-label="Indentation">
+		<option value="2">2 spaces</option>
+		<option value="4">4 spaces</option>
+		<option value="tab">Tabs</option>
+	</select>
+	<label class="tool-btn">
+		<input type="checkbox" id="sort" class="accent-current" /> Sort keys
+	</label>
+	<span class="grow"></span>
+	<button type="button" class="tool-btn" id="sample">Sample</button>
+	<button type="button" class="tool-btn" id="clear">Clear</button>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<div>
+		<label class="tool-label" for="input">Input</label>
+		<textarea id="input" class="tool-area h-[28rem]" spellcheck="false" placeholder='{"paste": "your JSON here"}'></textarea>
+	</div>
+	<div>
+		<div class="flex items-center justify-between">
+			<label class="tool-label" for="output">Output</label>
+			<div class="flex gap-1 mb-1">
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="use">Use as input</button>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs" data-copy="#output">
+					<span class="i-myna-copy w-3.5 h-3.5"></span>Copy
+				</button>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="download">Download</button>
+			</div>
+		</div>
+		<textarea id="output" class="tool-area h-[28rem]" readonly spellcheck="false"></textarea>
+	</div>
+</div>
+
+<div id="status" class="text-sm" aria-live="polite"></div>
+<pre id="snippet" class="hidden tool-panel font-mono text-xs overflow-x-auto m-0 border-red-500/40"></pre>
+
+<script>
+	import { $, $$, downloadText, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { errorSnippet, jsonStats, parseJson, sortKeysDeep } from "../../../lib/tools/json";
+
+	const SAMPLE = `{
+  "name": "andka-tools",
+  "version": "1.0.0",
+  "private": true,
+  "tags": ["json", "formatter", "validator"],
+  "author": { "name": "Andka", "url": "https://andka.id" },
+  "stars": 42,
+  "bigId": 9007199254740993,
+  "nested": { "deep": { "deeper": [1, 2, { "deepest": null }] } }
+}`;
+
+	mountTool("json", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+		const output = $<HTMLTextAreaElement>(root, "#output");
+		const indent = $<HTMLSelectElement>(root, "#indent");
+		const sort = $<HTMLInputElement>(root, "#sort");
+		const status = $(root, "#status");
+		const snippet = $(root, "#snippet");
+		let mode = "format";
+
+		const state = hashState(
+			() => ({ input: input.value, mode, indent: indent.value, sort: sort.checked }),
+			(s) => {
+				if (s.input !== undefined) input.value = s.input;
+				if (s.mode) mode = s.mode;
+				if (s.indent) indent.value = s.indent;
+				if (s.sort !== undefined) sort.checked = s.sort;
+				run();
+			},
+		);
+
+		function run() {
+			$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) => b.classList.toggle("tool-btn-active", b.dataset.mode === mode));
+			const text = input.value;
+			snippet.classList.add("hidden");
+			if (!text.trim()) {
+				output.value = "";
+				status.innerHTML = `<span class="opacity-60">Paste some JSON to get started.</span>`;
+				return;
+			}
+			const res = parseJson(text);
+			if (!res.ok) {
+				const { message, line, column } = res.error;
+				output.value = "";
+				status.innerHTML = `<span class="tool-error">✕ ${escapeHtml(message)} <span class="opacity-70">(line ${line}, column ${column})</span></span>`;
+				snippet.textContent = errorSnippet(text, line, column);
+				snippet.classList.remove("hidden");
+				return;
+			}
+			const value = sort.checked ? sortKeysDeep(res.value) : res.value;
+			const space = indent.value === "tab" ? "\t" : Number(indent.value);
+			if (mode === "minify") output.value = JSON.stringify(value);
+			else if (mode === "escape") output.value = JSON.stringify(JSON.stringify(value));
+			else output.value = JSON.stringify(value, null, space);
+
+			const stats = jsonStats(value);
+			const bytes = new TextEncoder().encode(output.value).length;
+			const inBytes = new TextEncoder().encode(text).length;
+			const parts = [
+				`<span class="tool-ok">✓ Valid JSON</span>`,
+				`${stats.keys} keys`,
+				`depth ${stats.depth}`,
+				`${inBytes.toLocaleString()} → ${bytes.toLocaleString()} bytes`,
+			];
+			if (res.lossyNumbers.length)
+				parts.push(
+					`<span class="text-amber-600 dark:text-amber-400" title="JavaScript numbers are 64-bit floats">⚠ ${res.lossyNumbers.length} integer(s) exceed 2^53 and lose precision, e.g. ${escapeHtml(res.lossyNumbers[0])}</span>`,
+				);
+			status.innerHTML = parts.join(`<span class="opacity-40 mx-2">·</span>`);
+		}
+
+		const update = () => {
+			run();
+			state.save();
+		};
+
+		input.addEventListener("input", update);
+		indent.addEventListener("change", update);
+		sort.addEventListener("change", update);
+		$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) =>
+			b.addEventListener("click", () => {
+				mode = b.dataset.mode!;
+				update();
+			}),
+		);
+		$(root, "#sample").addEventListener("click", () => {
+			input.value = SAMPLE;
+			update();
+		});
+		$(root, "#clear").addEventListener("click", () => {
+			input.value = "";
+			update();
+			input.focus();
+		});
+		$(root, "#use").addEventListener("click", () => {
+			if (!output.value) return;
+			input.value = output.value;
+			update();
+		});
+		$(root, "#download").addEventListener("click", () => {
+			if (output.value) downloadText("data.json", output.value, "application/json");
+		});
+		run();
+	});
+</script>

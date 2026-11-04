@@ -1,0 +1,233 @@
+<div class="inline-flex rounded-md bg-#8881 p-0.5 self-start" role="tablist" aria-label="Mode">
+	<button type="button" class="tool-btn bg-transparent" data-mode="parse" role="tab">Parse &amp; edit</button>
+	<button type="button" class="tool-btn bg-transparent" data-mode="encode" role="tab">Encode / decode</button>
+</div>
+
+<div data-panel="parse" class="flex flex-col gap-4">
+	<div>
+		<label class="tool-label" for="url">URL</label>
+		<textarea id="url" rows="3" class="tool-field resize-y break-all" spellcheck="false" placeholder="https://example.com/path?q=hello%20world&page=2#top"></textarea>
+		<p id="url-error" class="tool-error mt-1 mb-0"></p>
+	</div>
+	<div id="parts" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+	<div>
+		<div class="flex items-center justify-between mb-1.5">
+			<span class="tool-label mb-0">Query parameters <span id="param-count" class="normal-case"></span></span>
+			<div class="flex gap-1">
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="sort-params">Sort</button>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="add-param"><span class="i-myna-plus w-3.5 h-3.5"></span>Add</button>
+			</div>
+		</div>
+		<div id="params" class="flex flex-col gap-1.5"></div>
+	</div>
+	<div>
+		<div class="flex items-center justify-between">
+			<span class="tool-label">Rebuilt URL</span>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#rebuilt"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+		</div>
+		<output id="rebuilt" class="tool-field block break-all min-h-10"></output>
+	</div>
+</div>
+
+<div data-panel="encode" class="hidden flex-col gap-4">
+	<div>
+		<label class="tool-label" for="plain">Input</label>
+		<textarea id="plain" class="tool-area h-32" spellcheck="false" placeholder="hello world & ünïcode / ?"></textarea>
+		<label class="tool-btn mt-2"><input type="checkbox" id="plus" /> Treat + as space when decoding (form encoding)</label>
+	</div>
+	<div id="encodings" class="grid gap-3"></div>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+
+	mountTool("url", (root) => {
+		const urlInput = $<HTMLTextAreaElement>(root, "#url");
+		const parts = $(root, "#parts");
+		const paramsEl = $(root, "#params");
+		const rebuilt = $(root, "#rebuilt");
+		const err = $(root, "#url-error");
+		const plain = $<HTMLTextAreaElement>(root, "#plain");
+		const plus = $<HTMLInputElement>(root, "#plus");
+		let mode = "parse";
+		let url: URL | null = null;
+		let params: [string, string][] = [];
+
+		const state = hashState(
+			() => ({ mode, url: urlInput.value, plain: plain.value }),
+			(s) => {
+				if (s.mode) mode = s.mode;
+				if (s.url !== undefined) urlInput.value = s.url;
+				if (s.plain !== undefined) plain.value = s.plain;
+				setMode();
+				parse();
+				encode();
+			},
+		);
+
+		function setMode() {
+			$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) => {
+				b.classList.toggle("tool-btn-active", b.dataset.mode === mode);
+				b.setAttribute("aria-selected", String(b.dataset.mode === mode));
+			});
+			$$(root, "[data-panel]").forEach((p) => {
+				p.classList.toggle("hidden", p.dataset.panel !== mode);
+				p.classList.toggle("flex", p.dataset.panel === mode);
+			});
+		}
+
+		const PART_FIELDS: [keyof URL, string][] = [
+			["protocol", "Protocol"],
+			["username", "Username"],
+			["password", "Password"],
+			["hostname", "Host"],
+			["port", "Port"],
+			["pathname", "Path"],
+			["hash", "Fragment"],
+		];
+
+		function parse() {
+			err.textContent = "";
+			const raw = urlInput.value.trim();
+			if (!raw) {
+				url = null;
+				parts.innerHTML = "";
+				params = [];
+				renderParams();
+				rebuilt.textContent = "";
+				return;
+			}
+			try {
+				url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : "https://" + raw);
+			} catch {
+				url = null;
+				err.textContent = "Not a valid URL.";
+				return;
+			}
+			params = [...url.searchParams.entries()];
+			parts.innerHTML = PART_FIELDS.map(
+				([k, label]) => `
+				<label class="block">
+					<span class="tool-label">${label}</span>
+					<input class="tool-field py-1.5" data-part="${k}" value="${escapeHtml(String(url![k]))}" spellcheck="false" />
+				</label>`,
+			).join("");
+			renderParams();
+			rebuild();
+		}
+
+		function renderParams() {
+			$(root, "#param-count").textContent = params.length ? `(${params.length})` : "";
+			paramsEl.innerHTML = params.length
+				? params
+						.map(
+							([k, v], i) => `
+				<div class="flex gap-1.5 items-center" data-row="${i}">
+					<input class="tool-field py-1.5 w-2/5" data-k="${i}" value="${escapeHtml(k)}" placeholder="key" spellcheck="false" aria-label="Parameter name" />
+					<input class="tool-field py-1.5" data-v="${i}" value="${escapeHtml(v)}" placeholder="value" spellcheck="false" aria-label="Parameter value" />
+					<button type="button" class="tool-btn px-2" data-del="${i}" aria-label="Remove parameter"><span class="i-myna-x w-4 h-4"></span></button>
+				</div>`,
+						)
+						.join("")
+				: `<p class="text-sm opacity-60 m-0">No query parameters.</p>`;
+		}
+
+		function rebuild() {
+			if (!url) return;
+			// Encode by hand: URLSearchParams would turn %20 into +.
+			const u = new URL(url.href);
+			const qs = params.filter(([k]) => k).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+			u.search = qs.length ? "?" + qs.join("&") : "";
+			rebuilt.textContent = u.href;
+		}
+
+		parts.addEventListener("change", (e) => {
+			const inp = e.target as HTMLInputElement;
+			if (!url || !inp.dataset.part) return;
+			try {
+				(url as any)[inp.dataset.part] = inp.value;
+				inp.value = String((url as any)[inp.dataset.part]);
+			} catch {
+				/* invalid part, ignore */
+			}
+			rebuild();
+		});
+		paramsEl.addEventListener("input", (e) => {
+			const t = e.target as HTMLInputElement;
+			if (t.dataset.k) params[Number(t.dataset.k)][0] = t.value;
+			if (t.dataset.v) params[Number(t.dataset.v)][1] = t.value;
+			rebuild();
+		});
+		paramsEl.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-del]");
+			if (!b) return;
+			params.splice(Number(b.dataset.del), 1);
+			renderParams();
+			rebuild();
+		});
+		$(root, "#add-param").addEventListener("click", () => {
+			if (!url) return;
+			params.push(["", ""]);
+			renderParams();
+			paramsEl.querySelector<HTMLInputElement>(`[data-k="${params.length - 1}"]`)?.focus();
+		});
+		$(root, "#sort-params").addEventListener("click", () => {
+			params.sort((a, b) => a[0].localeCompare(b[0]));
+			renderParams();
+			rebuild();
+		});
+
+		function encode() {
+			const s = plain.value;
+			const tryDecode = (fn: (x: string) => string) => {
+				try {
+					return { ok: true, v: fn(plus.checked ? s.replace(/\+/g, " ") : s) };
+				} catch {
+					return { ok: false, v: "Malformed percent-encoding (a % not followed by two hex digits, or invalid UTF-8)" };
+				}
+			};
+			const rows = [
+				{ name: "encodeURIComponent", desc: "For a single query value or path segment", v: encodeURIComponent(s), ok: true },
+				{ name: "encodeURI", desc: "For a full URL; keeps : / ? # & =", v: encodeURI(s), ok: true },
+				{ name: "Form (application/x-www-form-urlencoded)", desc: "Spaces become +", v: new URLSearchParams({ x: s }).toString().slice(2), ok: true },
+				{ name: "decodeURIComponent", desc: "Reverses percent-encoding", ...tryDecode(decodeURIComponent) },
+			];
+			$(root, "#encodings").innerHTML = rows
+				.map(
+					(r, i) => `
+				<div>
+					<div class="flex items-center justify-between">
+						<span class="tool-label"><span class="font-mono normal-case tracking-normal">${r.name}</span> <span class="normal-case opacity-70">· ${r.desc}</span></span>
+						<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#enc-${i}"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+					</div>
+					<output id="enc-${i}" class="tool-field block break-all min-h-10 ${r.ok ? "" : "tool-error"}">${escapeHtml(r.v)}</output>
+				</div>`,
+				)
+				.join("");
+		}
+
+		urlInput.addEventListener("input", () => {
+			parse();
+			state.save();
+		});
+		plain.addEventListener("input", () => {
+			encode();
+			state.save();
+		});
+		plus.addEventListener("change", encode);
+		$$<HTMLButtonElement>(root, "[data-mode]").forEach((b) =>
+			b.addEventListener("click", () => {
+				mode = b.dataset.mode!;
+				setMode();
+				state.save();
+			}),
+		);
+
+		state.ready.then(() => {
+			if (!urlInput.value) urlInput.value = "https://andka.id/search?q=hello%20world&lang=en&tags=a&tags=b#results";
+			setMode();
+			parse();
+			encode();
+		});
+	});
+</script>

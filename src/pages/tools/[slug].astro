@@ -1,0 +1,26 @@
+---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+import ToolLayout from "../../layouts/ToolLayout.astro";
+import { tools, type Tool } from "../../data/tools";
+
+// Every tool lives in src/components/tools/views/{slug}.astro
+const views = import.meta.glob<{ default: AstroComponentFactory }>("../../components/tools/views/*.astro", {
+	eager: true,
+});
+
+export function getStaticPaths() {
+	return tools.map((tool) => ({ params: { slug: tool.slug }, props: { tool } }));
+}
+
+interface Props {
+	tool: Tool;
+}
+
+const { tool } = Astro.props;
+const View = views[`../../components/tools/views/${tool.slug}.astro`]?.default;
+if (!View) throw new Error(`No view found for tool "${tool.slug}". Create src/components/tools/views/${tool.slug}.astro`);
+---
+
+<ToolLayout tool={tool}>
+	<View />
+</ToolLayout>

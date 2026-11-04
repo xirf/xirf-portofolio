@@ -1,0 +1,30 @@
+<div>
+	<label class="tool-label" for="input">Input <span class="normal-case opacity-70">(each line is converted separately)</span></label>
+	<textarea id="input" class="tool-area h-28" spellcheck="false">XMLHttpRequest user_id
+the quick brown fox</textarea>
+</div>
+<div id="results" class="grid sm:grid-cols-2 gap-2"></div>
+
+<script>
+	import { $, escapeHtml, mountTool } from "../../../lib/tools/dom";
+	import { CASES, splitWords } from "../../../lib/tools/text";
+
+	mountTool("case", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+		function run() {
+			const lines = input.value.split("\n");
+			$(root, "#results").innerHTML = CASES.map((c) => {
+				const out = lines.map((l) => c.fn(splitWords(l), l)).join("\n");
+				return `<div class="flex items-start gap-2 rounded-md bg-#8881 px-3 py-2">
+					<div class="min-w-0 flex-1">
+						<div class="text-xs opacity-60">${c.name}</div>
+						<div class="font-mono text-sm whitespace-pre-wrap break-all">${escapeHtml(out) || '<span class="opacity-40">–</span>'}</div>
+					</div>
+					<button type="button" class="tool-btn py-0.5 px-1.5 shrink-0" data-copy-value="${escapeHtml(out)}" aria-label="Copy ${c.name}"><span class="i-myna-copy w-3.5 h-3.5"></span></button>
+				</div>`;
+			}).join("");
+		}
+		input.addEventListener("input", run);
+		run();
+	});
+</script>

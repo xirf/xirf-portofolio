@@ -1,0 +1,102 @@
+<div class="flex flex-wrap items-center gap-2">
+	<label class="flex items-center gap-2 text-sm">
+		Root name
+		<input id="root-name" class="tool-field w-32 py-1.5" value="Root" spellcheck="false" />
+	</label>
+	<label class="tool-btn"><input type="checkbox" id="use-type" /> Use <code>type</code></label>
+	<label class="tool-btn"><input type="checkbox" id="export" checked /> Export</label>
+	<label class="tool-btn"><input type="checkbox" id="readonly" /> Readonly</label>
+	<label class="tool-btn" title="Fields that are null in the sample become optional"><input type="checkbox" id="optional-nulls" /> null ⇒ optional</label>
+	<span class="grow"></span>
+	<button type="button" class="tool-btn" id="sample">Sample</button>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<div>
+		<label class="tool-label" for="input">JSON</label>
+		<textarea id="input" class="tool-area h-[30rem]" wrap="off" spellcheck="false" placeholder='{"id": 1, "tags": ["a"]}'></textarea>
+	</div>
+	<div>
+		<div class="flex items-center justify-between">
+			<label class="tool-label" for="output">TypeScript</label>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#output"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+		</div>
+		<textarea id="output" class="tool-area h-[30rem]" wrap="off" readonly spellcheck="false"></textarea>
+	</div>
+</div>
+<p id="status" class="text-sm" aria-live="polite"></p>
+
+<script>
+	import { $, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { parseJson } from "../../../lib/tools/json";
+	import { jsonToTs } from "../../../lib/tools/json-to-ts";
+
+	const SAMPLE = JSON.stringify(
+		{
+			id: 42,
+			login: "xirf",
+			profile: { displayName: "Andka", website: null, location: "Madiun" },
+			repositories: [
+				{ name: "molniya", stars: 120, topics: ["typescript", "dataframe"], archived: false },
+				{ name: "texpr", stars: 30, topics: ["dart"], license: { key: "mit", name: "MIT License" } },
+			],
+			createdAt: "2019-03-01T10:00:00Z",
+		},
+		null,
+		2,
+	);
+
+	mountTool("json-to-ts", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+		const output = $<HTMLTextAreaElement>(root, "#output");
+		const rootName = $<HTMLInputElement>(root, "#root-name");
+		const checks = ["use-type", "export", "readonly", "optional-nulls"].map((id) => $<HTMLInputElement>(root, "#" + id));
+		const [useType, exportDecl, readonly, optionalNulls] = checks;
+		const status = $(root, "#status");
+
+		const state = hashState(
+			() => ({ input: input.value, name: rootName.value, opts: checks.map((c) => c.checked) }),
+			(s) => {
+				if (s.input !== undefined) input.value = s.input;
+				if (s.name) rootName.value = s.name;
+				s.opts?.forEach((v, i) => (checks[i].checked = v));
+				run();
+			},
+		);
+
+		function run() {
+			if (!input.value.trim()) {
+				output.value = "";
+				status.innerHTML = `<span class="opacity-60">Paste a JSON sample. Arrays of objects are merged, so include a few elements for better types.</span>`;
+				return;
+			}
+			const res = parseJson(input.value);
+			if (!res.ok) {
+				status.innerHTML = `<span class="tool-error">✕ ${escapeHtml(res.error.message)} (line ${res.error.line}, column ${res.error.column})</span>`;
+				return;
+			}
+			output.value = jsonToTs(res.value, {
+				rootName: rootName.value.trim() || "Root",
+				useType: useType.checked,
+				exportDecl: exportDecl.checked,
+				readonly: readonly.checked,
+				optionalNulls: optionalNulls.checked,
+			});
+			const count = (output.value.match(/^(export )?(interface|type) /gm) ?? []).length;
+			status.innerHTML = `<span class="tool-ok">✓ ${count} declaration${count === 1 ? "" : "s"}</span>`;
+		}
+
+		const update = () => {
+			run();
+			state.save();
+		};
+		input.addEventListener("input", update);
+		rootName.addEventListener("input", update);
+		checks.forEach((c) => c.addEventListener("change", update));
+		$(root, "#sample").addEventListener("click", () => {
+			input.value = SAMPLE;
+			update();
+		});
+		run();
+	});
+</script>

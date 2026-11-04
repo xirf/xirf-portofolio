@@ -1,0 +1,132 @@
+---
+/**
+ * Ctrl/⌘ + K command palette for jumping between tools.
+ */
+---
+
+<dialog
+	id="tool-palette"
+	class="m-0 mx-auto mt-[12vh] w-[min(36rem,calc(100vw-2rem))] rounded-xl border border-#8883 bg-l-base dark:bg-#16171b text-inherit p-0 shadow-2xl backdrop:(bg-black/40 backdrop-blur-sm)"
+	aria-label="Jump to tool"
+>
+	<div class="flex items-center gap-3 border-b border-#8882 px-4">
+		<span class="i-myna-search w-4 h-4 opacity-60"></span>
+		<input
+			id="tool-palette-input"
+			type="text"
+			placeholder="Jump to a tool…"
+			autocomplete="off"
+			spellcheck="false"
+			class="w-full bg-transparent py-3.5 outline-none text-sm"
+			role="combobox"
+			aria-controls="tool-palette-list"
+			aria-expanded="true"
+		/>
+		<kbd class="text-xs opacity-50 font-mono">esc</kbd>
+	</div>
+	<ul id="tool-palette-list" role="listbox" class="max-h-[50vh] overflow-y-auto p-2 m-0 list-none"></ul>
+</dialog>
+
+<script>
+	import { navigate } from "astro:transitions/client";
+	import { tools } from "../../data/tools";
+	import { searchTools } from "../../lib/tools/search";
+	import { escapeHtml } from "../../lib/tools/dom";
+
+	let active = 0;
+	let results = tools;
+
+	function els() {
+		const dialog = document.getElementById("tool-palette") as HTMLDialogElement | null;
+		const input = document.getElementById("tool-palette-input") as HTMLInputElement | null;
+		const list = document.getElementById("tool-palette-list") as HTMLUListElement | null;
+		return dialog && input && list ? { dialog, input, list } : null;
+	}
+
+	function render() {
+		const e = els();
+		if (!e) return;
+		results = searchTools(tools, e.input.value);
+		active = Math.min(active, Math.max(results.length - 1, 0));
+		e.list.innerHTML = results.length
+			? results
+					.map(
+						(t, i) => `
+				<li role="option" aria-selected="${i === active}" data-index="${i}"
+					class="flex items-center gap-3 rounded-lg px-3 py-2 cursor-pointer ${i === active ? "bg-#8882" : ""}">
+					<span class="${t.icon} w-5 h-5 shrink-0"></span>
+					<span class="min-w-0">
+						<span class="block text-sm tool-heading">${escapeHtml(t.name)}</span>
+						<span class="block text-xs opacity-60 truncate">${escapeHtml(t.description)}</span>
+					</span>
+					<span class="ml-auto text-xs opacity-40 shrink-0">${t.category}</span>
+				</li>`,
+					)
+					.join("")
+			: `<li class="px-3 py-6 text-center text-sm opacity-60">No tool matches “${escapeHtml(e.input.value)}”.</li>`;
+		e.list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+	}
+
+	function open() {
+		const e = els();
+		if (!e || e.dialog.open) return;
+		e.input.value = "";
+		active = 0;
+		render();
+		e.dialog.showModal();
+		e.input.focus();
+	}
+
+	function go(i: number) {
+		const t = results[i];
+		const e = els();
+		if (!t || !e) return;
+		e.dialog.close();
+		navigate(`/tools/${t.slug}`);
+	}
+
+	document.addEventListener("keydown", (ev) => {
+		if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "k" && els()) {
+			ev.preventDefault();
+			open();
+		}
+	});
+
+	document.addEventListener("astro:page-load", () => {
+		const e = els();
+		if (!e || e.dialog.dataset.wired) return;
+		e.dialog.dataset.wired = "true";
+
+		e.input.addEventListener("input", () => {
+			active = 0;
+			render();
+		});
+		e.input.addEventListener("keydown", (ev) => {
+			if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+				ev.preventDefault();
+				const n = results.length || 1;
+				active = (active + (ev.key === "ArrowDown" ? 1 : n - 1)) % n;
+				render();
+			} else if (ev.key === "Enter") {
+				ev.preventDefault();
+				go(active);
+			}
+		});
+		e.list.addEventListener("click", (ev) => {
+			const li = (ev.target as HTMLElement).closest<HTMLElement>("[data-index]");
+			if (li) go(Number(li.dataset.index));
+		});
+		e.list.addEventListener("mousemove", (ev) => {
+			const li = (ev.target as HTMLElement).closest<HTMLElement>("[data-index]");
+			if (li && Number(li.dataset.index) !== active) {
+				active = Number(li.dataset.index);
+				render();
+			}
+		});
+		// Click on the backdrop closes the dialog.
+		e.dialog.addEventListener("click", (ev) => {
+			if (ev.target === e.dialog) e.dialog.close();
+		});
+		document.querySelectorAll("[data-open-palette]").forEach((b) => b.addEventListener("click", open));
+	});
+</script>

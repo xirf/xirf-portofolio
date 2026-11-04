@@ -1,0 +1,186 @@
+<div class="flex flex-wrap items-center gap-2">
+	<div class="inline-flex rounded-md bg-#8881 p-0.5" role="group" aria-label="Direction">
+		<button type="button" class="tool-btn bg-transparent" data-dir="encode">Encode</button>
+		<button type="button" class="tool-btn bg-transparent" data-dir="decode">Decode</button>
+	</div>
+	<label class="tool-btn" title="Use - and _ instead of + and /"><input type="checkbox" id="urlsafe" /> URL-safe</label>
+	<label class="tool-btn"><input type="checkbox" id="nopad" /> No padding</label>
+	<label class="tool-btn" title="Wrap encoded output at 76 characters (MIME)"><input type="checkbox" id="wrap" /> Wrap 76</label>
+	<span class="grow"></span>
+	<button type="button" class="tool-btn" id="swap" title="Use output as input and flip direction">
+		<span class="i-myna-arrow-left-right w-4 h-4"></span>Swap
+	</button>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+	<div>
+		<label class="tool-label" for="input" id="input-label">Text</label>
+		<textarea id="input" class="tool-area h-72" spellcheck="false"></textarea>
+		<label id="drop" class="mt-2 flex items-center justify-center gap-2 rounded-md border border-dashed border-#8884 p-4 text-sm opacity-70 hover:opacity-100 cursor-pointer transition-opacity">
+			<span class="i-myna-upload w-4 h-4"></span>
+			<span id="drop-text">Drop a file or click to encode it as Base64 / data URL</span>
+			<input type="file" id="file" class="sr-only" />
+		</label>
+	</div>
+	<div>
+		<div class="flex items-center justify-between">
+			<label class="tool-label" for="output" id="output-label">Base64</label>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#output"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+		</div>
+		<textarea id="output" class="tool-area h-72" readonly spellcheck="false"></textarea>
+		<p id="status" class="text-sm mt-2" aria-live="polite"></p>
+		<div id="preview" class="hidden mt-2"></div>
+	</div>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { base64ToBytes, bytesToBase64, bytesToHex, decodeUtf8, encodeUtf8, formatBytes } from "../../../lib/tools/encoding";
+
+	mountTool("base64", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+		const output = $<HTMLTextAreaElement>(root, "#output");
+		const urlsafe = $<HTMLInputElement>(root, "#urlsafe");
+		const nopad = $<HTMLInputElement>(root, "#nopad");
+		const wrap = $<HTMLInputElement>(root, "#wrap");
+		const status = $(root, "#status");
+		const preview = $(root, "#preview");
+		const fileInput = $<HTMLInputElement>(root, "#file");
+		let dir: "encode" | "decode" = "encode";
+		let fileBytes: Uint8Array | null = null;
+		let fileMeta = { name: "", type: "" };
+
+		const state = hashState(
+			() => ({ input: fileBytes ? "" : input.value, dir, u: urlsafe.checked, p: nopad.checked }),
+			(s) => {
+				if (s.dir) dir = s.dir;
+				if (s.input !== undefined) input.value = s.input;
+				urlsafe.checked = !!s.u;
+				nopad.checked = !!s.p;
+				run();
+			},
+		);
+
+		function run() {
+			$$<HTMLButtonElement>(root, "[data-dir]").forEach((b) => b.classList.toggle("tool-btn-active", b.dataset.dir === dir));
+			$(root, "#input-label").textContent = dir === "encode" ? "Text" : "Base64";
+			$(root, "#output-label").textContent = dir === "encode" ? "Base64" : "Decoded";
+			preview.classList.add("hidden");
+			preview.innerHTML = "";
+			status.textContent = "";
+
+			if (dir === "encode") {
+				const bytes = fileBytes ?? encodeUtf8(input.value);
+				let out = bytesToBase64(bytes, urlsafe.checked, !nopad.checked);
+				if (wrap.checked) out = out.replace(/(.{76})/g, "$1\n").trimEnd();
+				output.value = out;
+				if (fileBytes) {
+					const dataUrl = `data:${fileMeta.type || "application/octet-stream"};base64,${bytesToBase64(fileBytes)}`;
+					status.innerHTML = `${escapeHtml(fileMeta.name)} · ${formatBytes(fileBytes.length)} → ${formatBytes(out.length)} <button type="button" class="tool-btn py-0.5 px-2 text-xs ml-2" data-copy-value="${escapeHtml(dataUrl)}">Copy as data URL</button> <button type="button" class="tool-btn py-0.5 px-2 text-xs" id="clear-file">Clear file</button>`;
+					$(root, "#clear-file").addEventListener("click", clearFile);
+				} else if (input.value) {
+					status.innerHTML = `<span class="opacity-70">${formatBytes(bytes.length)} → ${formatBytes(out.length)} (+${Math.round((out.length / Math.max(bytes.length, 1) - 1) * 100)}%)</span>`;
+				}
+				return;
+			}
+
+			if (!input.value.trim()) {
+				output.value = "";
+				return;
+			}
+			try {
+				const bytes = base64ToBytes(input.value);
+				const text = decodeUtf8(bytes);
+				const mime = input.value.trim().match(/^data:([^;,]+)/)?.[1] ?? sniff(bytes);
+				if (text !== null && !/[\x00-\x08\x0e-\x1f]/.test(text)) {
+					output.value = text;
+					status.innerHTML = `<span class="tool-ok">✓ ${formatBytes(bytes.length)} of UTF-8 text</span>`;
+				} else {
+					output.value = bytesToHex(bytes.subarray(0, 4096), " ") + (bytes.length > 4096 ? " …" : "");
+					status.innerHTML = `<span class="opacity-80">Binary data (${formatBytes(bytes.length)}${mime ? ", looks like " + mime : ""}), shown as hex.</span> <button type="button" class="tool-btn py-0.5 px-2 text-xs ml-2" id="dl">Download</button>`;
+					$(root, "#dl").addEventListener("click", () => {
+						const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: mime || "application/octet-stream" }));
+						const a = document.createElement("a");
+						a.href = url;
+						a.download = "decoded" + (mime ? "." + mime.split("/")[1].replace("+xml", "") : ".bin");
+						a.click();
+						setTimeout(() => URL.revokeObjectURL(url), 1000);
+					});
+				}
+				if (mime?.startsWith("image/")) {
+					const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: mime }));
+					preview.innerHTML = `<img src="${url}" alt="Decoded image preview" class="max-h-48 rounded border border-#8882" />`;
+					preview.classList.remove("hidden");
+				}
+			} catch (e) {
+				output.value = "";
+				status.innerHTML = `<span class="tool-error">✕ ${escapeHtml((e as Error).message)}</span>`;
+			}
+		}
+
+		function sniff(b: Uint8Array): string {
+			const h = bytesToHex(b.subarray(0, 12));
+			if (h.startsWith("89504e47")) return "image/png";
+			if (h.startsWith("ffd8ff")) return "image/jpeg";
+			if (h.startsWith("47494638")) return "image/gif";
+			if (h.startsWith("52494646") && h.slice(16, 24) === "57454250") return "image/webp";
+			if (h.startsWith("25504446")) return "application/pdf";
+			if (h.startsWith("504b0304")) return "application/zip";
+			if (h.startsWith("1f8b")) return "application/gzip";
+			return "";
+		}
+
+		function clearFile() {
+			fileBytes = null;
+			fileInput.value = "";
+			input.disabled = false;
+			input.placeholder = "";
+			$(root, "#drop-text").textContent = "Drop a file or click to encode it as Base64 / data URL";
+			run();
+		}
+
+		async function loadFile(f: File) {
+			fileBytes = new Uint8Array(await f.arrayBuffer());
+			fileMeta = { name: f.name, type: f.type };
+			dir = "encode";
+			input.value = "";
+			input.disabled = true;
+			input.placeholder = `Encoding file: ${f.name}`;
+			$(root, "#drop-text").textContent = f.name;
+			run();
+		}
+
+		const update = () => {
+			run();
+			state.save();
+		};
+		input.addEventListener("input", update);
+		[urlsafe, nopad, wrap].forEach((c) => c.addEventListener("change", update));
+		$$<HTMLButtonElement>(root, "[data-dir]").forEach((b) =>
+			b.addEventListener("click", () => {
+				dir = b.dataset.dir as typeof dir;
+				if (fileBytes && dir === "decode") clearFile();
+				update();
+			}),
+		);
+		$(root, "#swap").addEventListener("click", () => {
+			if (fileBytes) clearFile();
+			input.value = output.value;
+			dir = dir === "encode" ? "decode" : "encode";
+			update();
+		});
+		fileInput.addEventListener("change", () => fileInput.files?.[0] && loadFile(fileInput.files[0]));
+		const drop = $(root, "#drop");
+		drop.addEventListener("dragover", (e) => {
+			e.preventDefault();
+			drop.classList.add("opacity-100");
+		});
+		drop.addEventListener("dragleave", () => drop.classList.remove("opacity-100"));
+		drop.addEventListener("drop", (e) => {
+			e.preventDefault();
+			const f = e.dataTransfer?.files[0];
+			if (f) loadFile(f);
+		});
+		run();
+	});
+</script>

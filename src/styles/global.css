@@ -226,3 +226,6 @@ hr{
     mask-size: 350vmax;
   }
 }
+[hidden] {
+    display: none !important;
+}

@@ -1,0 +1,192 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ToolPalette from "../../components/tools/ToolPalette.astro";
+import { categories, tools } from "../../data/tools";
+
+const groups = categories
+	.map((c) => ({ ...c, tools: tools.filter((t) => t.category === c.name) }))
+	.filter((g) => g.tools.length);
+---
+
+<Layout
+	title="Tools · Andka"
+	description="A small workbench of developer utilities: JSON, JWT, regex, cron, hashes, colors and more. Everything runs in your browser, nothing you paste is uploaded."
+>
+	<div class="max-w-6xl mx-auto px-6 md:px-12 pt-8 md:pt-16 pb-24">
+		<header class="slide-enter-content flex flex-col gap-4 max-w-2xl mx-auto text-center">
+			<h1 class="text-3xl font-bold tool-heading">Tools</h1>
+			<p class="leading-relaxed">
+				Small utilities I kept opening sketchy websites for, so I built my own. Everything runs in your
+				browser, so paste tokens and payloads without worrying where they end up.
+			</p>
+
+			<label class="relative mt-4 block">
+				<span class="sr-only">Search tools</span>
+				<span class="i-myna-search w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 opacity-50"></span>
+				<input
+					id="tools-search"
+					type="search"
+					placeholder={`Search ${tools.length} tools…`}
+					autocomplete="off"
+					spellcheck="false"
+					class="w-full rounded-full bg-#8881 border border-#8882 py-3 pl-11 pr-14 outline-none focus:border-#8888 transition-colors"
+				/>
+				<kbd
+					class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono opacity-50 rounded border border-#8883 px-1.5"
+					>/</kbd
+				>
+			</label>
+
+			<div id="tools-filters" class="flex flex-wrap justify-center gap-2 text-sm" role="group" aria-label="Filter by category">
+				<button type="button" class="tool-btn tool-btn-active" data-filter="" aria-pressed="true">
+					All <span class="opacity-50">{tools.length}</span>
+				</button>
+				{
+					groups.map((g) => (
+						<button type="button" class="tool-btn" data-filter={g.name} aria-pressed="false">
+							{g.name} <span class="opacity-50">{g.tools.length}</span>
+						</button>
+					))
+				}
+			</div>
+		</header>
+
+		<section id="tools-recent" class="hidden mt-12" aria-label="Recently used">
+			<h2 class="tool-label text-center">Recently used</h2>
+			<div class="flex flex-wrap justify-center gap-2" id="tools-recent-list"></div>
+		</section>
+
+		<div id="tools-groups" class="flex flex-col gap-14 mt-12">
+			{
+				groups.map((g, gi) => (
+					<section class="relative tools-group slide-enter" style={`--enter-stage: ${gi + 4}`} data-group={g.name}>
+						
+						<div class="flex items-baseline gap-3 mb-3 pl-4 border-b border-#8882 pb-2">
+							<h2 class="tool-heading text-lg">{g.name}</h2>
+							<p class="text-sm opacity-60 hidden sm:block">{g.description}</p>
+						</div>
+						<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+							{g.tools.map((t) => (
+								<a
+									href={`/tools/${t.slug}`}
+									class="tool-card relative flex items-start gap-4 overflow-hidden rounded-lg border border-transparent px-4 py-3 opacity-80 transition-all duration-300 hover:(opacity-100 border-#8882 bg-#8881) focus-visible:(opacity-100 border-#8884)"
+									data-slug={t.slug}
+								>
+									<div class="glow absolute w-16 h-16 blur-3xl dark:bg-white bg-black opacity-0 transition-opacity pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+									<span class:list={[t.icon, "w-9 h-9 shrink-0 mt-0.5"]} />
+									<span class="min-w-0">
+										<span class="flex items-center gap-2">
+											<span class="tool-heading">{t.name}</span>
+											{t.isNew && <span class="text-[10px] uppercase tracking-wider rounded-full bg-#8882 px-1.5 py-0.5">new</span>}
+										</span>
+										<span class="block text-sm leading-snug mt-0.5">{t.description}</span>
+									</span>
+								</a>
+							))}
+						</div>
+					</section>
+				))
+			}
+		</div>
+
+		<p id="tools-empty" class="hidden text-center mt-16 opacity-70">
+			Nothing matches that. <a class="underline" href="https://github.com/xirf/xirf-portofolio/issues/new" target="_blank" rel="noopener noreferrer">Suggest a tool?</a>
+		</p>
+
+		<p class="text-center text-xs opacity-50 mt-20">
+			Tip: press <kbd class="font-mono">/</kbd> to search here, or <kbd class="font-mono">Ctrl K</kbd> on any tool page to jump between tools.
+		</p>
+	</div>
+
+	<ToolPalette />
+</Layout>
+
+<script>
+	import { tools } from "../../data/tools";
+	import { getRecent, searchTools } from "../../lib/tools/search";
+	import { escapeHtml } from "../../lib/tools/dom";
+
+	document.addEventListener("keydown", (ev) => {
+		const input = document.getElementById("tools-search") as HTMLInputElement | null;
+		if (!input || ev.key !== "/" || ev.ctrlKey || ev.metaKey) return;
+		const t = ev.target as HTMLElement;
+		if (t.closest("input, textarea, select, [contenteditable]")) return;
+		ev.preventDefault();
+		input.focus();
+	});
+
+	document.addEventListener("astro:page-load", () => {
+		const input = document.getElementById("tools-search") as HTMLInputElement | null;
+		if (!input) return;
+		const filters = document.getElementById("tools-filters")!;
+		const empty = document.getElementById("tools-empty")!;
+		let category = "";
+
+		function apply() {
+			const q = input!.value;
+			const matches = new Set(searchTools(tools, q).map((t) => t.slug));
+			let visible = 0;
+			document.querySelectorAll<HTMLElement>(".tools-group").forEach((group) => {
+				let groupVisible = 0;
+				group.querySelectorAll<HTMLElement>(".tool-card").forEach((card) => {
+					const show = matches.has(card.dataset.slug!) && (!category || group.dataset.group === category);
+					card.hidden = !show;
+					if (show) groupVisible++;
+				});
+				group.hidden = groupVisible === 0;
+				visible += groupVisible;
+			});
+			empty.classList.toggle("hidden", visible > 0);
+		}
+
+		input.addEventListener("input", apply);
+		input.addEventListener("keydown", (ev) => {
+			if (ev.key === "Escape") {
+				input.value = "";
+				apply();
+				input.blur();
+			} else if (ev.key === "Enter") {
+				const first = document.querySelector<HTMLAnchorElement>(".tool-card:not([hidden])");
+				first?.click();
+			}
+		});
+
+		filters.addEventListener("click", (ev) => {
+			const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>("[data-filter]");
+			if (!btn) return;
+			category = btn.dataset.filter ?? "";
+			filters.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((b) => {
+				const on = b === btn;
+				b.classList.toggle("tool-btn-active", on);
+				b.setAttribute("aria-pressed", String(on));
+			});
+			apply();
+		});
+
+		// Recently used, from localStorage (written by the tool layout).
+		const recent = getRecent()
+			.map((slug) => tools.find((t) => t.slug === slug))
+			.filter((t) => t !== undefined);
+		if (recent.length) {
+			document.getElementById("tools-recent-list")!.innerHTML = recent
+				.map(
+					(t) =>
+						`<a href="/tools/${t.slug}" class="tool-chip py-1.5 px-3 text-sm hover:bg-#8881 transition-colors"><span class="${t.icon} w-4 h-4"></span>${escapeHtml(t.name)}</a>`,
+				)
+				.join("");
+			document.getElementById("tools-recent")!.classList.remove("hidden");
+		}
+
+		// Soft glow following the cursor, same as on /projects.
+		document.querySelectorAll<HTMLElement>(".tool-card").forEach((card) => {
+			const glow = card.querySelector<HTMLElement>(".glow")!;
+			card.addEventListener("mousemove", (e) => {
+				const r = card.getBoundingClientRect();
+				glow.style.left = `${e.clientX - r.left}px`;
+				glow.style.top = `${e.clientY - r.top}px`;
+				glow.style.opacity = "0.15";
+			});
+			card.addEventListener("mouseleave", () => (glow.style.opacity = "0"));
+		});
+	});
+</script>

@@ -1,0 +1,241 @@
+<div class="grid grid-cols-1 md:grid-cols-[minmax(0,22rem)_1fr] gap-6">
+	<div>
+		<svg id="graph" viewBox="-10 -60 120 220" class="w-full max-w-88 touch-none select-none overflow-visible" role="img" aria-label="Easing curve editor">
+			<rect x="0" y="0" width="100" height="100" fill="currentColor" opacity="0.04" rx="2"></rect>
+			<g stroke="currentColor" stroke-opacity="0.12" stroke-width="0.3">
+				<line x1="0" y1="25" x2="100" y2="25"></line><line x1="0" y1="50" x2="100" y2="50"></line><line x1="0" y1="75" x2="100" y2="75"></line>
+				<line x1="25" y1="0" x2="25" y2="100"></line><line x1="50" y1="0" x2="50" y2="100"></line><line x1="75" y1="0" x2="75" y2="100"></line>
+			</g>
+			<line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" stroke-opacity="0.2" stroke-width="0.5" stroke-dasharray="2 2"></line>
+			<line id="h1-line" stroke="currentColor" stroke-opacity="0.5" stroke-width="0.6"></line>
+			<line id="h2-line" stroke="currentColor" stroke-opacity="0.5" stroke-width="0.6"></line>
+			<path id="curve" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+			<circle cx="0" cy="100" r="1.8" fill="currentColor"></circle>
+			<circle cx="100" cy="0" r="1.8" fill="currentColor"></circle>
+			<circle id="h1" r="4" class="cursor-grab fill-pink-500" tabindex="0" role="slider" aria-label="First control point"></circle>
+			<circle id="h2" r="4" class="cursor-grab fill-sky-500" tabindex="0" role="slider" aria-label="Second control point"></circle>
+			<text x="0" y="108" font-size="5" fill="currentColor" opacity="0.5">time →</text>
+			<text x="-3" y="98" font-size="5" fill="currentColor" opacity="0.5" transform="rotate(-90 -3 98)">progress →</text>
+		</svg>
+		<p class="text-xs opacity-60 mt-1">Drag the pink and blue handles. Arrow keys nudge a focused handle; hold Shift for bigger steps.</p>
+	</div>
+
+	<div class="flex flex-col gap-4">
+		<div>
+			<div class="flex items-center justify-between">
+				<span class="tool-label">CSS</span>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#css"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+			</div>
+			<input id="css" class="tool-field text-base" spellcheck="false" autocomplete="off" aria-label="cubic-bezier value" />
+			<p id="css-error" class="tool-error mt-1 mb-0"></p>
+		</div>
+
+		<div>
+			<span class="tool-label">Presets</span>
+			<div id="presets" class="flex flex-wrap gap-1.5"></div>
+		</div>
+
+		<div class="tool-panel flex flex-col gap-3">
+			<div class="flex flex-wrap items-center justify-between gap-2">
+				<span class="tool-label mb-0">Preview</span>
+				<div class="flex flex-wrap items-center gap-2">
+					<label class="text-xs flex items-center gap-1.5">Duration <input id="duration" type="range" min="200" max="3000" step="100" value="1000" class="w-24" /> <span id="dur-val" class="w-12"></span></label>
+					<button type="button" class="tool-btn py-1" id="play"><span class="i-myna-play w-4 h-4"></span>Play</button>
+				</div>
+			</div>
+			<div class="flex flex-col gap-2">
+				<div class="relative h-9 rounded-md bg-#8881">
+					<div id="ball" class="absolute top-1 left-1 w-7 h-7 rounded-md bg-pink-500"></div>
+				</div>
+				<div class="relative h-9 rounded-md bg-#8881">
+					<div id="ball-linear" class="absolute top-1 left-1 w-7 h-7 rounded-md bg-#8885"></div>
+				</div>
+				<p class="text-xs opacity-60 m-0">Top: your curve. Bottom: linear, for reference.</p>
+			</div>
+			<div class="flex gap-3 items-center">
+				<div id="scale-demo" class="w-12 h-12 rounded-lg bg-sky-500 shrink-0"></div>
+				<div id="fade-demo" class="w-12 h-12 rounded-lg bg-violet-500 shrink-0"></div>
+				<p class="text-xs opacity-60 m-0">The same curve applied to scale and opacity. Values outside 0–1 overshoot.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	import { $, hashState, mountTool } from "../../../lib/tools/dom";
+
+	type P = [number, number, number, number];
+	const PRESETS: [string, P][] = [
+		["ease", [0.25, 0.1, 0.25, 1]],
+		["ease-in", [0.42, 0, 1, 1]],
+		["ease-out", [0, 0, 0.58, 1]],
+		["ease-in-out", [0.42, 0, 0.58, 1]],
+		["expo-out", [0.16, 1, 0.3, 1]],
+		["expo-in", [0.7, 0, 0.84, 0]],
+		["circ-in-out", [0.85, 0, 0.15, 1]],
+		["back-out", [0.34, 1.56, 0.64, 1]],
+		["back-in", [0.36, 0, 0.66, -0.56]],
+		["back-in-out", [0.68, -0.6, 0.32, 1.6]],
+		["snappy", [0.2, 0.9, 0.1, 1]],
+		["material", [0.4, 0, 0.2, 1]],
+	];
+	const round = (v: number) => Math.round(v * 100) / 100;
+	const fmt = (p: P) => `cubic-bezier(${p.map(round).join(", ")})`;
+
+	mountTool("cubic-bezier", (root) => {
+		const svg = $<SVGSVGElement>(root, "#graph");
+		const css = $<HTMLInputElement>(root, "#css");
+		const duration = $<HTMLInputElement>(root, "#duration");
+		let p: P = [0.16, 1, 0.3, 1];
+		let dragging: 0 | 1 | null = null;
+		let animTimer: ReturnType<typeof setTimeout> | undefined;
+
+		const state = hashState(
+			() => ({ p, d: duration.value }),
+			(s) => {
+				if (s.p?.length === 4) p = s.p;
+				if (s.d) duration.value = s.d;
+				render();
+			},
+		);
+
+		const toSvg = (x: number, y: number) => [x * 100, 100 - y * 100];
+
+		function render(fromInput = false) {
+			const [a, b] = toSvg(p[0], p[1]);
+			const [c, d] = toSvg(p[2], p[3]);
+			$(root, "#curve").setAttribute("d", `M0,100 C${a},${b} ${c},${d} 100,0`);
+			const h1 = $(root, "#h1");
+			const h2 = $(root, "#h2");
+			h1.setAttribute("cx", String(a));
+			h1.setAttribute("cy", String(b));
+			h2.setAttribute("cx", String(c));
+			h2.setAttribute("cy", String(d));
+			h1.setAttribute("aria-valuetext", `${round(p[0])}, ${round(p[1])}`);
+			h2.setAttribute("aria-valuetext", `${round(p[2])}, ${round(p[3])}`);
+			const l1 = $(root, "#h1-line");
+			const l2 = $(root, "#h2-line");
+			Object.entries({ x1: 0, y1: 100, x2: a, y2: b }).forEach(([k, v]) => l1.setAttribute(k, String(v)));
+			Object.entries({ x1: 100, y1: 0, x2: c, y2: d }).forEach(([k, v]) => l2.setAttribute(k, String(v)));
+			if (!fromInput) css.value = fmt(p);
+			$(root, "#presets").innerHTML = PRESETS.map(
+				([name, v]) =>
+					`<button type="button" data-preset="${name}" class="tool-chip hover:bg-#8881 transition-colors py-1 ${v.every((x, i) => x === round(p[i])) ? "tool-btn-active" : ""}">
+						<svg viewBox="0 -30 100 160" class="w-4 h-4 overflow-visible"><path d="M0,100 C${v[0] * 100},${100 - v[1] * 100} ${v[2] * 100},${100 - v[3] * 100} 100,0" fill="none" stroke="currentColor" stroke-width="10"/></svg>${name}</button>`,
+			).join("");
+			$(root, "#dur-val").textContent = `${duration.value}ms`;
+		}
+
+		function pointFromEvent(e: PointerEvent): [number, number] {
+			const pt = svg.createSVGPoint();
+			pt.x = e.clientX;
+			pt.y = e.clientY;
+			const loc = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+			const x = Math.min(1, Math.max(0, loc.x / 100));
+			const y = Math.min(1.6, Math.max(-0.6, (100 - loc.y) / 100));
+			return [x, y];
+		}
+
+		svg.addEventListener("pointerdown", (e) => {
+			const t = e.target as Element;
+			if (t.id === "h1") dragging = 0;
+			else if (t.id === "h2") dragging = 1;
+			else {
+				// Clicking elsewhere grabs the nearest handle.
+				const [x, y] = pointFromEvent(e);
+				const d1 = Math.hypot(x - p[0], y - p[1]);
+				const d2 = Math.hypot(x - p[2], y - p[3]);
+				dragging = d1 <= d2 ? 0 : 1;
+			}
+			svg.setPointerCapture(e.pointerId);
+			move(e);
+		});
+		const move = (e: PointerEvent) => {
+			if (dragging === null) return;
+			const [x, y] = pointFromEvent(e);
+			p[dragging * 2] = round(x);
+			p[dragging * 2 + 1] = round(y);
+			render();
+		};
+		svg.addEventListener("pointermove", move);
+		svg.addEventListener("pointerup", () => {
+			if (dragging === null) return;
+			dragging = null;
+			state.save();
+			play();
+		});
+
+		["h1", "h2"].forEach((id, i) =>
+			$(root, "#" + id).addEventListener("keydown", (e: KeyboardEvent) => {
+				const step = e.shiftKey ? 0.1 : 0.01;
+				const dx = e.key === "ArrowRight" ? step : e.key === "ArrowLeft" ? -step : 0;
+				const dy = e.key === "ArrowUp" ? step : e.key === "ArrowDown" ? -step : 0;
+				if (!dx && !dy) return;
+				e.preventDefault();
+				p[i * 2] = round(Math.min(1, Math.max(0, p[i * 2] + dx)));
+				p[i * 2 + 1] = round(p[i * 2 + 1] + dy);
+				render();
+				state.save();
+			}),
+		);
+
+		css.addEventListener("input", () => {
+			const nums = css.value.match(/-?\d*\.?\d+/g)?.map(Number);
+			const err = $(root, "#css-error");
+			if (!nums || nums.length !== 4) {
+				err.textContent = "Expected four numbers, e.g. cubic-bezier(0.25, 0.1, 0.25, 1)";
+				return;
+			}
+			if (nums[0] < 0 || nums[0] > 1 || nums[2] < 0 || nums[2] > 1) {
+				err.textContent = "x values (1st and 3rd) must be between 0 and 1";
+				return;
+			}
+			err.textContent = "";
+			p = nums as P;
+			render(true);
+			state.save();
+		});
+
+		root.addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-preset]");
+			if (!b) return;
+			p = [...PRESETS.find(([n]) => n === b.dataset.preset)![1]] as P;
+			render();
+			state.save();
+			play();
+		});
+
+		function play() {
+			const ms = Number(duration.value);
+			const ball = $(root, "#ball");
+			const lin = $(root, "#ball-linear");
+			const sc = $(root, "#scale-demo");
+			const fd = $(root, "#fade-demo");
+			const track = ball.parentElement!.clientWidth - ball.clientWidth - 8;
+			[ball, lin, sc, fd].forEach((el) => {
+				el.style.transition = "none";
+			});
+			ball.style.transform = lin.style.transform = "translateX(0)";
+			sc.style.transform = "scale(0.4)";
+			fd.style.opacity = "0";
+			void ball.offsetWidth; // restart transitions
+			const easing = fmt(p);
+			ball.style.transition = sc.style.transition = fd.style.transition = `transform ${ms}ms ${easing}, opacity ${ms}ms ${easing}`;
+			lin.style.transition = `transform ${ms}ms linear`;
+			ball.style.transform = lin.style.transform = `translateX(${track}px)`;
+			sc.style.transform = "scale(1)";
+			fd.style.opacity = "1";
+			clearTimeout(animTimer);
+		}
+
+		duration.addEventListener("input", () => {
+			$(root, "#dur-val").textContent = `${duration.value}ms`;
+			state.save();
+		});
+		duration.addEventListener("change", play);
+		$(root, "#play").addEventListener("click", play);
+		render();
+		state.ready.then(() => setTimeout(play, 300));
+		return () => clearTimeout(animTimer);
+	});
+</script>

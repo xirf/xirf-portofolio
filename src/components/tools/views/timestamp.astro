@@ -1,0 +1,173 @@
+<div class="tool-panel grid sm:grid-cols-3 gap-4 items-center">
+	<div>
+		<span class="tool-label">Now (seconds)</span>
+		<button type="button" id="now-s" class="font-mono text-xl tool-heading hover:opacity-70 transition-opacity" title="Click to copy"></button>
+	</div>
+	<div>
+		<span class="tool-label">Now (milliseconds)</span>
+		<button type="button" id="now-ms" class="font-mono text-xl tool-heading hover:opacity-70 transition-opacity" title="Click to copy"></button>
+	</div>
+	<div>
+		<span class="tool-label">Your timezone</span>
+		<span id="tz" class="text-sm"></span>
+	</div>
+</div>
+
+<div class="grid sm:grid-cols-[1fr_auto_auto] gap-2 items-end">
+	<label class="block">
+		<span class="tool-label">Timestamp or date</span>
+		<input id="input" class="tool-field" spellcheck="false" autocomplete="off" placeholder="1700000000, 1700000000000, 2024-01-01T12:00:00Z, now…" />
+	</label>
+	<select id="unit" class="tool-field w-auto" aria-label="Unit">
+		<option value="">Auto-detect</option>
+		<option value="s">Seconds</option>
+		<option value="ms">Milliseconds</option>
+		<option value="us">Microseconds</option>
+		<option value="ns">Nanoseconds</option>
+	</select>
+	<button type="button" class="tool-btn py-2" id="use-now">Now</button>
+</div>
+<p id="error" class="tool-error m-0"></p>
+
+<div id="out" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+<div>
+	<div class="flex items-center justify-between mb-1.5">
+		<span class="tool-label mb-0">World clock for this moment</span>
+		<div class="flex gap-1">
+			<input id="add-tz" list="tz-list" class="tool-field py-0.5 text-xs w-48" placeholder="Add timezone…" aria-label="Add timezone" />
+			<datalist id="tz-list"></datalist>
+		</div>
+	</div>
+	<div id="zones" class="grid sm:grid-cols-2 gap-x-6"></div>
+</div>
+
+<script>
+	import { $, copyText, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import { UNIT_LABEL, dayOfYear, inZone, isoWeek, parseInput, relative, type Unit } from "../../../lib/tools/time";
+
+	const DEFAULT_ZONES = ["UTC", "America/Los_Angeles", "America/New_York", "Europe/London", "Europe/Berlin", "Asia/Kolkata", "Asia/Jakarta", "Asia/Tokyo", "Australia/Sydney"];
+
+	mountTool("timestamp", (root) => {
+		const input = $<HTMLInputElement>(root, "#input");
+		const unit = $<HTMLSelectElement>(root, "#unit");
+		const addTz = $<HTMLInputElement>(root, "#add-tz");
+		const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		let zones = [...new Set([localTz, ...DEFAULT_ZONES])];
+		$(root, "#tz").textContent = `${localTz} (${inZone(new Date(), localTz).offset})`;
+
+		try {
+			const all = (Intl as any).supportedValuesOf?.("timeZone") as string[] | undefined;
+			if (all) $(root, "#tz-list").innerHTML = all.map((z) => `<option value="${z}"></option>`).join("");
+		} catch {
+			/* older browsers */
+		}
+
+		const state = hashState(
+			() => ({ input: input.value, unit: unit.value }),
+			(s) => {
+				if (s.input !== undefined) input.value = s.input;
+				if (s.unit !== undefined) unit.value = s.unit;
+				run();
+			},
+		);
+
+		const tick = () => {
+			const now = Date.now();
+			$(root, "#now-s").textContent = String(Math.floor(now / 1000));
+			$(root, "#now-ms").textContent = String(now);
+		};
+		tick();
+		const timer = setInterval(tick, 1000);
+
+		function row(label: string, value: string, mono = true) {
+			return `<div class="flex items-center justify-between gap-3 py-1.5 border-b border-#8882">
+				<span class="text-sm opacity-70 shrink-0">${label}</span>
+				<span class="flex items-center gap-1 min-w-0">
+					<span class="${mono ? "font-mono text-sm" : "text-sm"} truncate" title="${escapeHtml(value)}">${escapeHtml(value)}</span>
+					<button type="button" class="tool-btn py-0.5 px-1.5 shrink-0" data-copy-value="${escapeHtml(value)}" aria-label="Copy ${label}"><span class="i-myna-copy w-3.5 h-3.5"></span></button>
+				</span>
+			</div>`;
+		}
+
+		function run() {
+			const err = $(root, "#error");
+			const out = $(root, "#out");
+			err.textContent = "";
+			const parsed = parseInput(input.value, (unit.value || undefined) as Unit | undefined);
+			if (!parsed) {
+				out.innerHTML = "";
+				$(root, "#zones").innerHTML = "";
+				if (input.value.trim()) err.textContent = "Couldn't read that as a timestamp or date.";
+				return;
+			}
+			const d = parsed.date;
+			const ms = d.getTime();
+			out.innerHTML = `
+				<div>${[
+					row("Unix seconds", String(Math.floor(ms / 1000))),
+					row("Unix milliseconds", String(ms)),
+					row("ISO 8601 (UTC)", d.toISOString()),
+					row("RFC 2822", d.toUTCString()),
+					row("Relative", relative(d), false),
+				].join("")}</div>
+				<div>${[
+					row("Local", d.toLocaleString(undefined, { dateStyle: "full", timeStyle: "long" }), false),
+					row("Local ISO", inZone(d, localTz).text),
+					row("Day of year", `${dayOfYear(d)} · ISO week ${isoWeek(d)}`, false),
+					row("Detected as", parsed.unit ? UNIT_LABEL[parsed.unit] : "date string", false),
+					row("Date.UTC()", `new Date(${ms})`),
+				].join("")}</div>`;
+			$(root, "#zones").innerHTML = zones
+				.map((z) => {
+					try {
+						const r = inZone(d, z);
+						return `<div class="flex items-center justify-between gap-2 py-1.5 border-b border-#8882 text-sm group">
+							<span class="truncate">${z === localTz ? "<b>" + z + "</b> (you)" : z}</span>
+							<span class="flex items-center gap-2"><span class="font-mono">${r.text}</span><span class="opacity-50 text-xs w-16 text-right">${r.offset}</span>
+							<button type="button" data-remove="${z}" class="opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity" aria-label="Remove ${z}"><span class="i-myna-x w-3.5 h-3.5"></span></button></span>
+						</div>`;
+					} catch {
+						return "";
+					}
+				})
+				.join("");
+		}
+
+		const update = () => {
+			run();
+			state.save();
+		};
+		input.addEventListener("input", update);
+		unit.addEventListener("change", update);
+		$(root, "#use-now").addEventListener("click", () => {
+			input.value = String(Math.floor(Date.now() / 1000));
+			update();
+		});
+		["#now-s", "#now-ms"].forEach((s) => $(root, s).addEventListener("click", (e) => copyText((e.currentTarget as HTMLElement).textContent!)));
+		addTz.addEventListener("change", () => {
+			const z = addTz.value.trim();
+			try {
+				new Intl.DateTimeFormat("en", { timeZone: z });
+				if (!zones.includes(z)) zones.push(z);
+				addTz.value = "";
+				run();
+			} catch {
+				addTz.classList.add("border-red-500");
+				setTimeout(() => addTz.classList.remove("border-red-500"), 1200);
+			}
+		});
+		$(root, "#zones").addEventListener("click", (e) => {
+			const b = (e.target as HTMLElement).closest<HTMLElement>("[data-remove]");
+			if (!b) return;
+			zones = zones.filter((z) => z !== b.dataset.remove);
+			run();
+		});
+
+		state.ready.then(() => {
+			if (!input.value) input.value = String(Math.floor(Date.now() / 1000));
+			run();
+		});
+		return () => clearInterval(timer);
+	});
+</script>

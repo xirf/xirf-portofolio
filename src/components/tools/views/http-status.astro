@@ -1,0 +1,91 @@
+---
+import { STATUS_CODES, STATUS_GROUPS } from "../../../lib/tools/http-status";
+
+const groups = Object.entries(STATUS_GROUPS).map(([k, name]) => ({
+	key: Number(k),
+	name,
+	codes: STATUS_CODES.filter((c) => Math.floor(c.code / 100) === Number(k)),
+}));
+const tone: Record<number, string> = {
+	1: "text-sky-600 dark:text-sky-400",
+	2: "text-green-600 dark:text-green-400",
+	3: "text-violet-600 dark:text-violet-400",
+	4: "text-amber-600 dark:text-amber-400",
+	5: "text-red-600 dark:text-red-400",
+};
+---
+
+<div class="flex flex-wrap items-center gap-2">
+	<input id="search" type="search" class="tool-field flex-1 min-w-48" placeholder="Search by code or words, e.g. 4, rate limit, redirect…" autocomplete="off" />
+	<label class="tool-btn"><input type="checkbox" id="common" /> Common only</label>
+</div>
+
+<div class="flex flex-col gap-8" id="list">
+	{
+		groups.map((g) => (
+			<section data-group={g.key}>
+				<h2 class="tool-label">
+					{g.key}xx · {g.name}
+				</h2>
+				<div class="flex flex-col">
+					{g.codes.map((c) => (
+						<div
+							class="grid grid-cols-[3.5rem_1fr] gap-x-4 py-2.5 border-b border-#8882"
+							id={`s${c.code}`}
+							data-code={c.code}
+							data-common={c.common ? "true" : "false"}
+							data-text={`${c.code} ${c.name} ${c.note}`.toLowerCase()}
+						>
+							<a href={`#s${c.code}`} class:list={["font-mono text-lg font-bold", tone[g.key]]}>
+								{c.code}
+							</a>
+							<div>
+								<p class="tool-heading m-0">
+									{c.name}
+									{c.common && <span class="text-[10px] uppercase tracking-wider rounded-full bg-#8882 px-1.5 py-0.5 ml-1 align-middle font-normal">common</span>}
+								</p>
+								<p class="text-sm m-0 mt-0.5 opacity-90" set:html={c.note.replace(/`([^`]+)`/g, "<code>$1</code>")} />
+							</div>
+						</div>
+					))}
+				</div>
+			</section>
+		))
+	}
+</div>
+<p id="empty" class="hidden opacity-70">No status code matches that.</p>
+
+<script>
+	import { $, $$, mountTool } from "../../../lib/tools/dom";
+
+	mountTool("http-status", (root) => {
+		const search = $<HTMLInputElement>(root, "#search");
+		const common = $<HTMLInputElement>(root, "#common");
+		function run() {
+			const q = search.value.trim().toLowerCase();
+			let visible = 0;
+			$$(root, "[data-group]").forEach((g) => {
+				let n = 0;
+				$$(g, "[data-code]").forEach((row) => {
+					const code = row.dataset.code!;
+					const match = !q || (/^\d+$/.test(q) ? code.startsWith(q) : q.split(/\s+/).every((t) => row.dataset.text!.includes(t)));
+					const show = match && (!common.checked || row.dataset.common === "true");
+					row.hidden = !show;
+					if (show) n++;
+				});
+				g.hidden = n === 0;
+				visible += n;
+			});
+			$(root, "#empty").classList.toggle("hidden", visible > 0);
+		}
+		search.addEventListener("input", run);
+		common.addEventListener("change", run);
+		// Deep links like /tools/http-status#s429 highlight that row.
+		const target = location.hash.match(/^#s(\d{3})$/)?.[1];
+		if (target) {
+			const row = root.querySelector<HTMLElement>(`[data-code="${target}"]`);
+			row?.classList.add("bg-#8881", "rounded-md");
+			row?.scrollIntoView({ block: "center" });
+		}
+	});
+</script>

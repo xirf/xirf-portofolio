@@ -1,0 +1,134 @@
+<div>
+	<div class="flex items-center justify-between">
+		<label class="tool-label" for="input">Text</label>
+		<div class="flex gap-1 mb-1">
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="sample">Suspicious sample</button>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="clean" title="Remove invisible characters and normalise spaces and look-alikes">Clean it</button>
+		</div>
+	</div>
+	<textarea id="input" class="tool-area h-40" spellcheck="false" placeholder="Paste text copied from a PDF, chat app, website or LLM…"></textarea>
+</div>
+
+<div id="stats" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2"></div>
+
+<div id="findings"></div>
+
+<div>
+	<span class="tool-label">Revealed</span>
+	<pre id="revealed" class="tool-field m-0 min-h-20 max-h-80 overflow-auto whitespace-pre-wrap break-words leading-loose"></pre>
+</div>
+
+<details class="tool-panel" id="cp-details">
+	<summary class="cursor-pointer tool-heading text-sm">Every code point</summary>
+	<div id="codepoints" class="mt-3 overflow-x-auto max-h-96 overflow-y-auto"></div>
+</details>
+
+<script>
+	import { $, escapeHtml, mountTool, toast } from "../../../lib/tools/dom";
+	import { clean, classify, hexCp, inspect, stats } from "../../../lib/tools/text";
+
+	const SAMPLE = "Please log in at pаypal.com​/security now.\nThe‮quick‬ fox — “smart quotes” and a soft­hyphen.\n﻿Total: 1 000 €";
+
+	const KIND_STYLE: Record<string, string> = {
+		invisible: "bg-red-500/20 text-red-700 dark:text-red-300",
+		bidi: "bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-300",
+		control: "bg-red-500/20 text-red-700 dark:text-red-300",
+		space: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+		confusable: "bg-sky-500/20 text-sky-700 dark:text-sky-300",
+	};
+	const KIND_LABEL: Record<string, string> = {
+		invisible: "Invisible",
+		bidi: "Text direction",
+		control: "Control",
+		space: "Unusual space",
+		confusable: "Look-alike",
+	};
+
+	function abbrev(name: string) {
+		return name
+			.replace(/\(.*\)/, "")
+			.split(/[\s-]+/)
+			.filter(Boolean)
+			.map((w) => w[0])
+			.join("")
+			.slice(0, 5);
+	}
+
+	mountTool("text-inspector", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+
+		function run() {
+			const text = input.value;
+			const s = stats(text);
+			const items: [string, string][] = [
+				["Characters", s.graphemes.toLocaleString()],
+				["Code points", s.codePoints.toLocaleString()],
+				["UTF-16 units", s.utf16.toLocaleString()],
+				["UTF-8 bytes", s.bytes.toLocaleString()],
+				["Words", s.words.toLocaleString()],
+				["Lines", s.lines.toLocaleString()],
+				["Sentences", s.sentences.toLocaleString()],
+				["Reading time", s.words ? `${Math.max(1, Math.round(s.readingMinutes))} min` : "–"],
+			];
+			$(root, "#stats").innerHTML = items
+				.map(([k, v]) => `<div class="rounded-md bg-#8881 px-3 py-2"><div class="text-xs opacity-60">${k}</div><div class="text-lg tool-heading">${v}</div></div>`)
+				.join("");
+
+			const { chars, findings } = inspect(text);
+			$(root, "#findings").innerHTML = !text
+				? ""
+				: findings.length
+					? `<span class="tool-label">Found ${findings.length} kind${findings.length > 1 ? "s" : ""} of special character</span>
+					<div class="flex flex-col gap-1">${findings
+						.map(
+							(f) => `<div class="flex items-center gap-3 text-sm rounded-md bg-#8881 px-3 py-1.5">
+							<span class="rounded px-1.5 text-xs ${KIND_STYLE[f.info.kind]}">${KIND_LABEL[f.info.kind]}</span>
+							<code class="opacity-70">${f.info.hex}</code>
+							<span class="flex-1">${escapeHtml(f.info.name)}</span>
+							<span class="opacity-60">×${f.count}</span>
+						</div>`,
+						)
+						.join("")}</div>`
+					: `<p class="tool-ok m-0">✓ Nothing hidden: no invisible characters, odd spaces or look-alike letters.</p>`;
+
+			$(root, "#revealed").innerHTML = chars
+				.map((c) => {
+					if (c.kind === "normal") return c.char === "\t" ? `<span class="opacity-40">→</span>\t` : escapeHtml(c.char);
+					const label = c.kind === "confusable" ? escapeHtml(c.char) : `⟨${abbrev(c.name)}⟩`;
+					const keepBreak = c.cp === 0x2028 || c.cp === 0x2029 ? "\n" : "";
+					return `<span class="rounded px-0.5 text-xs font-medium ${KIND_STYLE[c.kind]}" title="${c.hex} ${escapeHtml(c.name)}">${label}</span>${keepBreak}`;
+				})
+				.join("");
+			if ((root.querySelector("#cp-details") as HTMLDetailsElement).open) renderCodepoints();
+		}
+
+		function renderCodepoints() {
+			const chars = Array.from(input.value).slice(0, 2000);
+			const enc = new TextEncoder();
+			$(root, "#codepoints").innerHTML = `<table class="text-sm border-collapse w-full"><thead><tr>${["#", "Char", "Code point", "UTF-8", "Category"]
+				.map((h) => `<th class="tool-label text-left font-normal pr-4 py-1">${h}</th>`)
+				.join("")}</tr></thead><tbody>${chars
+				.map((ch, i) => {
+					const c = classify(ch);
+					const cat = /\p{L}/u.test(ch) ? "Letter" : /\p{N}/u.test(ch) ? "Number" : /\p{P}/u.test(ch) ? "Punctuation" : /\p{S}/u.test(ch) ? "Symbol" : /\p{Z}|\s/u.test(ch) ? "Separator" : /\p{M}/u.test(ch) ? "Mark" : "Other";
+					const shown = c.kind === "normal" && !/\s/.test(ch) ? escapeHtml(ch) : `<span class="opacity-50">${escapeHtml(c.name || hexCp(c.cp))}</span>`;
+					return `<tr class="border-t border-#8882 ${c.kind !== "normal" ? KIND_STYLE[c.kind] : ""}"><td class="pr-4 opacity-50">${i}</td><td class="pr-4">${shown}</td><td class="pr-4 font-mono">${c.hex}</td><td class="pr-4 font-mono">${[...enc.encode(ch)].map((b) => b.toString(16).padStart(2, "0")).join(" ")}</td><td>${c.name && c.kind !== "normal" ? escapeHtml(c.name) : cat}</td></tr>`;
+				})
+				.join("")}</tbody></table>${input.value.length > 2000 ? '<p class="text-xs opacity-60">First 2000 characters.</p>' : ""}`;
+		}
+
+		input.addEventListener("input", run);
+		$(root, "#cp-details").addEventListener("toggle", () => (root.querySelector("#cp-details") as HTMLDetailsElement).open && renderCodepoints());
+		$(root, "#sample").addEventListener("click", () => {
+			input.value = SAMPLE;
+			run();
+		});
+		$(root, "#clean").addEventListener("click", () => {
+			const before = input.value;
+			input.value = clean(before).replace(/[“”]/g, '"');
+			run();
+			toast(before === input.value ? "Already clean" : "Cleaned");
+		});
+		run();
+	});
+</script>

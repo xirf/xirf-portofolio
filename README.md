@@ -56,6 +56,16 @@ yarn dev
 
 If you wanna modify this project you can follow the [Astro documentation](https://docs.astro.build/getting-started) and [UnoCSS documentation](https://unocss.dev/guide/).
 
+## Tools
+
+`/tools` is a collection of small developer utilities (JSON, JWT, regex, cron, hashes, colors…) that run entirely in the browser.
+
+- Registry: `src/data/tools.ts` (name, category, icon, search keywords)
+- UI for each tool: `src/components/tools/views/{slug}.astro`, served at `/tools/{slug}`
+- Pure logic with unit tests: `src/lib/tools/*.ts` (run `bun test src`)
+
+To add a tool, add an entry to the registry and create the matching view file. The build fails if a view is missing.
+
 ## Contributing & Forking
 
 This repo is free to use and modify. If you want to use this repo as a template, you can fork it and modify it to your liking. If you want to contribute, you can fork it and make a pull request.

@@ -1,0 +1,119 @@
+<div class="inline-flex rounded-md bg-#8881 p-0.5 self-start" role="tablist" aria-label="Input type">
+	<button type="button" class="tool-btn bg-transparent" data-src="text" role="tab">Text</button>
+	<button type="button" class="tool-btn bg-transparent" data-src="file" role="tab">File</button>
+</div>
+
+<div data-pane="text">
+	<label class="tool-label" for="input">Text <span class="normal-case opacity-70">(hashed as UTF-8)</span></label>
+	<textarea id="input" class="tool-area h-36" spellcheck="false" placeholder="The quick brown fox jumps over the lazy dog"></textarea>
+</div>
+<label data-pane="file" id="drop" class="hidden flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-#8884 p-10 text-sm cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+	<span class="i-myna-upload w-6 h-6"></span>
+	<span id="file-label">Drop a file here or click to choose. It is read locally.</span>
+	<input type="file" id="file" class="sr-only" />
+</label>
+
+<div class="grid sm:grid-cols-[1fr_auto_auto] gap-2 items-center">
+	<input id="key" class="tool-field" placeholder="HMAC key (optional)" spellcheck="false" autocomplete="off" aria-label="HMAC key" />
+	<label class="tool-btn"><input type="checkbox" id="upper" /> Uppercase</label>
+	<select id="format" class="tool-field w-auto py-1.5" aria-label="Output format">
+		<option value="hex">Hex</option>
+		<option value="base64">Base64</option>
+	</select>
+</div>
+
+<div id="results" class="flex flex-col gap-2"></div>
+
+<div>
+	<label class="tool-label" for="expected">Compare with an expected hash</label>
+	<input id="expected" class="tool-field" placeholder="Paste a checksum to see which algorithm matches" spellcheck="false" autocomplete="off" />
+</div>
+
+<script>
+	import { $, $$, escapeHtml, mountTool } from "../../../lib/tools/dom";
+	import { ALGORITHMS, digest } from "../../../lib/tools/hash";
+	import { bytesToBase64, bytesToHex, encodeUtf8, formatBytes } from "../../../lib/tools/encoding";
+
+	mountTool("hash", (root) => {
+		const input = $<HTMLTextAreaElement>(root, "#input");
+		const key = $<HTMLInputElement>(root, "#key");
+		const upper = $<HTMLInputElement>(root, "#upper");
+		const format = $<HTMLSelectElement>(root, "#format");
+		const expected = $<HTMLInputElement>(root, "#expected");
+		const results = $(root, "#results");
+		const fileInput = $<HTMLInputElement>(root, "#file");
+		let src = "text";
+		let fileBytes: Uint8Array | null = null;
+		let runId = 0;
+
+		function setSrc(s: string) {
+			src = s;
+			$$<HTMLButtonElement>(root, "[data-src]").forEach((b) => b.classList.toggle("tool-btn-active", b.dataset.src === s));
+			$$(root, "[data-pane]").forEach((p) => {
+				p.classList.toggle("hidden", p.dataset.pane !== s);
+				if (p.id === "drop") p.classList.toggle("flex", s === "file");
+			});
+			run();
+		}
+
+		async function run() {
+			const id = ++runId;
+			const data = src === "file" ? fileBytes : encodeUtf8(input.value);
+			if (!data) {
+				results.innerHTML = `<p class="text-sm opacity-60 m-0">Choose a file to hash.</p>`;
+				return;
+			}
+			const k = key.value ? encodeUtf8(key.value) : undefined;
+			const want = expected.value.trim().toLowerCase().replace(/^0x/, "");
+			const out = await Promise.all(
+				ALGORITHMS.map(async (alg) => {
+					if (alg === "CRC32" && k) return { alg, value: "", skip: "n/a with HMAC" };
+					const bytes = await digest(alg, data, k);
+					const hex = bytesToHex(bytes);
+					let value = format.value === "base64" ? bytesToBase64(bytes) : hex;
+					if (upper.checked && format.value === "hex") value = value.toUpperCase();
+					const match = want && (want === hex || want === bytesToBase64(bytes).toLowerCase());
+					return { alg, value, match, skip: "" };
+				}),
+			);
+			if (id !== runId) return; // a newer run finished first
+			results.innerHTML = out
+				.map(
+					(r) => `
+				<div class="grid grid-cols-[6.5rem_1fr_auto] items-center gap-2 rounded-md px-3 py-2 ${r.match ? "bg-green-500/15 ring-1 ring-green-500/50" : "bg-#8881"}">
+					<span class="text-sm font-medium">${k && !r.skip ? "HMAC-" : ""}${r.alg}${r.alg === "MD5" || r.alg === "SHA-1" ? ' <span class="text-[10px] opacity-60" title="Broken for security purposes; fine for checksums">weak</span>' : ""}</span>
+					<code class="text-xs break-all ${r.skip ? "opacity-50" : ""}">${r.skip || escapeHtml(r.value)}</code>
+					${r.skip ? "<span></span>" : `<button type="button" class="tool-btn py-0.5 px-2 text-xs" data-copy-value="${r.value}" aria-label="Copy ${r.alg}"><span class="i-myna-copy w-3.5 h-3.5"></span></button>`}
+				</div>`,
+				)
+				.join("");
+			if (want) {
+				const hit = out.find((r) => r.match);
+				results.insertAdjacentHTML(
+					"beforeend",
+					hit ? `<p class="tool-ok m-0">✓ Matches ${hit.alg}</p>` : `<p class="tool-error m-0">✕ No algorithm produced that hash</p>`,
+				);
+			}
+		}
+
+		async function loadFile(f: File) {
+			fileBytes = new Uint8Array(await f.arrayBuffer());
+			$(root, "#file-label").textContent = `${f.name} · ${formatBytes(f.size)}`;
+			run();
+		}
+
+		input.addEventListener("input", run);
+		[key, expected].forEach((el) => el.addEventListener("input", run));
+		[upper, format].forEach((el) => el.addEventListener("change", run));
+		$$<HTMLButtonElement>(root, "[data-src]").forEach((b) => b.addEventListener("click", () => setSrc(b.dataset.src!)));
+		fileInput.addEventListener("change", () => fileInput.files?.[0] && loadFile(fileInput.files[0]));
+		const drop = $(root, "#drop");
+		drop.addEventListener("dragover", (e) => e.preventDefault());
+		drop.addEventListener("drop", (e) => {
+			e.preventDefault();
+			const f = e.dataTransfer?.files[0];
+			if (f) loadFile(f);
+		});
+		setSrc("text");
+	});
+</script>

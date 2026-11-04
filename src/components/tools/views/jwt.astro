@@ -1,0 +1,178 @@
+<div>
+	<div class="flex items-center justify-between">
+		<label class="tool-label" for="token">Token</label>
+		<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" id="sample">Sample</button>
+	</div>
+	<textarea id="token" class="tool-area h-32 break-all" spellcheck="false" placeholder="eyJhbGciOi… (a leading 'Bearer ' is fine)"></textarea>
+	<p id="colored" class="font-mono text-xs break-all mt-2 mb-0 leading-relaxed"></p>
+	<p id="error" class="tool-error mt-2 mb-0"></p>
+</div>
+
+<div id="result" class="hidden flex-col gap-4">
+	<div id="banner" class="rounded-lg px-4 py-3 text-sm"></div>
+	<div class="grid md:grid-cols-2 gap-4">
+		<div>
+			<div class="flex items-center justify-between">
+				<span class="tool-label text-rose-500">Header</span>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#header"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+			</div>
+			<pre id="header" class="tool-field m-0 overflow-x-auto"></pre>
+		</div>
+		<div>
+			<div class="flex items-center justify-between">
+				<span class="tool-label text-violet-500">Payload</span>
+				<button type="button" class="tool-btn py-0.5 px-2 text-xs mb-1" data-copy="#payload"><span class="i-myna-copy w-3.5 h-3.5"></span>Copy</button>
+			</div>
+			<pre id="payload" class="tool-field m-0 overflow-x-auto"></pre>
+		</div>
+	</div>
+	<div>
+		<span class="tool-label">Claims</span>
+		<div class="overflow-x-auto">
+			<table class="w-full text-sm border-collapse">
+				<tbody id="claims"></tbody>
+			</table>
+		</div>
+	</div>
+	<div class="tool-panel">
+		<span class="tool-label text-sky-500">Verify signature</span>
+		<div id="verify-hmac" class="flex flex-col gap-2">
+			<div class="flex flex-wrap gap-2">
+				<input id="secret" type="text" class="tool-field flex-1 min-w-48" placeholder="HMAC secret" spellcheck="false" autocomplete="off" />
+				<label class="tool-btn"><input type="checkbox" id="b64secret" /> Secret is Base64</label>
+			</div>
+			<p id="verify-result" class="text-sm m-0"></p>
+		</div>
+		<p id="verify-other" class="hidden text-sm m-0 opacity-80"></p>
+	</div>
+</div>
+
+<script>
+	import { $, escapeHtml, mountTool } from "../../../lib/tools/dom";
+	import { base64ToBytes, encodeUtf8 } from "../../../lib/tools/encoding";
+	import { CLAIMS, TIME_CLAIMS, decodeJwt, isHmac, verifyHmac } from "../../../lib/tools/jwt";
+	import { relative } from "../../../lib/tools/time";
+
+	const SAMPLE =
+		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+	function highlightJson(v: unknown): string {
+		return escapeHtml(JSON.stringify(v, null, 2)).replace(
+			/(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+			(m, str, colon, lit, num) => {
+				if (str) return colon ? `<span class="text-sky-600 dark:text-sky-400">${str}</span>${colon}` : `<span class="text-emerald-700 dark:text-emerald-400">${str}</span>`;
+				if (lit) return `<span class="text-amber-600 dark:text-amber-400">${lit}</span>`;
+				if (num) return `<span class="text-violet-600 dark:text-violet-400">${num}</span>`;
+				return m;
+			},
+		);
+	}
+
+	mountTool("jwt", (root) => {
+		const token = $<HTMLTextAreaElement>(root, "#token");
+		const secret = $<HTMLInputElement>(root, "#secret");
+		const b64secret = $<HTMLInputElement>(root, "#b64secret");
+		const result = $(root, "#result");
+		const errorEl = $(root, "#error");
+		let alg = "";
+
+		function run() {
+			errorEl.textContent = "";
+			$(root, "#colored").innerHTML = "";
+			const raw = token.value.trim();
+			if (!raw) {
+				result.classList.add("hidden");
+				result.classList.remove("flex");
+				return;
+			}
+			let d;
+			try {
+				d = decodeJwt(raw);
+			} catch (e) {
+				errorEl.textContent = "✕ " + (e as Error).message;
+				result.classList.add("hidden");
+				result.classList.remove("flex");
+				return;
+			}
+			result.classList.remove("hidden");
+			result.classList.add("flex");
+			const [h, p, s] = d.parts;
+			$(root, "#colored").innerHTML = `<span class="text-rose-500">${h}</span>.<span class="text-violet-500">${p}</span>.<span class="text-sky-500">${s}</span>`;
+			$(root, "#header").innerHTML = highlightJson(d.header);
+			$(root, "#payload").innerHTML = highlightJson(d.payload);
+
+			const now = Date.now() / 1000;
+			const payload = (d.payload && typeof d.payload === "object" ? d.payload : {}) as Record<string, unknown>;
+			const rows = Object.entries({ ...d.header, ...payload }).map(([k, v]) => {
+				let extra = "";
+				if (TIME_CLAIMS.has(k) && typeof v === "number") {
+					const date = new Date(v * 1000);
+					extra = `${date.toLocaleString()} <span class="opacity-60">(${relative(date)})</span>`;
+				}
+				const fromHeader = k in d.header && !(k in payload);
+				return `<tr class="border-b border-#8882">
+					<td class="py-1.5 pr-4 font-mono align-top whitespace-nowrap ${fromHeader ? "text-rose-500" : "text-violet-500"}">${escapeHtml(k)}</td>
+					<td class="py-1.5 pr-4 font-mono align-top break-all">${escapeHtml(typeof v === "string" ? v : JSON.stringify(v))}${extra ? `<br><span class="font-sans text-xs">${extra}</span>` : ""}</td>
+					<td class="py-1.5 text-xs opacity-70 align-top">${escapeHtml(CLAIMS[k] ?? "")}</td>
+				</tr>`;
+			});
+			$(root, "#claims").innerHTML = rows.join("");
+
+			const banner = $(root, "#banner");
+			const exp = typeof payload.exp === "number" ? payload.exp : null;
+			const nbf = typeof payload.nbf === "number" ? payload.nbf : null;
+			if (d.header.alg === "none") {
+				banner.className = "rounded-lg px-4 py-3 text-sm bg-red-500/10 text-red-700 dark:text-red-300";
+				banner.textContent = "⚠ alg is \"none\": this token is unsigned. Never accept it on a server.";
+			} else if (exp !== null && exp < now) {
+				banner.className = "rounded-lg px-4 py-3 text-sm bg-red-500/10 text-red-700 dark:text-red-300";
+				banner.textContent = `Expired ${relative(new Date(exp * 1000))} (${new Date(exp * 1000).toLocaleString()}).`;
+			} else if (nbf !== null && nbf > now) {
+				banner.className = "rounded-lg px-4 py-3 text-sm bg-amber-500/10 text-amber-700 dark:text-amber-300";
+				banner.textContent = `Not valid yet. Becomes valid ${relative(new Date(nbf * 1000))}.`;
+			} else if (exp !== null) {
+				banner.className = "rounded-lg px-4 py-3 text-sm bg-green-500/10 text-green-700 dark:text-green-300";
+				banner.textContent = `Not expired. Expires ${relative(new Date(exp * 1000))} (${new Date(exp * 1000).toLocaleString()}).`;
+			} else {
+				banner.className = "rounded-lg px-4 py-3 text-sm bg-#8881";
+				banner.textContent = "No exp claim: this token never expires on its own.";
+			}
+
+			alg = String(d.header.alg ?? "");
+			const hmac = isHmac(alg);
+			$(root, "#verify-hmac").classList.toggle("hidden", !hmac);
+			const other = $(root, "#verify-other");
+			other.classList.toggle("hidden", hmac);
+			other.textContent = hmac
+				? ""
+				: `${alg || "Unknown"} signatures use a public key. Verify them on your server with the issuer's JWKS; this page only checks HMAC (HS256/384/512).`;
+			verify();
+		}
+
+		async function verify() {
+			const out = $(root, "#verify-result");
+			if (!isHmac(alg)) return;
+			if (!secret.value) {
+				out.innerHTML = `<span class="opacity-60">Enter the secret to check the ${escapeHtml(alg)} signature.</span>`;
+				return;
+			}
+			try {
+				const key = b64secret.checked ? base64ToBytes(secret.value) : encodeUtf8(secret.value);
+				const ok = await verifyHmac(token.value, key, alg);
+				out.innerHTML = ok ? `<span class="tool-ok">✓ Signature verified</span>` : `<span class="tool-error">✕ Invalid signature for this secret</span>`;
+			} catch (e) {
+				out.innerHTML = `<span class="tool-error">✕ ${escapeHtml((e as Error).message)}</span>`;
+			}
+		}
+
+		token.addEventListener("input", run);
+		secret.addEventListener("input", verify);
+		b64secret.addEventListener("change", verify);
+		$(root, "#sample").addEventListener("click", () => {
+			token.value = SAMPLE;
+			secret.value = "your-256-bit-secret";
+			run();
+		});
+		run();
+	});
+</script>

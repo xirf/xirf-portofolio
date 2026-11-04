@@ -13,19 +13,32 @@ export default defineConfig({
     ],
     shortcuts: {
         "y-animate": "animate-fade-in-up animate-count-1 animate-500ms",
-        "btn-normal": "bg-#8881 rounded-md py-2 px-4"
+        "btn-normal": "bg-#8881 rounded-md py-2 px-4",
+        // Shared building blocks for /tools/*
+        "tool-field": "w-full rounded-md bg-#8881 border border-#8882 px-3 py-2 font-mono text-sm outline-none transition-colors focus:border-#8888 placeholder:opacity-50",
+        "tool-area": "tool-field min-h-40 resize-y leading-relaxed",
+        "tool-btn": "inline-flex items-center justify-center gap-1.5 rounded-md bg-#8881 px-3 py-1.5 text-sm transition-colors cursor-pointer select-none hover:bg-#8882 disabled:(opacity-40 cursor-not-allowed)",
+        "tool-btn-active": "bg-#8883 dark:text-#e5e7eb text-#1e1e2e",
+        "tool-label": "block text-xs uppercase tracking-wider opacity-60 mb-1.5",
+        "tool-panel": "rounded-lg border border-#8882 p-4",
+        "tool-chip": "inline-flex items-center gap-1 rounded-full border border-#8882 px-2.5 py-0.5 text-xs",
+        "tool-heading": "dark:text-#e5e7eb text-#1e1e2e font-bold",
+        "tool-error": "text-sm text-red-600 dark:text-red-400",
+        "tool-ok": "text-sm text-green-700 dark:text-green-400",
     },
     content: {
         pipeline: {
             include: [
-                /\.(mdx|md|astro|html|json)($|\?)/,
+                /\.(mdx|md|astro|html|json|ts)($|\?)/,
                 "src/content/**/*.{md.mdx}",
                 "src/**/*.{yml,yaml}",
                 "src/**/*.json",
             ]
         },
         filesystem: [
-            "src/**/*.yaml"
+            "src/**/*.yaml",
+            "src/data/**/*.ts",
+            "src/lib/**/*.ts",
         ]
     },
     theme: {

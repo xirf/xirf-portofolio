@@ -1,0 +1,241 @@
+<div class="grid md:grid-cols-[14rem_1fr] gap-6">
+	<div class="flex flex-col gap-2">
+		<div id="swatch" class="h-40 rounded-xl border border-#8882 relative overflow-hidden checker">
+			<div id="swatch-fill" class="absolute inset-0"></div>
+		</div>
+		<div class="flex gap-2">
+			<input id="picker" type="color" class="h-10 w-12 shrink-0 rounded-md border border-#8882 bg-transparent cursor-pointer" aria-label="Pick a color" />
+			<input id="input" class="tool-field" value="#3b82f6" spellcheck="false" autocomplete="off" aria-label="Color" />
+		</div>
+		<p id="error" class="tool-error m-0"></p>
+		<p class="text-xs opacity-60 m-0">Accepts hex, rgb(), hsl(), hwb(), oklch(), oklab() and named colors.</p>
+	</div>
+	<div id="formats" class="grid sm:grid-cols-2 gap-2 content-start"></div>
+</div>
+
+<div class="tool-panel">
+	<div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+		<span class="tool-label mb-0">Scale</span>
+		<div class="flex gap-1">
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="copy-css">Copy CSS variables</button>
+			<button type="button" class="tool-btn py-0.5 px-2 text-xs" id="copy-tw">Copy Tailwind / Uno config</button>
+		</div>
+	</div>
+	<div id="scale" class="grid grid-cols-6 sm:grid-cols-11 gap-1.5"></div>
+	<p class="text-xs opacity-60 mt-3 mb-0">Generated in OKLCH so lightness steps look even. Your color is pinned to the closest step (marked with a dot). Click a swatch to copy it.</p>
+</div>
+
+<div class="tool-panel grid md:grid-cols-2 gap-6">
+	<div class="flex flex-col gap-3">
+		<span class="tool-label mb-0">Contrast checker</span>
+		<label class="flex items-center gap-2 text-sm">
+			<span class="w-24 shrink-0">Text</span>
+			<input id="fg" class="tool-field py-1.5" spellcheck="false" />
+		</label>
+		<label class="flex items-center gap-2 text-sm">
+			<span class="w-24 shrink-0">Background</span>
+			<input id="bg" class="tool-field py-1.5" value="#ffffff" spellcheck="false" />
+		</label>
+		<div class="flex gap-2">
+			<button type="button" class="tool-btn text-xs" id="swap-cc"><span class="i-myna-arrow-left-right w-3.5 h-3.5"></span>Swap</button>
+			<button type="button" class="tool-btn text-xs" id="fix" title="Nudge the text lightness until it passes AA">Fix for AA</button>
+		</div>
+		<div id="ratio" class="flex items-end gap-3"></div>
+		<div id="badges" class="flex flex-wrap gap-1.5"></div>
+	</div>
+	<div id="preview" class="rounded-lg p-5 flex flex-col gap-2 justify-center border border-#8882">
+		<p class="text-2xl font-bold m-0">Large heading text</p>
+		<p class="text-base m-0">Body text needs a contrast ratio of at least 4.5:1 to meet WCAG AA. Large text only needs 3:1.</p>
+		<p class="text-xs m-0">Small print is where low contrast hurts the most.</p>
+	</div>
+</div>
+
+<style>
+	.checker {
+		background-image: conic-gradient(#8883 25%, transparent 0 50%, #8883 0 75%, transparent 0);
+		background-size: 16px 16px;
+	}
+</style>
+
+<script>
+	import { $, copyText, escapeHtml, hashState, mountTool } from "../../../lib/tools/dom";
+	import {
+		contrast,
+		oklchToRgb,
+		over,
+		parseColor,
+		rgbToOklch,
+		scale,
+		toHex,
+		toHslString,
+		toOklchString,
+		toRgbString,
+		type RGBA,
+	} from "../../../lib/tools/color";
+
+	/** Falls back to the browser for named colors like "rebeccapurple". */
+	function parseAny(s: string): RGBA | null {
+		const direct = parseColor(s);
+		if (direct) return direct;
+		const ctx = document.createElement("canvas").getContext("2d");
+		if (!ctx || !/^[a-z]+$/i.test(s.trim())) return null;
+		ctx.fillStyle = "#010203";
+		ctx.fillStyle = s.trim();
+		const v = ctx.fillStyle;
+		if (v === "#010203" && s.trim().toLowerCase() !== "#010203") return null;
+		return parseColor(v);
+	}
+
+	mountTool("color", (root) => {
+		const input = $<HTMLInputElement>(root, "#input");
+		const picker = $<HTMLInputElement>(root, "#picker");
+		const fg = $<HTMLInputElement>(root, "#fg");
+		const bg = $<HTMLInputElement>(root, "#bg");
+		let color: RGBA = parseColor("#3b82f6")!;
+		let steps: ReturnType<typeof scale> = [];
+		let fgTouched = false;
+
+		const state = hashState(
+			() => ({ c: input.value, fg: fgTouched ? fg.value : undefined, bg: bg.value }),
+			(s) => {
+				if (s.c) input.value = s.c;
+				if (s.bg) bg.value = s.bg;
+				if (s.fg) {
+					fg.value = s.fg;
+					fgTouched = true;
+				}
+				run();
+			},
+		);
+
+		function run() {
+			const parsed = parseAny(input.value);
+			$(root, "#error").textContent = parsed ? "" : "Can't read that color.";
+			if (!parsed) return;
+			color = parsed;
+			$(root, "#swatch-fill").style.background = toRgbString(color);
+			picker.value = toHex({ ...color, a: 1 });
+			const lch = rgbToOklch(color);
+			const formats: [string, string][] = [
+				["HEX", toHex(color)],
+				["RGB", toRgbString(color)],
+				["HSL", toHslString(color)],
+				["OKLCH", toOklchString(color)],
+				["Legacy rgba()", `rgba(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)}, ${+color.a.toFixed(3)})`],
+				["Float (shaders)", `vec4(${[color.r / 255, color.g / 255, color.b / 255, color.a].map((v) => v.toFixed(3)).join(", ")})`],
+			];
+			$(root, "#formats").innerHTML =
+				formats
+					.map(
+						([k, v]) => `<div class="flex items-center gap-2 rounded-md bg-#8881 px-3 py-2">
+							<div class="min-w-0 flex-1"><div class="text-xs opacity-60">${k}</div><div class="font-mono text-sm truncate">${escapeHtml(v)}</div></div>
+							<button type="button" class="tool-btn py-0.5 px-1.5" data-copy-value="${escapeHtml(v)}" aria-label="Copy ${k}"><span class="i-myna-copy w-3.5 h-3.5"></span></button>
+						</div>`,
+					)
+					.join("") +
+				`<p class="sm:col-span-2 text-xs opacity-60 m-0">Lightness ${(lch.l * 100).toFixed(1)}% · chroma ${lch.c.toFixed(3)} · hue ${lch.h.toFixed(1)}°</p>`;
+
+			steps = scale(color);
+			$(root, "#scale").innerHTML = steps
+				.map((s) => {
+					const hex = toHex(s.color);
+					const textColor = contrast(s.color, { r: 255, g: 255, b: 255, a: 1 }) > 3 ? "#fff" : "#111";
+					return `<button type="button" data-copy-value="${hex}" class="rounded-md h-16 sm:h-20 flex flex-col items-center justify-end pb-1.5 text-[10px] font-mono transition-transform hover:scale-105" style="background:${hex};color:${textColor}" title="${hex}">
+						${s.anchor ? '<span class="w-1.5 h-1.5 rounded-full mb-auto mt-1.5" style="background:currentColor"></span>' : ""}
+						<span>${s.step}</span><span class="opacity-80">${hex.slice(1)}</span></button>`;
+				})
+				.join("");
+
+			if (!fgTouched) fg.value = toHex(color);
+			runContrast();
+		}
+
+		function runContrast() {
+			const f = parseAny(fg.value);
+			const b = parseAny(bg.value);
+			if (!f || !b) return;
+			const bgOpaque = { ...b, a: 1 };
+			const fgFlat = over(f, bgOpaque);
+			const ratio = contrast(fgFlat, bgOpaque);
+			const preview = $(root, "#preview");
+			preview.style.color = toRgbString(f);
+			preview.style.background = toRgbString(bgOpaque);
+			const grade = ratio >= 7 ? "AAA" : ratio >= 4.5 ? "AA" : ratio >= 3 ? "AA Large" : "Fail";
+			$(root, "#ratio").innerHTML = `<span class="text-4xl tool-heading">${ratio.toFixed(2)}</span><span class="text-sm opacity-70 pb-1">: 1 · ${grade}</span>`;
+			const checks: [string, number][] = [
+				["AA body", 4.5],
+				["AA large", 3],
+				["AAA body", 7],
+				["AAA large", 4.5],
+				["UI / icons", 3],
+			];
+			$(root, "#badges").innerHTML = checks
+				.map(([k, min]) => {
+					const ok = ratio >= min;
+					return `<span class="tool-chip ${ok ? "border-green-500/50 text-green-700 dark:text-green-400" : "border-red-500/50 text-red-700 dark:text-red-400"}">${ok ? "✓" : "✕"} ${k} <span class="opacity-60">${min}</span></span>`;
+				})
+				.join("");
+		}
+
+		/** Moves text lightness (keeping hue/chroma) to the closest value that reaches 4.5:1. */
+		function fixContrast() {
+			const f = parseAny(fg.value);
+			const b = parseAny(bg.value);
+			if (!f || !b) return;
+			const bgOpaque = { ...b, a: 1 };
+			const lch = rgbToOklch(f);
+			const passes = (l: number) => contrast({ ...oklchToRgb({ ...lch, l }), a: 1 }, bgOpaque) >= 4.5;
+			const search = (target: number) => {
+				if (!passes(target)) return null;
+				let lo = lch.l;
+				let hi = target;
+				for (let i = 0; i < 30; i++) {
+					const mid = (lo + hi) / 2;
+					if (passes(mid)) hi = mid;
+					else lo = mid;
+				}
+				return hi;
+			};
+			const candidates = [search(0), search(1)].filter((x): x is number => x !== null);
+			if (!candidates.length) return;
+			const best = candidates.sort((a, b) => Math.abs(a - lch.l) - Math.abs(b - lch.l))[0];
+			fg.value = toHex({ ...oklchToRgb({ ...lch, l: best }), a: f.a });
+			fgTouched = true;
+			runContrast();
+			state.save();
+		}
+
+		const update = () => {
+			run();
+			state.save();
+		};
+		input.addEventListener("input", update);
+		picker.addEventListener("input", () => {
+			input.value = picker.value;
+			update();
+		});
+		fg.addEventListener("input", () => {
+			fgTouched = true;
+			runContrast();
+			state.save();
+		});
+		bg.addEventListener("input", () => {
+			runContrast();
+			state.save();
+		});
+		$(root, "#swap-cc").addEventListener("click", () => {
+			[fg.value, bg.value] = [bg.value, fg.value];
+			fgTouched = true;
+			runContrast();
+			state.save();
+		});
+		$(root, "#fix").addEventListener("click", fixContrast);
+		$(root, "#copy-css").addEventListener("click", () =>
+			copyText(`:root {\n${steps.map((s) => `  --color-primary-${s.step}: ${toHex(s.color)};`).join("\n")}\n}`, "CSS variables copied"),
+		);
+		$(root, "#copy-tw").addEventListener("click", () =>
+			copyText(`primary: {\n${steps.map((s) => `  ${s.step}: "${toHex(s.color)}",`).join("\n")}\n},`, "Config copied"),
+		);
+		state.ready.then(run);
+	});
+</script>

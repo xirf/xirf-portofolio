@@ -1,0 +1,107 @@
+<div class="grid md:grid-cols-[1fr_16rem] gap-4">
+	<div class="flex flex-col gap-3">
+		<div class="flex flex-wrap items-center gap-2">
+			<div class="inline-flex flex-wrap rounded-md bg-#8881 p-0.5" role="group" aria-label="ID type">
+				<button type="button" class="tool-btn bg-transparent" data-kind="v4">UUID v4</button>
+				<button type="button" class="tool-btn bg-transparent" data-kind="v7">UUID v7</button>
+				<button type="button" class="tool-btn bg-transparent" data-kind="ulid">ULID</button>
+				<button type="button" class="tool-btn bg-transparent" data-kind="nanoid">NanoID</button>
+			</div>
+		</div>
+		<p id="kind-desc" class="text-sm opacity-80 m-0"></p>
+		<div class="flex flex-wrap items-center gap-2">
+			<label class="flex items-center gap-2 text-sm">Count <input id="count" type="number" min="1" max="1000" value="5" class="tool-field w-20 py-1.5" /></label>
+			<label class="flex items-center gap-2 text-sm" id="size-wrap">Length <input id="size" type="number" min="4" max="64" value="21" class="tool-field w-20 py-1.5" /></label>
+			<label class="tool-btn" id="upper-wrap"><input type="checkbox" id="upper" /> Uppercase</label>
+			<label class="tool-btn" id="dash-wrap"><input type="checkbox" id="nodash" /> No dashes</label>
+			<span class="grow"></span>
+			<button type="button" class="tool-btn" id="generate"><span class="i-myna-refresh w-4 h-4"></span>Regenerate</button>
+			<button type="button" class="tool-btn" data-copy="#ids"><span class="i-myna-copy w-4 h-4"></span>Copy all</button>
+		</div>
+		<pre id="ids" class="tool-field m-0 min-h-40 max-h-[28rem] overflow-auto leading-relaxed"></pre>
+	</div>
+	<div class="tool-panel h-fit">
+		<label class="tool-label" for="inspect">Inspect an ID</label>
+		<input id="inspect" class="tool-field py-1.5 text-xs" placeholder="Paste a UUID or ULID" spellcheck="false" autocomplete="off" />
+		<dl id="inspect-out" class="text-sm mt-3 mb-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1"></dl>
+	</div>
+</div>
+
+<script>
+	import { $, $$, escapeHtml, mountTool } from "../../../lib/tools/dom";
+	import { inspectId, nanoid, ulid, uuidv4, uuidv7 } from "../../../lib/tools/ids";
+	import { relative } from "../../../lib/tools/time";
+
+	const DESC: Record<string, string> = {
+		v4: "122 random bits. The default choice when you just need something unique.",
+		v7: "Unix-millisecond timestamp first, then randomness. Sorts by creation time, which keeps database indexes happy (RFC 9562).",
+		ulid: "26 Crockford Base32 characters, lexicographically sortable by time. Case-insensitive and URL-safe.",
+		nanoid: "Compact URL-safe random IDs. 21 characters carry about the same collision resistance as UUID v4.",
+	};
+
+	mountTool("uuid", (root) => {
+		const count = $<HTMLInputElement>(root, "#count");
+		const size = $<HTMLInputElement>(root, "#size");
+		const upper = $<HTMLInputElement>(root, "#upper");
+		const nodash = $<HTMLInputElement>(root, "#nodash");
+		const ids = $(root, "#ids");
+		const inspect = $<HTMLInputElement>(root, "#inspect");
+		let kind = "v4";
+
+		function generate() {
+			$$<HTMLButtonElement>(root, "[data-kind]").forEach((b) => b.classList.toggle("tool-btn-active", b.dataset.kind === kind));
+			$(root, "#kind-desc").textContent = DESC[kind];
+			$(root, "#size-wrap").classList.toggle("hidden", kind !== "nanoid");
+			$(root, "#dash-wrap").classList.toggle("hidden", !kind.startsWith("v"));
+			$(root, "#upper-wrap").classList.toggle("hidden", kind === "nanoid");
+			const n = Math.min(1000, Math.max(1, Number(count.value) || 1));
+			const out: string[] = [];
+			for (let i = 0; i < n; i++) {
+				let id = kind === "v4" ? uuidv4() : kind === "v7" ? uuidv7() : kind === "ulid" ? ulid() : nanoid(Math.min(64, Math.max(4, Number(size.value) || 21)));
+				if (kind.startsWith("v") && nodash.checked) id = id.replace(/-/g, "");
+				if (kind !== "nanoid") id = upper.checked || kind === "ulid" ? id.toUpperCase() : id.toLowerCase();
+				out.push(id);
+			}
+			ids.innerHTML = out.map((id) => `<div class="rounded px-1 -mx-1 cursor-pointer hover:bg-#8881" title="Click to inspect">${id}</div>`).join("");
+		}
+
+		function runInspect() {
+			const out = $(root, "#inspect-out");
+			if (!inspect.value.trim()) {
+				out.innerHTML = `<dd class="col-span-2 opacity-60 m-0">Shows version, variant and embedded time.</dd>`;
+				return;
+			}
+			const info = inspectId(inspect.value);
+			if (!info) {
+				out.innerHTML = `<dd class="col-span-2 tool-error m-0">Not a recognised UUID or ULID.</dd>`;
+				return;
+			}
+			const rows: [string, string][] = [["Type", info.type]];
+			if (info.version !== undefined) rows.push(["Version", String(info.version)]);
+			if (info.variant) rows.push(["Variant", info.variant]);
+			if (info.timestamp) rows.push(["Created", `${info.timestamp.toISOString()}<br><span class="opacity-60 text-xs">${relative(info.timestamp)}</span>`]);
+			info.notes.forEach((n) => rows.push(["", escapeHtml(n)]));
+			out.innerHTML = rows.map(([k, v]) => `<dt class="opacity-60">${k}</dt><dd class="m-0 break-all">${v}</dd>`).join("");
+		}
+
+		$$<HTMLButtonElement>(root, "[data-kind]").forEach((b) =>
+			b.addEventListener("click", () => {
+				kind = b.dataset.kind!;
+				generate();
+			}),
+		);
+		[count, size].forEach((el) => el.addEventListener("input", generate));
+		[upper, nodash].forEach((el) => el.addEventListener("change", generate));
+		$(root, "#generate").addEventListener("click", generate);
+		ids.addEventListener("click", (e) => {
+			if (window.getSelection()?.toString()) return; // user is selecting text
+			const line = (e.target as HTMLElement).closest("div");
+			if (!line || line === ids) return;
+			inspect.value = line.textContent ?? "";
+			runInspect();
+		});
+		inspect.addEventListener("input", runInspect);
+		generate();
+		runInspect();
+	});
+</script>
